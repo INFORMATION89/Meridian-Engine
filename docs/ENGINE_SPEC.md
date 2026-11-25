@@ -14,7 +14,7 @@ first consumer, not its owner or a required dependency. Meridian must build, tes
 other applications on iOS, Android, Windows, macOS, and Linux must be able to consume the same public API.
 
 - **Licence:** Apache 2.0.
-- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a Kotlin Multiplatform engine with Android/iOS targets and a Desktop JVM artifact for Windows, macOS, and Linux, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
+- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a Kotlin Multiplatform engine with Android/iOS targets and a Desktop JVM artifact for Windows, macOS, and Linux, subject to the MER-0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
 - **Platforms:** Windows, macOS, iOS, Android, and Linux are intended targets. Exact supported architectures, artifact formats, and support levels are maintained in [PLAN.md](../PLAN.md).
 - **Not in it:** UI, app navigation, Android `Context` or other platform UI objects in the engine core, dependency-injection frameworks in the core, or any consumer application's code.
 
@@ -26,7 +26,7 @@ The five target platforms are Windows, macOS, iOS, Android, and Linux. A target 
 
 The current recommended KMP target matrix, runtime requirements, dependency support, and platform build hosts are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before a release.
 
-Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
+Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the MER-0.1/MER-0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
 
 ## AI use and optional chat integration
 
@@ -36,7 +36,7 @@ An optional MCP adapter may be built outside the weather-domain core so an exter
 
 The engine's normal API remains the primary interface for apps and tools that do not use chat. AI-assisted engineering and manual research are contributor workflows only; any claimed forecast-quality improvement must be reproduced with deterministic code and versioned data, then reviewed by a human.
 
-The contributor policy is defined in [AI_POLICY.md](../AI_POLICY.md). The evidence-based verification workflow and optional MCP assessment are defined in [PLAN.md](../PLAN.md) and its M0.3 specification.
+The contributor policy is defined in [AI_POLICY.md](../AI_POLICY.md). The evidence-based verification workflow and optional MCP assessment are defined in [PLAN.md](../PLAN.md) and its MER-0.3 specification.
 
 ## 3. Core concepts
 
@@ -122,7 +122,7 @@ validity match. Updates replace what they reference; cancels remove it. The most
 - From it: each source's recent error, used for weights, and a bias correction for the next hours
   that fades out with lead time.
 - Seeded from public data so it works from day one: archived past forecasts (Open-Meteo's Previous Runs
-  API, from January 2024; see M7_LEARNING.md) checked against station observations.
+  API, from January 2024; see MER-7_LEARNING.md) checked against station observations.
 - **Opt-in sharing** (RULES.md section 10): only aggregated forecast errors, area-rounded and
   hour-rounded, computed on the device. This is a separate future feature and is not required for
   local learning or normal engine operation. Do not add a Meridian-hosted collection server by default.
@@ -130,7 +130,7 @@ validity match. Updates replace what they reference; cancels remove it. The most
 ## 9. Storage, caching and scheduling
 
 - `core` defines storage contracts for the cache, forecast/observation history and local verification statistics.
-- The preferred implementation is local SQLite through the cross-platform storage module (SQLDelight candidate, subject to M0.2 proof). On-device storage is owned by the consuming application and remains available without a Meridian account or remote database.
+- The preferred implementation is local SQLite through the cross-platform storage module (SQLDelight candidate, subject to MER-0.2 proof). On-device storage is owned by the consuming application and remains available without a Meridian account or remote database.
 - Application settings, secure storage for any user-supplied provider credentials, and refresh scheduling remain the consuming application's responsibility.
 - Cache each response for its source's update cadence; never call a source more often than its minimum interval, whatever the app asks.
 - The engine never schedules itself; the app decides when to refresh (WorkManager on Android).
