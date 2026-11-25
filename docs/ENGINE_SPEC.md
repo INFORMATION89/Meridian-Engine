@@ -13,25 +13,19 @@ rain, alerts, air quality and UV, each with a record of where every number came 
 first; other apps (a macOS menu bar app, a Windhawk mod, a clock app) can use it later.
 
 - **Licence:** Apache 2.0.
-- **Language and platforms:** Kotlin Multiplatform. The core lives in common code; Android and desktop
-  JVM first, macOS next (as a framework Swift can call), Windows later (section 9).
-- **Not in it:** UI, Android `Context` in the core, dependency injection frameworks, any app's code.
+- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a native Rust engine with generated Kotlin and Swift bindings, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
+- **Platforms:** Windows, macOS, iOS, Android, and Linux are intended targets. Exact supported architectures, artifact formats, and support levels are maintained in [PLAN.md](../PLAN.md).
+- **Not in it:** UI, app navigation, Android `Context` or other platform UI objects in the engine core, dependency-injection frameworks in the core, or any consumer application's code.
 
 ## 2. Platforms
 
-Kotlin Multiplatform is stable for Android, iOS and desktop JVM. For Google's Jetpack libraries, macOS
-is tier 2 (partly tested) and Windows tier 3 (untested). So:
+The engine must keep weather-domain behaviour independent from the host operating system. Native libraries and language bindings are packaging/integration layers; they must not change the meaning of weather results.
 
-| Target | Use | Notes |
-|---|---|---|
-| Android | Solstice | First target |
-| JVM | desktop helper, tests, archive checks | Same code as Android; runs the offline tests |
-| macOS (Kotlin/Native) | menu bar app | Built as a framework a Swift app imports |
-| Windows | Windhawk mod | Windhawk mods are single C++ files loaded into Windows processes such as Explorer, so the engine shouldn't run inside them. A small helper process (JVM or Kotlin/Native) runs the engine; the mod reads its latest result. Decide when the time comes. |
+The five target platforms are Windows, macOS, iOS, Android, and Linux. A target is not considered supported simply because a compiler emits a binary: the library must load through its intended binding, execute a deterministic operation, handle errors and cancellation safely, and pass platform integration tests.
 
-Dependencies must work in common code: an HTTP client with a native engine per platform (Ktor offers
-Android/OkHttp, Darwin for Apple and WinHttp for Windows), a JSON/XML serializer, a date-time library,
-and storage behind an interface the app provides.
+The current recommended Rust target matrix, support tiers, required build hosts, and Kotlin/Swift binding strategy are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before a release.
+
+Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
 
 ## 3. Core concepts
 
