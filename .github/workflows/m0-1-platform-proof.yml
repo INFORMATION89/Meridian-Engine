@@ -23,12 +23,11 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.7.0"
+      - name: Verify committed Gradle Wrapper
+        run: ./gradlew --version
       - name: Build, test and execute packaged JVM consumer
         run: |
-          gradle --stacktrace --info :engine:desktopTest :desktop-consumer:installDist
+          ./gradlew --stacktrace --info :engine:desktopTest :desktop-consumer:installDist
           ./desktop-consumer/build/install/desktop-consumer/bin/desktop-consumer
       - uses: actions/upload-artifact@v4
         if: always()
@@ -44,13 +43,12 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.7.0"
+      - name: Verify committed Gradle Wrapper
+        run: ./gradlew --version
       - name: Build, test and execute packaged JVM consumer
         shell: pwsh
         run: |
-          gradle :engine:desktopTest :desktop-consumer:installDist
+          .\gradlew.bat :engine:desktopTest :desktop-consumer:installDist
           .\desktop-consumer\build\install\desktop-consumer\bin\desktop-consumer.bat
       - uses: actions/upload-artifact@v4
         if: always()
@@ -66,12 +64,11 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.7.0"
+      - name: Verify committed Gradle Wrapper
+        run: ./gradlew --version
       - name: Build iOS frameworks and execute simulator tests
         run: |
-          gradle :engine:assembleMeridianSharedDebugXCFramework :engine:iosSimulatorArm64Test :engine:desktopTest :desktop-consumer:installDist
+          ./gradlew :engine:assembleMeridianSharedDebugXCFramework :engine:iosSimulatorArm64Test :engine:desktopTest :desktop-consumer:installDist
           ./desktop-consumer/build/install/desktop-consumer/bin/desktop-consumer
       - name: Prepare Swift package consumer
         run: |
@@ -97,9 +94,8 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.7.0"
+      - name: Verify committed Gradle Wrapper
+        run: ./gradlew --version
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 system-images;android-35;google_apis;arm64-v8a emulator'
