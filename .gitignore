@@ -1,7 +1,39 @@
+# Gradle and Kotlin
 .gradle/
+.kotlin/
 **/build/
-**/.DS_Store
-ios-consumer/.build/
-local.properties
-*.iml
+
+# IDEs and editor state
 .idea/
+.fleet/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Local configuration and secrets
+local.properties
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.mobileprovision
+
+# macOS, Windows, and Xcode
+.DS_Store
+**/.DS_Store
+Thumbs.db
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcarchive/
+*.dSYM/
+
+# Generated binaries and diagnostics
+*.apk
+*.aab
+*.ipa
+*.hprof
