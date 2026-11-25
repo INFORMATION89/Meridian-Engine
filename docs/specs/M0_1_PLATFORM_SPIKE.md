@@ -1,4 +1,4 @@
-# M0.1 — Five-platform Kotlin Multiplatform proof
+# MER-0.1 — Five-platform Kotlin Multiplatform proof
 
 **Status:** proposed execution spec; no production weather-engine implementation is authorized by this document.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 4–5, 11–12, and 16.  
@@ -111,7 +111,7 @@ Use a results table in the pull request. Distinguish measured facts from estimat
 
 ## 7. Acceptance criteria
 
-M0.1 is complete only when:
+MER-0.1 is complete only when:
 
 1. The same shared probe is called successfully on Android, iOS, Windows, macOS, and Linux.
 2. The iOS framework works through a Swift consumer in an iOS simulator.
@@ -121,7 +121,7 @@ M0.1 is complete only when:
 6. The PR lists exact commands, toolchain versions, build hosts, platform outcomes, and artifact sizes.
 7. Desktop runtime requirements and any JRE bundling plan are clearly documented.
 8. The recommendation states whether KMP meets the five-OS requirement and whether any consumer actually needs native desktop libraries.
-9. The project owner approves the production language, driver matrix, and packaging approach before M1 implementation begins.
+9. The project owner approves the production language, driver matrix, and packaging approach before MER-1 implementation begins.
 
 
 ## 9. Current compatibility research (2026-11-25)
@@ -152,7 +152,7 @@ Use one common Ktor request/response implementation and inject the engine at the
 - iOS: Darwin engine, backed by Apple's URL loading stack.
 - JVM desktop: CIO as the initial lightweight candidate; compare Java engine only if a concrete requirement justifies it.
 
-Ktor also documents CIO on JVM, Android, and Native targets. Do not make an engine choice from documentation alone: exercise fixture requests, cancellation, timeout, TLS defaults, and error mapping on the real targets. Keep live provider calls out of M0.1.
+Ktor also documents CIO on JVM, Android, and Native targets. Do not make an engine choice from documentation alone: exercise fixture requests, cancellation, timeout, TLS defaults, and error mapping on the real targets. Keep live provider calls out of MER-0.1.
 
 Official reference: [Ktor client engines](https://ktor.io/docs/client-engines.html).
 
