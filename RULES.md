@@ -40,7 +40,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 4. Architecture and dependency boundaries
 
-1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected by PLAN.md. Do not assume Kotlin Multiplatform is the engine language; Rust is the current recommendation pending M0.1 approval.
+1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected by PLAN.md. Kotlin Multiplatform with Android/iOS targets and Desktop JVM is the current recommendation pending M0.1 approval.
 2. Keep provider-specific request and response details inside that provider's adapter. Provider DTOs must not leak into the public domain model.
 3. Put platform-specific implementations behind narrow interfaces or in the appropriate platform source sets. Do not add platform dependencies to common code for convenience.
 4. Access storage, HTTP, time, and other external capabilities through explicit interfaces or injected dependencies. Core logic must be testable without a real network, database, device, or wall clock.
@@ -106,7 +106,7 @@ Before adding or changing a source:
 3. Each configurable default must state its unit, purpose, and rationale. Validate configuration at the boundary and fail clearly when invalid.
 4. Keep configuration separate from algorithms so applications can configure supported behaviour without forking the engine.
 5. A new threshold or tunable parameter requires approval and tests for boundary behaviour.
-6. Centralize and lock dependency versions using the package/build system selected in PLAN.md (Cargo workspace and Cargo.lock if Rust is approved; Gradle only for Kotlin consumer bindings where needed). Do not scatter unpinned versions across modules.
+6. Centralize and lock dependency versions using the package/build system selected in PLAN.md (Gradle version catalog and dependency locking for KMP; Cargo only if a Rust component is later approved). Do not scatter unpinned versions across modules.
 
 ## 10. Storage, caching, privacy, and retention
 
