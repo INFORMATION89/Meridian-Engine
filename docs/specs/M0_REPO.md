@@ -41,7 +41,7 @@
 - [ ] Build a Rust/UniFFI comparator only if native desktop libraries without a JVM are required or the KMP proof exposes a blocker.
 - [ ] Present a written recommendation and obtain owner approval before M1.
 
-## 4. Reproducible verification and research — M0.3
+## 4. Public API and local storage — M0.2\n\n- [ ] Approve the consumer-neutral public request/result API and batch-first approach.\n- [ ] Define optional cache and forecast/observation history interfaces, including retention, deletion, versioning, and atomicity.\n- [ ] Define offline, freshness, partial-failure, typed-error, and cancellation semantics.\n- [ ] Demonstrate the API through an independent fixture-backed sample consumer with no Solstice dependency.\n- [ ] Validate Android, iOS/Swift, and JVM desktop interop against M0.1 evidence.\n- [ ] Obtain owner approval for API stability, storage boundary, and error model before M1.\n\n## 5. Reproducible verification and research — M0.3
 
 - [ ] Create a standalone sample consumer that builds and queries Meridian without Solstice.
 - [ ] Publish versioned machine-readable weather, error, freshness, and provenance schemas.
@@ -51,7 +51,7 @@
 - [ ] Decide whether an optional MCP adapter is justified; do not add MCP to the core.
 - [ ] Confirm that all deterministic weather features work without an LLM, provider credential, or AI service.
 
-## 5. CI and release infrastructure
+## 6. CI and release infrastructure
 
 - [ ] Add CI for Gradle/Kotlin formatting, tests, and offline fixtures after the workspace is approved.
 - [ ] Add Linux x64 and ARM64 build jobs as appropriate.
@@ -61,7 +61,7 @@
 - [ ] Publish the actual supported-platform matrix in the README; distinguish supported, build-only, and experimental.
 - [ ] Confirm how native binaries and generated language bindings will be versioned and packaged.
 
-## 6. Production-code boundary
+## 7. Production-code boundary
 
 No production weather adapter, forecast algorithm, database implementation, blend, learning model, radar processor, or consumer-app integration belongs to M0/M0.1. Those begin only after the relevant specification is reviewed and the technology gate is approved.
 
