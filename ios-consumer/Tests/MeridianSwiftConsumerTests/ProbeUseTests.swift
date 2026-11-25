@@ -22,6 +22,10 @@ final class ProbeUseTests: XCTestCase {
         wait(for: [finished], timeout: 5)
     }
 
+    func testDarwinKtorEngineCanBeCreatedAndClosed() {
+        XCTAssertTrue(IosKtorProbe.shared.verifyClientLifecycle())
+    }
+
     func testSqliteDriverCanReopenDatabase() {
         XCTAssertTrue(IosStorageProbe.shared.verifyReopen())
     }
