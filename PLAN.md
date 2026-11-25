@@ -11,7 +11,7 @@
 
 ## 1. Executive direction
 
-Meridian is an independent, reusable weather-data and forecasting engine. It accepts a place and requested weather features, obtains data from appropriate providers, normalizes and evaluates the inputs, and returns useful weather results with uncertainty, freshness, source attribution, and complete provenance.
+Meridian is an independent, reusable, local-first weather-data and forecasting engine. It runs inside the consuming application on the user's device, accepts a place and requested weather features, obtains data directly from appropriate external providers, normalizes and evaluates the inputs, and returns useful weather results with uncertainty, freshness, source attribution, and complete provenance. Normal operation must not require a Meridian-hosted server, account, remote database, cloud function, or always-on service.
 
 Meridian is a library, not a weather application. It has no screens, app navigation, user-facing design system, saved-place manager, or app-specific behaviour. Solstice is its first consumer, not its owner. Other apps and tools should be able to use the same engine without depending on Solstice.
 
@@ -36,6 +36,18 @@ Rust is a strong alternative if Meridian must be a native library with no JVM ru
 
 M0.1 must prove the proposed Kotlin path on real target environments, including iOS framework integration and JVM execution on Windows, macOS, and Linux. It must also validate the likely Ktor and SQLDelight driver matrix. If those tests fail or the owner requires native desktop libraries without a JVM, compare a small Rust/UniFFI proof before committing to M1. The implementation language is not irrevocably locked until the owner approves the M0.1 report.
 
+## Local-first and no-hosting principle
+
+Meridian is embedded in the consuming application and runs on the user's device. The normal product path must not require the project owner or user to deploy, rent, operate, or maintain a Meridian backend.
+
+- No mandatory Meridian cloud API, account, authentication server, remote database, synchronization service, telemetry collector, or background daemon.
+- Weather, observation, and official-alert adapters make direct client-to-provider requests from the device, subject to provider terms, credentials, rate limits, and platform networking rules.
+- Cache, forecast history, verification statistics, and user configuration are local by default. Use the approved on-device storage implementation; do not assume a central database.
+- Offline operation returns clearly marked cached/stale results or typed unavailability. It must never disguise old data as current.
+- Each app owns lifecycle and scheduling. Meridian is a library, not a long-running service.
+- Any future sync, shared analytics, hosted proxy, or remote MCP endpoint is a separate optional product/infrastructure decision requiring explicit approval. Such services must never become prerequisites for the ordinary engine.
+
+This does not promise that weather data is available without the Internet or that every external provider permits direct use from distributed clients. Provider selection must prioritize documented client-side access and must not embed private developer credentials in distributed binaries.
 ## 2. Product principles
 
 1. **Independent core:** no dependency on Solstice, Breezy Weather, or another consumer app.
