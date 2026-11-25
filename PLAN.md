@@ -466,10 +466,12 @@ The coding agent must:
 
 ## 17. Research references checked for the platform decision
 
+- [Kotlin Multiplatform compatibility guide (Kotlin/Gradle/AGP/Xcode)](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html)
 - [Kotlin Multiplatform platform stability](https://kotlinlang.org/docs/multiplatform/supported-platforms.html)
 - [Kotlin/Native target support and host requirements](https://kotlinlang.org/docs/native-target-support.html)
 - [SQLDelight supported platforms and SQLite drivers](https://sqldelight.github.io/sqldelight/)
 - [Ktor client engines](https://ktor.io/docs/client-engines.html)
+- [GitHub Actions hosted runner selection and platform matrix](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job)
 - [Android Jetpack KMP support tiers](https://developer.android.com/kotlin/multiplatform)
 - [Rust target platform support](https://doc.rust-lang.org/stable/rustc/platform-support.html)
 - [Rust iOS target requirements](https://doc.rust-lang.org/stable/rustc/platform-support/apple-ios.html)
