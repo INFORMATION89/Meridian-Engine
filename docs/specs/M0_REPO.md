@@ -11,6 +11,7 @@
 - [x] Product name is Meridian; repository name is Meridian-Engine.
 - [x] Root `RULES.md` exists.
 - [x] Root `CLEAN_ROOM.md` exists as a separate authoritative policy.
+- [x] Root `AI_POLICY.md` governs AI-assisted engineering and AI-enabled product features.
 - [ ] Review and approve the root `PLAN.md`.
 - [ ] Add Apache-2.0 `LICENSE` and `NOTICE`.
 - [ ] Add a project `README.md` that says the project is early and not yet usable.
@@ -28,7 +29,8 @@
 - [x] M5 blending specification copied to `docs/specs/M5_BLEND.md`.
 - [x] M7 learning specification copied to `docs/specs/M7_LEARNING.md`.
 - [x] M6 consumer-app integration remains in Solstice; it does not belong in the engine's implementation specification set.
-- [x] M0.1 platform/interoperability spike specification is maintained in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
+- [x] M0.1 platform proof specification is maintained in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
+- [x] M0.3 AI readiness specification is maintained in `docs/specs/M0_3_AI_READINESS.md`.
 
 ## 3. Technology gate — M0.1
 
@@ -39,7 +41,17 @@
 - [ ] Build a Rust/UniFFI comparator only if native desktop libraries without a JVM are required or the KMP proof exposes a blocker.
 - [ ] Present a written recommendation and obtain owner approval before M1.
 
-## 4. CI and release infrastructure
+## 4. AI readiness — M0.3
+
+- [ ] Create a standalone sample consumer that builds and queries Meridian without Solstice.
+- [ ] Publish versioned machine-readable weather, error, freshness, and provenance schemas.
+- [ ] Define bounded read-only weather query tools for forecasts, observations, alerts, sources, and provenance.
+- [ ] Define minimized AI context and a human-reviewed evaluation set.
+- [ ] Test indirect prompt injection from provider/alert fixtures and verify read-only tool permissions.
+- [ ] Decide whether an optional MCP adapter is justified; do not add MCP to the core.
+- [ ] Confirm that all deterministic weather features work without an LLM, provider credential, or AI service.
+
+## 5. CI and release infrastructure
 
 - [ ] Add CI for Gradle/Kotlin formatting, tests, and offline fixtures after the workspace is approved.
 - [ ] Add Linux x64 and ARM64 build jobs as appropriate.
@@ -49,7 +61,7 @@
 - [ ] Publish the actual supported-platform matrix in the README; distinguish supported, build-only, and experimental.
 - [ ] Confirm how native binaries and generated language bindings will be versioned and packaged.
 
-## 5. Production-code boundary
+## 6. Production-code boundary
 
 No production weather adapter, forecast algorithm, database implementation, blend, learning model, radar processor, or consumer-app integration belongs to M0/M0.1. Those begin only after the relevant specification is reviewed and the technology gate is approved.
 
