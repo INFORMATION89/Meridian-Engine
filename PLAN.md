@@ -8,6 +8,7 @@
 
 ---
 
+
 ## 1. Executive direction
 
 Meridian is an independent, reusable weather-data and forecasting engine. It accepts a place and requested weather features, obtains data from appropriate providers, normalizes and evaluates the inputs, and returns useful weather results with uncertainty, freshness, source attribution, and complete provenance.
@@ -16,25 +17,24 @@ Meridian is a library, not a weather application. It has no screens, app navigat
 
 ### Recommended technical direction
 
-**Do not assume Kotlin Multiplatform is the engine's implementation language.** The five-platform requirement changes the trade-off. The current recommendation is:
+**Kotlin Multiplatform is the recommended starting point, but desktop compatibility should use the stable JVM target rather than requiring Kotlin/Native on Windows and Linux.** This is the least complex route that meets the current five-OS requirement while reusing the Kotlin ecosystem already used by Solstice:
 
-- **Rust for the shared engine and provider integrations.**
-- **UniFFI-generated Kotlin bindings** for Android and Kotlin/JVM consumers such as Solstice.
-- **UniFFI-generated Swift bindings** for native Apple consumers.
-- A small, documented native interoperability surface for other desktop consumers where needed.
-- Platform-specific packaging and build pipelines for Windows, macOS, iOS, Android, and Linux.
+- **Shared engine logic:** Kotlin Multiplatform `commonMain`.
+- **Android:** Android/Kotlin target.
+- **iOS:** Kotlin/Native iOS framework, called from Swift/Objective-C.
+- **Windows, macOS, and Linux:** Kotlin/JVM desktop artifact. Package the required Java runtime with a desktop application when the user should not need to install Java separately.
+- **Storage candidate:** SQLDelight with SQLite, using the Android, Native, and JVM drivers as appropriate. Do not make Android Jetpack Room a cross-platform engine dependency.
+- **Networking candidate:** Ktor, with a suitable Android client, Darwin client for Apple, and JVM client for desktop. Validate the exact target/dependency matrix before adoption.
 
-This is a recommendation, not yet a final lock-in. M0.1 must prove that the native library, generated bindings, packaging, and test matrix work before full engine implementation begins. If the proof fails or the maintenance cost is unreasonable, revisit Kotlin Multiplatform and other options using the same acceptance tests.
+This means the engine can run on all five operating systems, but it does **not** mean a single native `.dll`, `.dylib`, and `.so` is produced for every desktop OS. Windows/macOS/Linux desktop consumers need a JVM. If the requirement changes to a native library that arbitrary non-JVM apps can embed, reconsider Rust.
 
-### Why revisit Kotlin
+### When Rust would be the better choice
 
-Kotlin Multiplatform can produce Linux and Windows native targets, so Kotlin is not impossible. However, its official support tiers are uneven for this exact target set: `linuxX64` and `linuxArm64` are Tier 2, `mingwX64` is Tier 3, and `macosX64` is deprecated in the current Kotlin/Native target table. Jetpack's platform support also lists Linux as Tier 2 and Windows as Tier 3. That is a meaningful risk for a library whose stated goal is broad native portability.
+Rust is a strong alternative if Meridian must be a native library with no JVM runtime on Windows/macOS/Linux, or if C/C++/Swift and other non-Kotlin applications must embed the same native core. Rust's target support is attractive, and UniFFI can generate Kotlin and Swift bindings. However, native packaging, FFI, JNA, async/cancellation, binary distribution, and extra language/toolchain maintenance all add cost that is not justified by OS compatibility alone.
 
-Rust has strong first-class host-tool targets for Windows x64/ARM64, Linux x64/ARM64, and Apple Silicon macOS; its iOS and Android ARM64 targets are Tier 2. That is not a guarantee for every third-party crate, but it gives a better starting point for a portable native core. UniFFI can generate Kotlin and Swift bindings, while still requiring us to build, test, and package the native binaries ourselves.
+### Decision gate
 
-Kotlin remains important at the integration boundary: Solstice can consume a Kotlin API without making the weather engine Kotlin-only.
-
----
+M0.1 must prove the proposed Kotlin path on real target environments, including iOS framework integration and JVM execution on Windows, macOS, and Linux. It must also validate the likely Ktor and SQLDelight driver matrix. If those tests fail or the owner requires native desktop libraries without a JVM, compare a small Rust/UniFFI proof before committing to M1. The implementation language is not irrevocably locked until the owner approves the M0.1 report.
 
 ## 2. Product principles
 
@@ -78,96 +78,87 @@ Kotlin remains important at the integration boundary: Solstice can consume a Kot
 
 ---
 
+
 ## 4. Platform compatibility requirements
 
-The engine is expected to support these operating systems. A platform is not considered supported merely because a compiler can emit a binary: the native library must load, perform a real fixture-backed operation, handle cancellation/errors safely, and pass the platform's integration tests.
+The OS-level requirement can be met through this Kotlin Multiplatform target strategy:
 
-| Platform | Initial architecture target | Additional target / later |
-|---|---|---|
-| Windows | x86_64, MSVC ABI | ARM64; validate packaging and signing |
-| macOS | Apple Silicon ARM64 | Intel x86_64 if demand justifies it |
-| iOS | ARM64 device | ARM64 simulator; Intel simulator only if needed |
-| Android | ARM64 device | x86_64 emulator; other ABIs only if required |
-| Linux | x86_64, glibc baseline | ARM64; musl builds after packaging tests |
+| Operating system | Initial target | Consumer/runtime requirement | Optional later target |
+|---|---|---|---|
+| Android | Android/Kotlin target, ARM64 first | Android runtime | x86_64 emulator; other ABIs as needed |
+| iOS | `iosArm64` and `iosSimulatorArm64` | Native Kotlin framework linked into an iOS app; Xcode build host | Intel simulator only if needed |
+| Windows | Desktop `jvm()`, x64 first | A compatible JVM; bundle a runtime with a desktop app if needed | Kotlin/Native `mingwX64` only if a native Windows library becomes a requirement |
+| macOS | Desktop `jvm()` | A compatible JVM; bundle a runtime if needed | `macosArm64` framework for a native Swift macOS consumer |
+| Linux | Desktop `jvm()`, x64 first | A compatible JVM; document tested distributions | `linuxX64` / `linuxArm64` native only if a native Linux library becomes a requirement |
 
-### Native release matrix
+Kotlin Multiplatform lists Android, iOS, and Desktop (JVM) as stable. The Desktop JVM target can run on Windows, macOS, and Linux; the application must include or require a suitable JVM. This is the key to reaching all five OS without treating Windows/Linux Kotlin/Native targets as release blockers.
 
-The M0.1 spike must produce a written matrix showing for each target:
+Kotlin/Native target tiers still matter for any future native desktop library: `linuxX64` and `linuxArm64` are Tier 2, `mingwX64` is Tier 3, and `macosX64` is deprecated in the current target table; `macosArm64` is Tier 1. Do not claim native Windows/Linux support unless those native artifacts are separately built and tested.
 
-- compiler target triple and toolchain version;
-- native artifact type (`.dll`, `.dylib`, `.so`, static archive, or Android package);
-- host machine required to build it;
-- whether it compiles, links, loads, and runs tests;
-- binding language and minimum runtime dependencies;
-- packaging format and unresolved limitations.
+Jetpack's support tiers for Linux and Windows describe Jetpack libraries, not the whole KMP/JVM strategy. Avoid depending on Jetpack-specific storage or Android-only APIs from common engine code.
 
-Apple binaries must be built with the Apple SDK/Xcode toolchain on macOS. Windows MSVC artifacts must be built and tested on a supported Windows runner. Do not claim these can all be produced from one generic CI host.
+### Support labels
 
-### Support levels
-
-Use explicit labels:
-
-- **Supported:** built and tested in CI and exercised through its real binding/package.
-- **Build-only:** compiles and links, but runtime integration has not been verified.
+- **Supported:** built and tested in CI and exercised through its real runtime/framework.
+- **Build-only:** compiles or links, but runtime integration has not been verified.
 - **Experimental:** known target; not promised to consumers.
 - **Not supported:** no tested artifact or integration.
 
 Do not use a vague "cross-platform" badge without publishing this matrix.
 
----
 
 ## 5. Language and interoperability decision
 
-### Candidate A — Rust core (recommended)
+### Candidate A — Kotlin Multiplatform (recommended)
 
 **Advantages**
-- Mature native targets across Windows, macOS, Linux, Android, and iOS.
-- One engine implementation can be compiled to native libraries for each architecture.
-- Strong type system, memory safety, and good tooling for a long-lived native library.
-- UniFFI provides generated Kotlin and Swift bindings.
-- A separate C ABI can make the core usable by additional languages if there is a real consumer.
+- Reuses the language and integration environment of Solstice.
+- Shares domain models, source selection, provider adapters, provenance, and forecast algorithms in `commonMain`.
+- Reaches Android and iOS through their supported KMP targets.
+- Reaches Windows, macOS, and Linux through the stable Desktop JVM target without requiring native Windows/Linux KMP artifacts.
+- Can expose an iOS framework to Swift consumers.
+- SQLDelight documents SQLite support for Android, Native targets, and JVM; this is a better cross-platform storage candidate than making Jetpack Room mandatory.
 
 **Costs and risks**
-- Adds Rust to a project whose first consumer is Kotlin.
-- Native binaries must be built, versioned, packaged, and distributed for each supported ABI.
+- Desktop JVM consumers need a compatible Java runtime. A distributable desktop app should bundle it or clearly document it.
+- iOS integration uses Kotlin/Native framework interop; async APIs and Swift ergonomics need a real integration test.
+- Ktor, SQLDelight, serialization, date/time, and other libraries must be checked for the exact Android/iOS/JVM target matrix; compiler support alone is not enough.
+- Windows/Linux native libraries are not part of the initial KMP support promise. Native KMP targets are lower-tier than JVM desktop.
+- If a future consumer is a native C/C++/Swift desktop app without a JVM, the architecture may need a separate native implementation or a Rust core.
+
+### Candidate B — Rust native core
+
+**Advantages**
+- Strong native target support across Windows, macOS, Linux, iOS, and Android.
+- One implementation can be compiled into native libraries for multiple architectures.
+- Good choice for non-JVM consumers and a language-neutral native engine boundary.
+- UniFFI generates Kotlin and Swift bindings.
+
+**Costs and risks**
+- Adds Rust and FFI to a project whose first consumer is Kotlin.
+- Native binaries must be built, versioned, packaged, and distributed for each target ABI.
 - FFI error handling, cancellation, threading, async calls, object lifetime, and memory ownership require a deliberately small API.
-- UniFFI is not a replacement for native build/release pipelines; its own version and generated bindings must be pinned and verified.
-- Some third-party crates may have weaker mobile or platform support than Rust itself.
-
-### Candidate B — Kotlin Multiplatform core
-
-**Advantages**
-- Kotlin is already used by Solstice, so the first integration is simpler.
-- Shared Kotlin business logic and familiar Gradle tooling.
-- KMP can target Android/iOS/JVM and also has Kotlin/Native targets for Linux and Windows.
-
-**Costs and risks**
-- Official target support is uneven for Windows/Linux native use.
-- Several native platform dependencies do not support the same targets or support them at the same quality level.
-- Jetpack libraries such as Room cannot be assumed to offer equal Windows/Linux support.
-- A macOS Intel target is deprecated in the current Kotlin/Native target list.
-- Maintaining platform-specific HTTP, storage, and packaging implementations may erase much of the apparent simplicity.
+- UniFFI does not replace native build/release pipelines; Kotlin bindings depend on JNA and coroutines, which must be tested in the selected environments.
+- Rust's iOS and Android ARM64 targets are Tier 2, and third-party crate support must be validated separately.
 
 ### M0.1 decision gate
 
-Build a tiny, non-weather proof of concept before committing to the full engine:
+Build a small, non-weather proof of concept before full engine implementation:
 
-1. A Rust library exposes a versioned data structure and one deterministic function.
-2. UniFFI generates Kotlin and Swift bindings from the same public interface.
-3. The Kotlin binding loads and calls the native library on Android ARM64 and at least one desktop JVM target (Windows or Linux).
-4. The Swift binding loads and calls it on an iOS simulator/device build and macOS.
-5. Native artifacts build for Windows x64, macOS ARM64, Linux x64, iOS ARM64, and Android ARM64.
-6. Async calls, error mapping, cancellation, and shutdown are tested at least once.
-7. CI can reproduce the supported builds on the appropriate runners.
-8. The proof records build times, artifact sizes, packaging complexity, and the maintenance burden of generated bindings.
+1. Create a KMP library with one shared deterministic function, one typed error, and one asynchronous operation.
+2. Build the Android target and run a smoke test on an ARM64 emulator/device.
+3. Build an iOS framework and run a Swift consumer in an ARM64 simulator; test on a device where available.
+4. Build the Desktop JVM artifact and run the same probe on Windows, macOS, and Linux with a supported JDK.
+5. Validate a minimal Ktor request/serialization slice for Android, iOS, and JVM desktop.
+6. Validate a minimal SQLDelight SQLite slice using Android, Native iOS, and JVM desktop drivers.
+7. Record build times, test results, artifact sizes, runtime requirements, and packaging steps.
+8. If a native desktop library with no JVM is a firm requirement, build a small Rust/UniFFI comparator against the same matrix.
+9. Recommend the production stack and obtain owner approval before M1.
 
-**M0.1 exit:** recommend Rust or reject it with evidence. The project owner approves the final language decision before M1.
-
----
 
 ## 6. Proposed architecture
 
-The following is a logical architecture. Exact crate names and dependency choices are finalized by M0.1/M0.2, not guessed during feature implementation.
+The following is a logical architecture. Exact module names and dependency choices are finalized by M0.1/M0.2, not guessed during feature implementation.
 
 ### Core layers
 
@@ -175,72 +166,67 @@ The following is a logical architecture. Exact crate names and dependency choice
 2. **Engine/orchestrator:** requested-feature planning, source eligibility, request coordination, rate limiting, fallback, cache policy, aggregation, and result assembly.
 3. **Source adapters:** one isolated adapter per provider. Provider DTOs remain inside the adapter.
 4. **Forecast algorithms:** blending, spread, local verification, and later correction. Algorithms receive normalized data and do not perform network requests.
-5. **Storage boundary:** explicit interfaces for cache and local verification history. The engine must not expose database entities in its public API.
-6. **Interop boundary:** small FFI-facing types and methods. Keep it separate from internal domain types.
-7. **Developer tools:** CLI, fixture utilities, and reproducible archive verification.
+5. **Storage boundary:** common contracts for cache and local verification history; platform drivers supplied by the approved storage implementation. The public API must not expose database records.
+6. **Platform drivers:** only the narrow pieces that genuinely differ, such as HTTP engines and database drivers. They must not change domain semantics.
+7. **Developer tools:** JVM CLI, fixture utilities, and reproducible archive verification.
 
-### Candidate Rust workspace layout
+### Candidate Kotlin Multiplatform layout
 
 ```text
 Meridian-Engine/
-  Cargo.toml
-  Cargo.lock
-  crates/
-    meridian-domain/
-    meridian-engine/
-    meridian-source-openmeteo/
-    meridian-source-aviationweather/
-    meridian-source-wmo/
-    meridian-source-fpas/
-    meridian-storage-sqlite/     # optional official local storage
-    meridian-ffi-uniffi/
-    meridian-cli/
-    meridian-testkit/
-  bindings/
-    kotlin/                       # generated/packaged Kotlin API
-    swift/                        # generated/packaged Swift API
+  settings.gradle.kts
+  build.gradle.kts
+  gradle/libs.versions.toml
+  core/                         # KMP domain and engine API
+  sources/
+    openmeteo/                  # Open-Meteo adapter
+    aviationweather/            # METAR adapter
+    wmo/                        # official alert feeds
+    fpas/                       # additional CAP alert aggregation
+  storage-sqldelight/           # optional shared SQLite storage
+  testing/                      # fixtures, fake clock, fake HTTP
+  cli/                          # JVM developer/verification tool
+  samples/
+    android/
+    ios/
+    desktop-jvm/                # Windows, macOS, Linux
   docs/
     specs/
     verification/
-  .github/
-    workflows/
 ```
 
-This is a proposal, not an instruction to create every crate immediately. M0 creates only the minimal workspace required by the approved spike. Add each module when a milestone needs it.
+This is a proposal, not an instruction to create every module immediately. M0.1 creates only the minimal Gradle/KMP proof. Add each module when an approved milestone needs it.
 
 ### Dependency direction
 
-- Domain must not depend on providers, storage implementation, bindings, or consumer applications.
-- Engine may depend on domain and provider/storage interfaces.
-- Provider adapters implement the source contract and map vendor data into domain types.
-- Optional storage implements storage contracts; the core never depends on SQLite APIs directly.
-- FFI depends on the public engine API, not on provider-specific DTOs.
-- Solstice, iOS apps, desktop apps, and CLI depend on the public library surface, never on internal source modules.
+- `core` owns weather-domain types and engine contracts.
+- Source adapters depend on core contracts; core does not depend on provider DTOs.
+- Storage implementation depends on core contracts; core does not depend on a storage vendor.
+- Platform-specific HTTP/database drivers are injected at construction or selected in thin platform factories.
+- Bindings and sample applications consume only the public core API.
+- Solstice, iOS apps, desktop apps, and CLI must not import internal provider implementation types.
 
----
 
 ## 7. Storage, cache, and privacy
 
-The earlier Kotlin-oriented Room proposal must not be carried over as a cross-platform requirement.
+The earlier Kotlin-oriented plan proposed Room. Do not make Android Jetpack Room a cross-platform engine requirement.
 
 ### Current recommendation
 
-- Keep storage behind an internal abstraction.
-- Evaluate an optional **SQLite-backed storage implementation** for the Rust core, with a dependency that builds on all required targets.
-- Let applications decide whether they enable persistence and where the database file lives.
-- Do not make Room a required part of Meridian. Solstice may retain Room for its own app data; Meridian's own cache/history must not require access to Solstice's database.
-- A custom consumer-provided storage backend is desirable, but it must not force complex callback/FFI interfaces into the first release. Prove the extension mechanism before promising it as public API.
+- Keep persistence behind a storage boundary.
+- Evaluate **SQLDelight + SQLite** as the official optional storage implementation. SQLDelight documents SQLite for Android, Native targets, and JVM; the initial five-OS path uses Android, Native iOS, and JVM desktop drivers as appropriate.
+- Do not use the Windows/Linux Kotlin/Native SQLite drivers in the first release unless native desktop binaries become a requirement.
+- Solstice may continue using Room for Solstice-owned app data. Meridian's cache/history must not require access to the Solstice database.
+- Consumer-provided custom storage is desirable, but do not make it public API until its lifecycle and driver injection are proven in M0.2.
 
 ### Data policy
 
 - Meridian does not own the list of saved places and does not maintain location history.
 - Store only data required for cache, local forecast verification, and approved correction.
-- A 30-day rolling history is the current research proposal, not a hard-coded default until its scope and storage cost are approved.
+- A 30-day rolling history is a current research proposal, not a hard-coded default until its scope and storage cost are approved.
 - Cache TTL and request spacing follow provider cadence, expiry headers, terms, and rate limits.
 - Never let stale cached data masquerade as fresh data.
 - Data remains local by default. Optional sharing of aggregated forecast errors requires a separate privacy, security, retention, and legal review.
-
----
 
 ## 8. Data and public API principles
 
@@ -317,55 +303,52 @@ Provider rules:
 
 ---
 
+
 ## 11. Milestones and acceptance criteria
 
 Each milestone follows the same cycle: **research → specification → owner approval → implementation in a separate coding task → deterministic tests → platform check → documentation update.**
 
 | Milestone | Scope | Acceptance criteria |
 |---|---|---|
-| M0 — Project foundation | Repository policies, license, workspace, CI skeleton, coding-agent instructions | Clean repository; documented decisions; CI runs on PRs |
-| M0.1 — Technology and FFI spike | Rust vs KMP proof; native binaries; Kotlin/Swift bindings; cross-platform loading | Target matrix and packaging verified; written recommendation approved |
-| M0.2 — Public API and storage decision | Stable domain/FFI contract; SQLite feasibility; HTTP and async strategy | API and storage specs approved; no feature code yet |
-| M1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return an hourly/daily forecast with source and timestamps; fixtures pass |
+| M0 — Project foundation | Repository policies, license, README, KMP workspace skeleton, CI skeleton, coding-agent instructions | Clean repository; documented decisions; CI runs on PRs |
+| M0.1 — Platform and dependency proof | KMP Android, iOS framework, JVM desktop on Windows/macOS/Linux; Ktor and SQLDelight driver checks | The same probe works on all five OS; runtime and packaging requirements documented; owner approves stack |
+| M0.2 — Public API and storage decision | Stable domain/API contract, storage boundary, cache model, HTTP and async lifecycle | API and storage specs approved; no feature code yet |
+| M1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass |
 | M2 — Provenance and resilience | Per-value provenance, source catalog, source selection, typed problems, cache/rate limits | Every value traceable; failed/stale provider produces explicit fallback/problem; request limits tested |
 | M3 — Official alerts | CAP parsing, WMO feeds, FPAS as an additional route | Mexico, US, and Germany fixtures parse/merge correctly; update/cancel and attribution tests pass |
 | M4 — Observations | Airport station discovery and METAR mapping | Fresh nearby observation selected per variable; stale/distant/elevation-mismatched stations rejected |
 | M5 — Blend and spread | Multi-model forecast, equal-weight blend, spread | Reproducible archive evaluation; wind direction and missing-model edge cases pass |
-| M6 — Consumer integration | Solstice Kotlin integration; sample native integrations for Swift/desktop | Solstice bridge uses only public API; each advertised binding/package is tested |
+| M6 — Consumer integration | Solstice Kotlin integration; sample native Swift/iOS and desktop JVM integrations | Solstice bridge uses only public API; each advertised binding/package is tested |
 | M7 — Local learning | Forecast/observation matching, rolling skill statistics, bias correction | Archive evaluation shows measured impact; privacy and retention rules pass |
 | M8 — Radar nowcast research | Radar/satellite input, motion estimation, short-range extrapolation | Separate feasibility study and benchmark before implementation approval |
 
 Milestones may be reordered only by an explicit decision recorded in `PLAN.md`. M6 contains app-side work; its app-specific implementation instructions remain in Solstice.
 
----
 
 ## 12. CI, tests, and release artifacts
 
 ### CI responsibilities
 
-- Rust formatting and linting (for example, `cargo fmt --check` and `cargo clippy`) and workspace tests.
-- Offline fixture tests; normal PR tests must not depend on live weather services.
-- Build native targets on suitable runners.
-- macOS runner for iOS/macOS SDK builds and tests.
-- Windows runner for MSVC build and runtime tests.
-- Linux runner for Linux and Android NDK builds.
-- Binding generation must be reproducible; generated code must not be hand-edited.
-- Integration tests must load the actual packaged library, not merely compile the Rust crate.
+- Gradle/Kotlin build, common tests, lint/format checks, and offline fixture tests.
+- Build and test Android targets on appropriate Linux/Android runners.
+- Build iOS frameworks and run simulator tests on macOS/Xcode runners.
+- Build and run the JVM desktop artifact on Windows, macOS, and Linux runners.
+- Verify Ktor engines and SQLDelight drivers on the targets where they are used.
+- Integration tests must exercise the actual packaged artifact, not only compile shared source.
+- Native Kotlin/Native Windows/Linux jobs are optional and must not block the initial JVM-desktop release.
 
 ### Release artifacts to validate
 
 | Consumer | Candidate artifact |
 |---|---|
-| Android/Kotlin | Kotlin binding plus per-ABI native library packaged in an Android library/AAR |
-| iOS/Swift | Swift binding plus a signed/packaged static or dynamic framework/XCFramework |
-| macOS | Native library and Swift/Kotlin/JVM integration package as required by consumer |
-| Windows | Native DLL with matching binding/runtime package |
-| Linux | Native shared library with documented libc baseline and matching binding/runtime package |
-| Other languages | C ABI only if a real consumer justifies the maintenance cost |
+| Android | KMP Android/Gradle library artifact |
+| iOS / Swift | Kotlin/Native framework or XCFramework with generated Objective-C/Swift-facing API |
+| Windows | JVM desktop artifact, distributed with or requiring a compatible Java runtime |
+| macOS | JVM desktop artifact; optional macOS ARM64 framework for a native Swift consumer |
+| Linux | JVM desktop artifact, distributed with or requiring a compatible Java runtime |
+| Native desktop apps without a JVM | Not part of the initial promise; revisit Rust or another native ABI if a real consumer requires it |
 
 Do not promise a package format until a proof of concept is built and loaded on its target.
-
----
 
 ## 13. Security, privacy, and licensing
 
@@ -398,6 +381,7 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 
 ---
 
+
 ## 15. Decisions and open questions
 
 ### Existing project decisions
@@ -412,49 +396,49 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 
 ### Recommendations awaiting owner approval
 
-1. Rust as the engine implementation language, with UniFFI for Kotlin and Swift bindings.
-2. The five-platform native support matrix in section 4.
-3. A portable SQLite implementation as the official optional local storage backend; no mandatory Room dependency.
+1. Kotlin Multiplatform as the engine implementation, with Android and iOS targets plus Desktop JVM on Windows/macOS/Linux.
+2. Desktop applications may bundle or require a compatible JVM; no native Windows/Linux library is promised in v1.
+3. SQLDelight with SQLite as the official optional local persistence implementation; no mandatory Room dependency.
 4. A batch-oriented first public API; defer streaming partial updates.
-5. M0.1 and M0.2 as mandatory gates before feature implementation.
+5. M0.1 and M0.2 as mandatory gates before weather-feature implementation.
 
 ### Questions for later milestones
 
-- Should macOS Intel be part of the first supported release or a best-effort build?
-- Which Linux baseline should be supported (glibc minimum; musl as optional)?
-- Are Windows ARM64 and Linux ARM64 first-release requirements or follow-up targets?
-- Which language(s) should the desktop sample target?
-- Should apps be allowed to provide a custom storage backend in v1, or should the official SQLite backend be the only supported persistence path initially?
+- Must Windows/macOS/Linux consumers be able to embed a native library without a JVM, or is a JVM desktop artifact acceptable?
+- Should a native Swift macOS consumer be supported in v1, or is the JVM desktop target enough?
+- Which Java runtime version should desktop applications bundle or require?
+- Which Linux distributions and architectures should be in the first support matrix?
+- Are Windows ARM64 and Linux ARM64 desktop builds first-release requirements or follow-up targets?
+- Should apps be allowed to provide a custom storage backend in v1, or should the official SQLDelight/SQLite implementation be the only supported persistence path initially?
 - Which Open-Meteo model set is defensible for Mexico and other target regions at the time M5 is implemented?
 
----
 
 ## 16. Immediate next task for a coding agent
 
-**Task:** execute only M0.1, the technology and interoperability proof described in section 5.
+**Task:** execute only M0.1, the platform and dependency proof described in section 5 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
 
 The coding agent must:
-1. Read `RULES.md`, `CLEAN_ROOM.md`, this `PLAN.md`, and the current approved M0.1 task specification.
-2. Inspect the repository and report what exists before creating files.
+1. Read `RULES.md`, `CLEAN_ROOM.md`, this `PLAN.md`, `AGENTS.md`, and the M0.1 task specification.
+2. Inspect the actual repository and report what exists before creating files.
 3. Create a short-lived feature branch for the spike.
-4. Build the smallest Rust library and generated Kotlin/Swift bindings needed to test the real native boundary.
-5. Build and run the smoke test on the available host platforms; cross-build other targets and report which steps cannot be run on the current host.
-6. Record exact commands, toolchain versions, artifact sizes, target triples, CI runner requirements, and failures.
-7. Compare the measured result with a small Kotlin Multiplatform alternative or document why it was not practical to build in the same spike.
-8. Open a pull request containing the proof, results, and a recommendation. Do not merge it or choose the final stack without owner approval.
+4. Build the smallest KMP library possible with a shared deterministic probe, typed error, and async operation.
+5. Build and test the Android target, an iOS framework/Swift consumer, and the Desktop JVM artifact on Windows, macOS, and Linux.
+6. Validate one Ktor and one SQLDelight/SQLite path on the actual target source sets.
+7. Record exact commands, toolchain versions, build-host details, target outcomes, runtime requirements, artifact sizes, and failures.
+8. Do not build a Rust/UniFFI comparator unless the owner states that native desktop libraries without a JVM are required, or the KMP proof shows a blocker that merits comparison.
+9. Open a pull request with the evidence and a recommendation. Do not merge it or begin M1 without owner approval.
 
-**Prohibited during M0.1:** implementing weather providers, domain algorithms, production storage, blending, learning, alerts, radar, app UI, or an entire production workspace. Do not migrate all Kotlin/Gradle dependencies into the Rust workspace until the owner approves the technology gate.
-
----
+**Prohibited during M0.1:** implementing weather providers, domain algorithms, production storage, blending, learning, alerts, radar, or app UI. The proof is not the production engine.
 
 ## 17. Research references checked for the platform decision
 
 - [Kotlin Multiplatform platform stability](https://kotlinlang.org/docs/multiplatform/supported-platforms.html)
 - [Kotlin/Native target support and host requirements](https://kotlinlang.org/docs/native-target-support.html)
+- [SQLDelight supported platforms and SQLite drivers](https://sqldelight.github.io/sqldelight/)
+- [Ktor client engines](https://ktor.io/docs/client-engines.html)
 - [Android Jetpack KMP support tiers](https://developer.android.com/kotlin/multiplatform)
 - [Rust target platform support](https://doc.rust-lang.org/stable/rustc/platform-support.html)
 - [Rust iOS target requirements](https://doc.rust-lang.org/stable/rustc/platform-support/apple-ios.html)
-- [UniFFI user guide and supported binding languages](https://mozilla.github.io/uniffi-rs/latest/)
-- [UniFFI Kotlin/Gradle integration](https://mozilla.github.io/uniffi-rs/latest/kotlin/gradle.html)
+- [UniFFI user guide and supported binding languages](https://mozilla.github.io/uniffi-rs/latest/) (Rust alternative only)
 
 Platform tiers describe compiler/toolchain support, not a guarantee that every third-party dependency, binding, or package works. Revalidate these references before each major platform release.
