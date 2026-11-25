@@ -18,9 +18,12 @@ concurrency:
 
 jobs:
   desktop-linux:
+    needs: dependency-metadata
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -50,9 +53,12 @@ jobs:
             desktop-consumer/build/jpackage/
 
   desktop-windows:
+    needs: dependency-metadata
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -88,9 +94,12 @@ jobs:
             desktop-consumer/build/jpackage/
 
   apple-and-ios:
+    needs: dependency-metadata
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -130,12 +139,15 @@ jobs:
             desktop-consumer/build/jpackage/
 
   android:
+    needs: dependency-metadata
     # GitHub-hosted Linux runners expose KVM for hardware-accelerated x86_64
     # Android emulation. ARM64 device execution remains a separate acceptance gate.
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -213,12 +225,19 @@ jobs:
 
   dependency-metadata:
     # Generate lock state and SHA-256 verification metadata from the complete
-    # resolvable dependency graph. This job is limited to the active spike PR.
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof'
+    # platform build graph. For this owner-controlled spike branch, commit only
+    # generated files, then test that exact commit in the platform jobs below.
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof')
+    permissions:
+      contents: write
+    outputs:
+      metadata_sha: \${{ steps.commit-metadata.outputs.sha }}
     runs-on: macos-26
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: \${{ github.event.pull_request.head.ref || github.ref }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -245,11 +264,34 @@ jobs:
         shell: bash
         run: |
           test -s gradle/verification-metadata.xml
+          test -s engine/gradle.lockfile
+          test -s android-consumer/gradle.lockfile
+          test -s desktop-consumer/gradle.lockfile
           echo "Generated lockfiles:"
           find . -name gradle.lockfile -not -path './.gradle/*' -print
-          test "$(find . -name gradle.lockfile -not -path './.gradle/*' | wc -l)" -gt 0
           echo "Verification metadata entries:"
           grep -c '<component ' gradle/verification-metadata.xml || true
+      - name: Commit generated dependency metadata to the spike branch
+        id: commit-metadata
+        shell: bash
+        env:
+          HEAD_REF: \${{ github.event.pull_request.head.ref }}
+          HEAD_REPOSITORY: \${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
+            test "$HEAD_REF" = "spike/m0.1-kmp-platform-proof"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -- gradle/verification-metadata.xml engine/gradle.lockfile android-consumer/gradle.lockfile desktop-consumer/gradle.lockfile
+            if ! git diff --cached --quiet; then
+              git commit -m "build: lock resolved dependencies and verify checksums"
+              git push origin "HEAD:refs/heads/$HEAD_REF"
+            else
+              echo "Dependency metadata is already current."
+            fi
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
