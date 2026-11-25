@@ -44,7 +44,7 @@ This is meaningful evidence that the current KMP/JVM proof and its packaging wor
 
 ### Status records synchronized after Run #152
 
-The continuation record, verified-results document, and PR #2 description have now been updated to reflect Run #152. Run #152 exercised code/workflow commit `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`; subsequent changes to the spike branch head (`3575f51752b15fecff76c4405610b44fdafeea2c` at the time of this review) only refreshed those status documents. No production implementation or test code changed in that documentation-only synchronization. Re-run the matrix if implementation or workflow code changes.
+The continuation record, verified-results document, and PR #2 description have now been updated to reflect Run #152. Run #152 exercised code/workflow commit `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`; later commits refreshed status documents and owner-decision notes only. No production implementation or test code changed in those documentation-only updates. Re-run the matrix if implementation or workflow code changes.
 
 ### Limits that remain
 
@@ -67,12 +67,12 @@ The workflow logs for Run #152 report self-contained app-image sizes of **169.7 
 ### Recommended M0.1 completion checklist
 
 - [x] Record Run #152 and its exact tested commit in the verification record and continuation notes; PR #2 description is synchronized.
-- [ ] Preserve Android ARM64 as NOT TESTED unless a physical ARM64 device or reproducible ARM64 emulator route is exercised; obtain an explicit owner decision if accepting that gap for the first release.
+- [x] Preserve Android ARM64 as NOT TESTED. The owner accepts the current CI-only MER-0.1 scope; physical ARM64/device execution is deferred and is not a current milestone blocker.
 - [x] Record the self-contained app-image sizes measured in Run #152: Windows 169.7 MiB, Linux approximately 183 MB, and macOS approximately 184 MB. Retain these as measurements of the tested app-images, not as promised release-package sizes.
 - [ ] Add deterministic real-engine request tests for Android, Darwin, and JVM/CIO.
 - [ ] Test timeout and transport-error mapping on the target engines.
 - [ ] Assert cancellation from each public consumer boundary, including Swift.
-- [ ] Test TCG fallback only in an environment where KVM is confirmed unavailable; treat this as CI resilience unless the owner makes it a product acceptance criterion.
+- [x] Defer the no-KVM TCG fallback as optional CI-resilience work. It remains unverified, is not a current MER-0.1 blocker, and does not establish Android ARM64 support.
 - [ ] Re-run the full matrix after relevant changes and record one exact SHA.
 - [ ] Complete the dependency and licence inventory; decide whether NOTICE is required.
 - [ ] Present the resulting recommendation for explicit owner approval.
