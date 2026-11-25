@@ -79,7 +79,7 @@ jobs:
           cp -R engine/build/XCFrameworks/debug/MeridianShared.xcframework ios-consumer/Frameworks/
       - name: Run native Swift consumer tests
         working-directory: ios-consumer
-        run: swift test
+        run: xcodebuild -scheme MeridianSwiftConsumer -destination 'platform=iOS Simulator,name=iPhone 17' test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
