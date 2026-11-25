@@ -220,6 +220,16 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
+          packages: platform-tools
+      - name: Install Android compile SDK packages
+        run: |
+          sdkmanager "platforms;android-35"
+          sdkmanager "platforms;android-36"
+          sdkmanager "build-tools;36.0.0"
       - name: Build platform dependency graphs and generate lock/verification metadata
         run: |
           ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 \
