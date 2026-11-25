@@ -350,13 +350,13 @@ jobs:
     permissions:
       contents: write
     outputs:
-      metadata_sha: \${{ steps.commit-linux-metadata.outputs.sha }}
+      metadata_sha: ${{ steps.commit-linux-metadata.outputs.sha }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: \${{ needs.dependency-metadata.outputs.metadata_sha }}
+          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -393,8 +393,8 @@ jobs:
         id: commit-linux-metadata
         shell: bash
         env:
-          HEAD_REF: \${{ github.event.pull_request.head.ref || github.ref_name }}
-          HEAD_REPOSITORY: \${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
