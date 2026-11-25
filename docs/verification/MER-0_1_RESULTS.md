@@ -4,9 +4,17 @@
 **PR:** [#2](https://github.com/INFORMATION89/Meridian-Engine/pull/2)  
 **Baseline workflow:** [Run #103](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45695023715)  
 **Latest full workflow:** [Run #152](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45717462136)  
-**Latest inspected commit:** 28817f6a09c0099ac340ff4df55ea5377ec5ed0a  
-**Commit tested:** `8cb472db60920d425feb81dea89843a5be03aadf`  
+**Latest full-matrix tested commit:** `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`  
+**Baseline Run #103 tested commit:** `8cb472db60920d425feb81dea89843a5be03aadf`  
 **Recorded:** 2026-11-25
+
+## Owner decision — CI-only validation for now
+
+A passing supported CI matrix is sufficient for current MER-0.1 validation. Physical-device testing is deferred because the owner does not yet have access to all target platforms. No manual device runs are required from the owner, and lack of physical Android/iOS devices is not an MER-0.1 blocker.
+
+The tested coverage must remain explicit: Android x86_64 emulator, iOS ARM64 Simulator/Swift consumer, and JVM Desktop on Windows/macOS/Linux. Android ARM64 runtime and physical Android/iOS execution remain **NOT TESTED** and are accepted deferred limitations. This does not imply those paths passed.
+
+Any extra real-engine Ktor transport checks are CI tests using local deterministic fixtures, not tests requiring owner-provided hardware or live weather-provider access.
 
 ## 1. CI result
 
@@ -42,7 +50,7 @@ Run #152 app-image measurements:
 
 The packaged JVM consumers launched after the runner Java environment was removed. These measurements are for the spike app-images, not final release packages.
 
-The Android log confirms /dev/kvm was available and writable. Android instrumentation therefore passed with KVM; this run does not prove TCG/software fallback without KVM. Android ARM64 remains NOT TESTED. Apple/iOS validation used an ARM64 simulator and Swift Package consumer, not a physical device.
+The Android log confirms /dev/kvm was available and writable. Android instrumentation therefore passed with KVM; this run does not prove TCG/software fallback without KVM. Android ARM64 remains NOT TESTED. Apple/iOS validation used an ARM64 simulator and Swift Package consumer, not a physical device. Under the owner's decision above, physical-device and Android ARM64 validation are deferred and are not blockers for current MER-0.1 CI acceptance.
 
 
 ## 2. What the current tests actually prove
@@ -61,23 +69,24 @@ The Android log confirms /dev/kvm was available and writable. Android instrument
 | Ktor timeout behaviour | No explicit timeout test found in the current source tree | NOT TESTED |
 | Ktor platform-specific error mapping | No dedicated test found that asserts transport/timeout failures from Android, Darwin, and CIO engines | NOT TESTED |
 
-## 3. Explicitly deferred / not tested
+## 3. Deferred or not tested (not current physical-device acceptance blockers)
 
-- **Android ARM64 runtime:** NOT TESTED. Run #103 uses an x86_64 Android emulator. A physical ARM64 device or a hosted ARM64 environment with working virtualization is still required for that acceptance item.
-- **Real Ktor engine requests:** the fixture test uses `MockEngine`, not Android/Darwin/CIO. Add deterministic engine-level tests where they can run without live provider access.
-- **Timeout and transport error mapping:** add tests for configured timeout and representative transport failures, including the expected typed error boundary.
-- **Platform-specific cancellation:** the shared coroutine cancellation test passes, but the consumer-facing cancellation behaviour should be asserted at platform boundaries before claiming full parity.
+- **Android ARM64 runtime:** NOT TESTED. Run #152 uses an x86_64 Android emulator. The owner accepts this as a deferred limitation for current MER-0.1; no physical ARM64 device or hosted ARM64 run is required to satisfy the current CI-only policy.
+- **Physical Android/iOS execution:** NOT TESTED. Android emulator and iOS Simulator/Swift consumer CI coverage are accepted for now; physical-device runs are deferred.
+- **Real Ktor engine requests:** the current fixture test uses `MockEngine`, not Android/Darwin/CIO. Add deterministic engine-level tests in CI, without live provider access or owner-supplied hardware, before claiming full transport parity.
+- **Timeout and transport error mapping:** add CI tests for configured timeout and representative transport failures, including the expected typed error boundary.
+- **Platform-specific cancellation:** the shared coroutine cancellation test passes, but consumer-facing cancellation behaviour should be asserted in the relevant CI consumer boundaries before claiming full parity.
 
-These gaps do not invalidate the successful platform jobs. They limit the claims that can be made from them.
+These gaps do not invalidate the successful platform jobs. They limit the claims that can be made from them; the physical-device gaps are explicitly accepted as deferred for the current milestone.
 
-## 4. Remaining work, still within MER-0.1
+## 4. Remaining CI and repository work for MER-0.1
 
-1. Add deterministic fixture requests through the actual Android, Darwin, and JVM/CIO engines, without live external services.
-2. Add explicit timeout, transport-error mapping, resource close, and consumer-boundary cancellation tests.
-3. Keep Android ARM64 explicitly NOT TESTED until a physical ARM64 device or reproducible, provenance-reviewed environment is exercised; obtain owner acceptance if the gap is deferred.
-4. Test TCG fallback only in an environment where KVM is confirmed unavailable; Run #152 had KVM.
+1. Add deterministic fixture requests through the actual Android, Darwin, and JVM/CIO engines in CI, without live external services.
+2. Add CI assertions for timeout, transport-error mapping, resource close, and consumer-boundary cancellation.
+3. Keep Android ARM64 and physical Android/iOS runs explicitly **NOT TESTED**. Physical-device testing is deferred and accepted under the owner's CI-only decision; it is not a current MER-0.1 blocker.
+4. No-KVM TCG fallback remains optional and deferred; do not treat it as Android ARM64 evidence.
 5. Complete the dependency/licence inventory and confirm whether NOTICE is required.
-6. Re-run the full matrix after code changes and record the exact tested SHA.
+6. Re-run the full matrix after code/workflow changes and record the exact tested SHA.
 7. Obtain owner review of the evidence and toolchain recommendation before closing MER-0.1 or beginning MER-1.
 
 ## 5. Owner gate
