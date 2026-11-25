@@ -2,7 +2,8 @@
 
 **Status:** Proposed design milestone; follows the MER-0.1 platform proof and MER-0.2 API/storage decisions.  
 **Parent documents:** [`PLAN.md`](../../PLAN.md), [`AI_POLICY.md`](../../AI_POLICY.md), [`AGENTS.md`](../../AGENTS.md).  
-**Scope:** prepare the project to improve weather quality through evidence, reproducible analysis, and human-reviewed changes. AI may assist contributors during development and research, but it is not part of Meridian's runtime.
+**Scope:** prepare the project to improve weather quality through evidence, reproducible analysis, and human-reviewed changes. AI may assist contributors during development and research, but it is not part of Meridian's runtime.  
+**Owner decision proposal:** [MER-0.3 forecast verification and research decision proposal](MER-0_3_DECISION_PROPOSAL.md). The proposal is guidance for review, not an approved policy.
 
 ## 1. Objective
 
