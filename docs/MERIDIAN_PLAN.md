@@ -30,7 +30,7 @@ Everything above is Apache 2.0 or compatible.
 ## 3. Repo and modules
 
 ```
-Meridian/
+Meridian-Engine/
   core/                 models, units, provenance, source selection, blend, alert merge, correction
   sources/openmeteo/    adapter + source descriptor (data file)
   sources/aviationweather/
