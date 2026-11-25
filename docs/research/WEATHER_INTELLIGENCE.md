@@ -59,6 +59,12 @@ Recommended approach for MER-4:
 
 The 15 km, 75-minute, and 300 m values in the existing MER-4 draft are candidate defaults, not universal meteorological truths. They need regional and variable-specific evidence. The draft's example that rejects a station at 40 km is consistent with a 15 km cutoff, but its two-hour example and any other inconsistent threshold language must be reconciled.
 
+## Observation quality and WMO guidance
+
+Use the current [WMO Guide to Instruments and Methods of Observation (WMO-No. 8)](https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/instruments-and-methods-of-observation-programme-imop/guide-instruments-and-methods-of-observation-wmo-no-8-0) as a reference for measurement methods, instrument context, and observing practices. The WMO page lists the 2024 edition and, on 2026-11-25, also announces a provisional 2026 edition submitted for consideration at INFCOM-4 during 23–27 November 2026. Treat that 2026 text as provisional until its approval/publication status is confirmed.
+
+Meridian should not claim that a provider's data is “WMO quality-controlled” merely because it reports meteorological values. Record actual source-reported quality flags and station metadata; document Meridian's own deterministic sanity checks separately. A sanity check can detect implausible values, but it does not certify an instrument or replace the source's quality-control process.
+
 ## 4. Apparent temperature and practical interpretation
 
 Apparent temperature is a high-value user-facing metric and should be retained as a first-class value from the first forecast path when supported.
