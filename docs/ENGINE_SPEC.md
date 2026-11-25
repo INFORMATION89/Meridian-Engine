@@ -27,6 +27,14 @@ The current recommended KMP target matrix, runtime requirements, dependency supp
 
 Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
 
+## AI integration boundary
+
+Meridian is designed to be AI-ready, not AI-dependent. Its deterministic engine and public API must remain fully useful without a language model, AI provider, model download, or AI credential.
+
+AI-enabled applications may use Meridian's structured results, provenance, freshness, uncertainty, source attribution, and official alerts to provide explanations, summaries, and natural-language queries. Such features belong in an optional consumer or adapter layer, not in the weather-domain core. AI output is derived explanatory content; it must not replace numeric weather values, alter official alerts, or hide missing/stale data.
+
+The engineering and product requirements for AI are defined in the root [AI_POLICY.md](../AI_POLICY.md). The master architecture and milestone for AI readiness are defined in [PLAN.md](../PLAN.md).
+
 ## 3. Core concepts
 
 **Place:** latitude, longitude, optional elevation, time zone, optional country and region codes
