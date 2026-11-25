@@ -20,15 +20,15 @@ Meridian is an independent library. Solstice is only its first reference consume
 
 ## Current assignment
 
-The only currently authorized engineering task is **M0.1: five-platform Kotlin Multiplatform proof**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
+The only currently authorized engineering task is **MER-0.1: five-platform Kotlin Multiplatform proof**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/MER-0_1_PLATFORM_SPIKE.md`.
 
-Do not implement the production weather engine until the project owner has approved the M0.1 recommendation and the resulting toolchain decision.
+Do not implement the production weather engine until the project owner has approved the MER-0.1 recommendation and the resulting toolchain decision.
 
-M0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that the same minimal KMP operation works on Android and iOS, and through a Desktop JVM artifact on Windows, macOS, and Linux. Follow the M0.1 specification's target matrix and acceptance criteria exactly.
+MER-0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that the same minimal KMP operation works on Android and iOS, and through a Desktop JVM artifact on Windows, macOS, and Linux. Follow the MER-0.1 specification's target matrix and acceptance criteria exactly.
 
 ## Scope discipline
 
-During M0.1, do not implement:
+During MER-0.1, do not implement:
 
 - weather-provider adapters or live API calls;
 - production weather domain models or forecast algorithms;
@@ -37,7 +37,7 @@ During M0.1, do not implement:
 - app UI, user settings, or Solstice feature integration;
 - a complete production workspace or all planned modules.
 
-Validate only the Ktor and SQLDelight candidate paths listed in the M0.1 specification. Do not add a dependency or choose a final public API merely because it makes the proof easier. Record alternatives and trade-offs. If a task cannot be completed without making a product decision, stop and ask the project owner through the pull request.
+Validate only the Ktor and SQLDelight candidate paths listed in the MER-0.1 specification. Do not add a dependency or choose a final public API merely because it makes the proof easier. Record alternatives and trade-offs. If a task cannot be completed without making a product decision, stop and ask the project owner through the pull request.
 
 ## Platform validation
 
