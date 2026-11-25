@@ -15,11 +15,11 @@ If two documents disagree, do not silently choose one. Report the conflict and f
 
 ## Current assignment
 
-The only currently authorized engineering task is **M0.1: technology and interoperability proof of concept**, as described in `PLAN.md` sections 5 and 16.
+The only currently authorized engineering task is **M0.1: technology and interoperability proof of concept**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
 
 Do not implement the production weather engine until the project owner has approved the M0.1 recommendation and the resulting toolchain decision.
 
-M0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that a minimal native library can be built, loaded, called, and packaged through the proposed Kotlin/Swift boundaries on the required operating systems.
+M0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that a minimal native library can be built, loaded, called, and packaged through the proposed Kotlin/Swift boundaries on the required operating systems. Follow the M0.1 specification's target matrix and acceptance criteria exactly.
 
 ## Scope discipline
 
