@@ -3,7 +3,8 @@
 **Status:** proposed design specification; no production weather feature or storage implementation is authorized by this document.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 6–8, 11–16.  
 **Depends on:** MER-0.1 platform proof and owner approval of the supported target/runtime strategy.  
-**Purpose:** define a small, consumer-neutral API and local persistence boundary before implementing weather providers or algorithms.
+**Purpose:** define a small, consumer-neutral API and local persistence boundary before implementing weather providers or algorithms.  
+**Owner decision proposal:** [MER-0.2 API and storage decision proposal](MER-0_2_DECISION_PROPOSAL.md). The proposal is guidance for review, not an approved contract.
 
 ## 1. Objective
 
