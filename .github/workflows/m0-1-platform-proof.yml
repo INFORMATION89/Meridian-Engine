@@ -86,10 +86,10 @@ jobs:
             engine/build/test-results/
             ios-consumer/.build/
 
-  android-arm64:
-    # Match the emulator guest architecture to the physical runner architecture.
-    # This avoids software-emulating ARM64 on an x64 hosted runner.
-    runs-on: ubuntu-24.04-arm
+  android:
+    # Use the stable x86_64 emulator on the standard x64 GitHub-hosted runner.
+    # The Android consumer has no ARM64-only ABI requirement.
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
@@ -97,29 +97,19 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          architecture: aarch64
-      - name: Verify ARM64 runner and committed Gradle Wrapper
+      - name: Verify x86_64 runner and committed Gradle Wrapper
         run: |
-          test "$(uname -m)" = "aarch64"
+          test "$(uname -m)" = "x86_64"
           ./gradlew --version
-      # The stable Android SDK repository does not publish the emulator package
-      # for Linux ARM64. Install the ARM64-host emulator from the canary channel
-      # first, then install the stable platform and ARM64 guest system image.
       - uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools'
-      - name: Install ARM64-host Android emulator from canary
-        run: sdkmanager --channel=3 "emulator"
-      - name: Install Android 35 platform and ARM64 Google APIs image
-        run: |
-          sdkmanager "platforms;android-35"
-          sdkmanager "system-images;android-35;google_apis;arm64-v8a"
-      - name: Run ARM64 Android emulator instrumentation tests
+          packages: 'platform-tools;emulator;platforms;android-35;system-images;android-35;google_apis;x86_64'
+      - name: Run Android x86_64 emulator instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         timeout-minutes: 25
         with:
           api-level: 35
-          arch: arm64-v8a
+          arch: x86_64
           target: google_apis
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           profile: pixel_6
@@ -127,7 +117,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: mer-0-1-android-arm64
+          name: mer-0-1-android-x86_64
           path: |
             android-consumer/build/reports/
             android-consumer/build/outputs/androidTest-results/
