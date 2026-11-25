@@ -9,12 +9,12 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 ## Adopted project decisions
 
 1. **Repository identity:** the repository is INFORMATION89/Meridian-Engine. The product and library name remains Meridian.
-2. **Storage boundary:** Meridian uses a hybrid model. The core defines storage contracts; Meridian may provide an official optional Room implementation in the storage-room module; consuming applications may provide their own implementation. The core must never depend on Room or another concrete database.
+2. **Storage boundary:** the core must remain independent of concrete databases. The current cross-platform proposal is an optional SQLDelight/SQLite implementation behind a storage boundary; Room is not a Meridian-wide requirement. Final storage and extension decisions are governed by PLAN.md M0.2.
 3. **Clean-room policy:** CLEAN_ROOM.md is a separate, authoritative policy. This file explains when it applies but does not duplicate its detailed requirements.
 
 ## 1. Read before every session
 
-1. Read this file and CLEAN_ROOM.md before changing code or project documentation.
+1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Read AI_POLICY.md before any coding-agent session or when using AI tools with project data.
 2. Read the current decision, status, roadmap, and history documents when they exist.
 3. Read the approved specification for the task. A research note or draft is not automatically an approved implementation requirement.
 4. Inspect the actual repository, code, tests, and build configuration. Never assume a planned feature already exists.
@@ -24,11 +24,11 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 1. Meridian is a reusable weather-data and forecasting engine exposed as a library.
 2. Meridian has no user interface: no screens, navigation, visual styling, presentation components, or app-specific copy.
-3. Consuming applications depend on Meridian. Meridian must never depend on Solstice or another consuming application.
+3. Consuming applications depend on Meridian. Meridian must never depend on Solstice or another consuming application. Solstice is only the first reference consumer, never an architectural authority or a required build/test dependency. Meridian must build and pass its own tests without checking out Solstice.
 4. The core must not depend on Android Context, an application's lifecycle, or a UI framework.
 5. Meridian does not schedule refreshes. The consuming application decides when to refresh and supplies scheduling facilities.
 6. Meridian returns structured, documented data. Each application decides how to present it.
-7. Accounts, analytics, advertising, tracking, social features, and remote services require explicit approval.
+7. Accounts, analytics, advertising, tracking, social features, AI providers, model downloads, and remote services require explicit approval.
 
 ## 3. Changes that require approval
 
@@ -40,12 +40,12 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 4. Architecture and dependency boundaries
 
-1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in Kotlin Multiplatform common code wherever practical.
+1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected by PLAN.md. Kotlin Multiplatform with Android/iOS targets and Desktop JVM is the current recommendation pending M0.1 approval.
 2. Keep provider-specific request and response details inside that provider's adapter. Provider DTOs must not leak into the public domain model.
 3. Put platform-specific implementations behind narrow interfaces or in the appropriate platform source sets. Do not add platform dependencies to common code for convenience.
 4. Access storage, HTTP, time, and other external capabilities through explicit interfaces or injected dependencies. Core logic must be testable without a real network, database, device, or wall clock.
 5. Do not introduce a dependency-injection framework into the core without approval. Prefer explicit construction.
-6. Keep module responsibilities narrow: shared weather semantics in core; provider adapters in their source modules; optional concrete storage in storage implementation modules; deterministic fixtures and fakes in testing.
+6. Keep module responsibilities narrow: shared weather semantics in the core; provider adapters in their own modules; optional concrete storage behind an interface; language bindings isolated from engine internals; deterministic fixtures and fakes in test support.
 7. The core must not depend on provider adapters, storage implementations, or consuming applications. Avoid circular dependencies.
 8. Do not expose transport DTOs, database entities, vendor SDK types, or platform-specific types in the stable public API.
 9. Keep the public API small and application-neutral. Existing API sketches remain proposals until approved.
@@ -106,13 +106,13 @@ Before adding or changing a source:
 3. Each configurable default must state its unit, purpose, and rationale. Validate configuration at the boundary and fail clearly when invalid.
 4. Keep configuration separate from algorithms so applications can configure supported behaviour without forking the engine.
 5. A new threshold or tunable parameter requires approval and tests for boundary behaviour.
-6. Centralize dependency versions in the Gradle version catalog. Do not repeat dependency versions across module build files.
+6. Centralize and lock dependency versions using the package/build system selected in PLAN.md (Gradle version catalog and dependency locking for KMP; Cargo only if a Rust component is later approved). Do not scatter unpinned versions across modules.
 
 ## 10. Storage, caching, privacy, and retention
 
 1. The core defines storage contracts; it does not depend on a concrete database.
-2. The optional storage-room module may provide Meridian's official Room-backed implementation. It depends on the core, never the reverse.
-3. A consuming application may use the official storage-room implementation or supply its own adapter. The choice must not change the meaning of the core API.
+2. An optional SQLDelight/SQLite implementation may provide the official local storage backend. It depends on the core contract, never the reverse. Do not make Android Jetpack Room a required engine dependency.
+3. A consuming application may use Meridian's supported storage implementation or provide an adapter only through an extension mechanism proven and documented in M0.2. The choice must not change the meaning of the core API.
 4. Document what is stored, why it is needed, where it is stored, how long it is retained, and how it is deleted.
 5. Do not store saved-place history or introduce location tracking into Meridian. Persist only the minimum data required by explicitly approved engine functions.
 6. Apply the approved retention period to forecasts, observations, statistics, and cached responses. Do not extend retention silently.
@@ -126,6 +126,10 @@ Before adding or changing a source:
 CLEAN_ROOM.md is the authoritative policy for permitted research sources, independent specifications, implementation sessions, source records, and code-similarity concerns. Read and follow it before writing or changing implementation code. If its requirements cannot be met, stop and report the blocker.
 
 Review every new dependency for maintenance, supported targets, and licence compatibility before adding it. Keep Meridian's Apache-2.0 licence and notices accurate.
+
+## AI-assisted development and optional chat adapters
+
+Contributor use of AI for engineering and occasional manual data analysis is governed by `AI_POLICY.md`. Read it before using a coding agent or sharing project data with an AI tool. Meridian has no AI runtime integration: the shipped engine must not call a model, require an AI provider or credentials, or incur token costs. An optional MCP adapter may be considered outside the weather core to expose approved read-only queries to an external chat client; it must not become a core dependency and requires its own specification and owner approval.
 
 ## 12. Testing and verification
 

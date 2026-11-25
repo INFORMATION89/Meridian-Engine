@@ -7,31 +7,36 @@ milestones: MERIDIAN_PLAN.md.
 
 ## 1. What it is
 
-**Meridian** (name decided 2026-11-23; repo `INFORMATION89/Meridian-Engine` when it's created) is a
+**Meridian** (name decided 2026-11-23; repo `INFORMATION89/Meridian-Engine`) is a
 weather library with no UI. Given a place, it returns a forecast, current conditions, next-hour
-rain, alerts, air quality and UV, each with a record of where every number came from. Solstice uses it
-first; other apps (a macOS menu bar app, a Windhawk mod, a clock app) can use it later.
+rain, alerts, air quality and UV, each with a record of where every number came from. Solstice is its
+first consumer, not its owner or a required dependency. Meridian must build, test, and operate independently;
+other applications on iOS, Android, Windows, macOS, and Linux must be able to consume the same public API.
 
 - **Licence:** Apache 2.0.
-- **Language and platforms:** Kotlin Multiplatform. The core lives in common code; Android and desktop
-  JVM first, macOS next (as a framework Swift can call), Windows later (section 9).
-- **Not in it:** UI, Android `Context` in the core, dependency injection frameworks, any app's code.
+- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a Kotlin Multiplatform engine with Android/iOS targets and a Desktop JVM artifact for Windows, macOS, and Linux, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
+- **Platforms:** Windows, macOS, iOS, Android, and Linux are intended targets. Exact supported architectures, artifact formats, and support levels are maintained in [PLAN.md](../PLAN.md).
+- **Not in it:** UI, app navigation, Android `Context` or other platform UI objects in the engine core, dependency-injection frameworks in the core, or any consumer application's code.
 
 ## 2. Platforms
 
-Kotlin Multiplatform is stable for Android, iOS and desktop JVM. For Google's Jetpack libraries, macOS
-is tier 2 (partly tested) and Windows tier 3 (untested). So:
+The engine must keep weather-domain behaviour independent from the host operating system. Native libraries and language bindings are packaging/integration layers; they must not change the meaning of weather results.
 
-| Target | Use | Notes |
-|---|---|---|
-| Android | Solstice | First target |
-| JVM | desktop helper, tests, archive checks | Same code as Android; runs the offline tests |
-| macOS (Kotlin/Native) | menu bar app | Built as a framework a Swift app imports |
-| Windows | Windhawk mod | Windhawk mods are single C++ files loaded into Windows processes such as Explorer, so the engine shouldn't run inside them. A small helper process (JVM or Kotlin/Native) runs the engine; the mod reads its latest result. Decide when the time comes. |
+The five target platforms are Windows, macOS, iOS, Android, and Linux. A target is not considered supported simply because a compiler emits a binary: the library must load through its intended binding, execute a deterministic operation, handle errors and cancellation safely, and pass platform integration tests.
 
-Dependencies must work in common code: an HTTP client with a native engine per platform (Ktor offers
-Android/OkHttp, Darwin for Apple and WinHttp for Windows), a JSON/XML serializer, a date-time library,
-and storage behind an interface the app provides.
+The current recommended KMP target matrix, runtime requirements, dependency support, and platform build hosts are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before a release.
+
+Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
+
+## AI use and optional chat integration
+
+Meridian is a deterministic weather engine, not an AI product. It must fetch, normalize, evaluate, combine, and return weather results without calling a generative-AI service or requiring model files, inference runtimes, AI credentials, prompts, tokens, or AI-specific network access. No chatbot, generated briefing, or autonomous agent is part of the engine runtime.
+
+An optional MCP adapter may be built outside the weather-domain core so an external chat client can query Meridian through approved read-only tools. MCP is only the connection between the chat host and Meridian; it does not itself provide a model or make AI part of the engine. The external chat host/provider is responsible for model behaviour and any model/token costs. The adapter must preserve structured values, units, timestamps, provenance, freshness, uncertainty, and official alerts, and must enforce authentication, input validation, bounded queries, and least privilege.
+
+The engine's normal API remains the primary interface for apps and tools that do not use chat. AI-assisted engineering and manual research are contributor workflows only; any claimed forecast-quality improvement must be reproduced with deterministic code and versioned data, then reviewed by a human.
+
+The contributor policy is defined in [AI_POLICY.md](../AI_POLICY.md). The evidence-based verification workflow and optional MCP assessment are defined in [PLAN.md](../PLAN.md) and its M0.3 specification.
 
 ## 3. Core concepts
 
@@ -119,15 +124,18 @@ validity match. Updates replace what they reference; cancels remove it. The most
 - Seeded from public data so it works from day one: archived past forecasts (Open-Meteo's Previous Runs
   API, from January 2024; see M7_LEARNING.md) checked against station observations.
 - **Opt-in sharing** (RULES.md section 10): only aggregated forecast errors, area-rounded and
-  hour-rounded, computed on the phone. Not built until the server and the legal check exist.
+  hour-rounded, computed on the device. This is a separate future feature and is not required for
+  local learning or normal engine operation. Do not add a Meridian-hosted collection server by default.
 
 ## 9. Storage, caching and scheduling
 
 - `core` defines storage contracts for the cache, forecast/observation history and local verification statistics.
-- `storage-room` may provide Meridian's official Room-backed implementation behind those contracts; consuming applications may use it or provide their own adapter. The core never depends on Room.
-- Application settings, secure storage for provider credentials, and refresh scheduling remain the consuming application's responsibility.
+- The preferred implementation is local SQLite through the cross-platform storage module (SQLDelight candidate, subject to M0.2 proof). On-device storage is owned by the consuming application and remains available without a Meridian account or remote database.
+- Application settings, secure storage for any user-supplied provider credentials, and refresh scheduling remain the consuming application's responsibility.
 - Cache each response for its source's update cadence; never call a source more often than its minimum interval, whatever the app asks.
 - The engine never schedules itself; the app decides when to refresh (WorkManager on Android).
+- Network access is used only to contact configured weather/observation/alert providers directly. The engine does not call a Meridian-operated backend or require a persistent connection to a Meridian service.
+- When offline, return valid cached data with its original timestamp and freshness state, or a typed unavailable/stale result. Never imply cached data is current.
 
 ## 10. Phase 2: radar nowcast (not before phase 1 works)
 
@@ -156,7 +164,7 @@ else plugs in later.
 ## 13. Configuration and tokens
 
 Every threshold, weight, distance, age, window, cell size and interval is configuration with a named
-default, never typed into code (RULES.md section 3). The list grows with the code; each new one is
+default, never typed into code (RULES.md section 9). The list grows with the code; each new one is
 agreed with Marco.
 
 ## 14. Testing
