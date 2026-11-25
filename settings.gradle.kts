@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Meridian-M0.1"
+rootProject.name = "Meridian-MER-0.1"
 include(":engine", ":desktop-consumer", ":android-consumer")
