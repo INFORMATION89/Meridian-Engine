@@ -35,10 +35,11 @@ jobs:
       - name: Package and launch self-contained desktop app image
         run: |
           input_dir="desktop-consumer/build/install/desktop-consumer/lib"
-          main_jar="$(basename "$input_dir"/desktop-consumer-*.jar)"
+          main_jar="$(basename "$input_dir"/desktop-consumer*.jar)"
           dest_dir="desktop-consumer/build/jpackage"
           jpackage --type app-image --name MeridianProbe --input "$input_dir" --main-jar "$main_jar" --main-class io.meridian.consumer.MainKt --dest "$dest_dir"
-          env -u JAVA_HOME PATH=/usr/bin:/bin "$PWD/$dest_dir/MeridianProbe/bin/MeridianProbe"
+          empty_path="$(mktemp -d)"
+          env -u JAVA_HOME -u JAVA_HOME_21_X64 PATH="$empty_path" "$PWD/$dest_dir/MeridianProbe/bin/MeridianProbe"
           du -sh "$dest_dir/MeridianProbe"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
@@ -69,10 +70,11 @@ jobs:
         shell: pwsh
         run: |
           $inputDir = (Resolve-Path ".\desktop-consumer\build\install\desktop-consumer\lib").Path
-          $mainJar = (Get-ChildItem $inputDir -Filter "desktop-consumer-*.jar" | Select-Object -First 1).Name
+          $mainJar = (Get-ChildItem $inputDir -Filter "desktop-consumer*.jar" | Select-Object -First 1).Name
           $destDir = ".\desktop-consumer\build\jpackage"
           jpackage --type app-image --name MeridianProbe --input $inputDir --main-jar $mainJar --main-class io.meridian.consumer.MainKt --dest $destDir
           Remove-Item Env:JAVA_HOME -ErrorAction SilentlyContinue
+          Remove-Item Env:JAVA_HOME_21_X64 -ErrorAction SilentlyContinue
           $env:PATH = "$env:SystemRoot\System32"
           & ".\desktop-consumer\build\jpackage\MeridianProbe\MeridianProbe.exe"
           $size = (Get-ChildItem ".\desktop-consumer\build\jpackage\MeridianProbe" -Recurse -File | Measure-Object Length -Sum).Sum
@@ -103,10 +105,11 @@ jobs:
       - name: Package and launch self-contained desktop app image
         run: |
           input_dir="desktop-consumer/build/install/desktop-consumer/lib"
-          main_jar="$(basename "$input_dir"/desktop-consumer-*.jar)"
+          main_jar="$(basename "$input_dir"/desktop-consumer*.jar)"
           dest_dir="desktop-consumer/build/jpackage"
           jpackage --type app-image --name MeridianProbe --input "$input_dir" --main-jar "$main_jar" --main-class io.meridian.consumer.MainKt --dest "$dest_dir"
-          env -u JAVA_HOME PATH=/usr/bin:/bin "$PWD/$dest_dir/MeridianProbe.app/Contents/MacOS/MeridianProbe"
+          empty_path="$(mktemp -d)"
+          env -u JAVA_HOME -u JAVA_HOME_21_X64 PATH="$empty_path" "$PWD/$dest_dir/MeridianProbe.app/Contents/MacOS/MeridianProbe"
           du -sh "$dest_dir/MeridianProbe.app"
       - name: Prepare Swift package consumer
         run: |
