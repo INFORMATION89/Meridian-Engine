@@ -13,7 +13,8 @@
 - [x] Root `CLEAN_ROOM.md` exists as a separate authoritative policy.
 - [x] Root `AI_POLICY.md` governs AI-assisted engineering and AI-enabled product features.
 - [ ] Review and approve the root `PLAN.md`.
-- [ ] Add Apache-2.0 `LICENSE` and `NOTICE`.
+- [x] Add the Apache-2.0 `LICENSE` text.
+- [ ] Add `NOTICE` only after confirming the copyright holder and completing the third-party attribution inventory; do not invent notices.
 - [x] Add a project `README.md` that says the project is early and not yet usable.
 - [x] Add a cross-platform `.gitignore` for IDE files, build outputs, local configuration, native artifacts, and secrets.
 - [ ] Configure branch protection for `main` after the first CI build is green.
