@@ -8,6 +8,20 @@ final class ProbeUseTests: XCTestCase {
         XCTAssertEqual(MeridianProbe().version, "0.1.0")
     }
 
+    func testTypedFailureMapsToSwiftError() {
+        XCTAssertThrowsError(try MeridianProbe().requireNonEmpty(input: "  "))
+    }
+
+    func testSuspendOperationCompletesForSwiftConsumer() {
+        let finished = expectation(description: "Kotlin suspend operation completes")
+        MeridianProbe().transformAsync(input: "Swift", seed: 4) { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value, "swift:4")
+            finished.fulfill()
+        }
+        wait(for: [finished], timeout: 5)
+    }
+
     func testSqliteDriverCanReopenDatabase() {
         XCTAssertTrue(IosStorageProbe.shared.verifyReopen())
     }
