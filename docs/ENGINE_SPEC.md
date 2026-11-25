@@ -13,7 +13,7 @@ rain, alerts, air quality and UV, each with a record of where every number came 
 first; other apps (a macOS menu bar app, a Windhawk mod, a clock app) can use it later.
 
 - **Licence:** Apache 2.0.
-- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a native Rust engine with generated Kotlin and Swift bindings, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
+- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a Kotlin Multiplatform engine with Android/iOS targets and a Desktop JVM artifact for Windows, macOS, and Linux, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
 - **Platforms:** Windows, macOS, iOS, Android, and Linux are intended targets. Exact supported architectures, artifact formats, and support levels are maintained in [PLAN.md](../PLAN.md).
 - **Not in it:** UI, app navigation, Android `Context` or other platform UI objects in the engine core, dependency-injection frameworks in the core, or any consumer application's code.
 
@@ -23,7 +23,7 @@ The engine must keep weather-domain behaviour independent from the host operatin
 
 The five target platforms are Windows, macOS, iOS, Android, and Linux. A target is not considered supported simply because a compiler emits a binary: the library must load through its intended binding, execute a deterministic operation, handle errors and cancellation safely, and pass platform integration tests.
 
-The current recommended Rust target matrix, support tiers, required build hosts, and Kotlin/Swift binding strategy are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before a release.
+The current recommended KMP target matrix, runtime requirements, dependency support, and platform build hosts are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before a release.
 
 Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
 
