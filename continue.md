@@ -3,7 +3,7 @@
 **Recorded:** 2026-11-25  
 **Repository:** [INFORMATION89/Meridian-Engine](https://github.com/INFORMATION89/Meridian-Engine)  
 **Branch:** `spike/m0.1-kmp-platform-proof`  
-**Current branch HEAD:** `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`  
+**Last full-matrix workflow-tested commit:** `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`  
 **PR:** [#2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) — **OPEN · DRAFT · NOT MERGED**  
 **Current phase:** **MER-0.1 stabilization**. MER-0.1 is not complete; MER-1 has not started.
 
