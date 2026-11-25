@@ -1,76 +1,72 @@
-# M0.3 — AI readiness and agent workflow specification
+# M0.3 — Reproducible verification and AI-assisted development workflow
 
-**Status:** proposed design milestone; requires M0.1 and M0.2 decisions.  
+**Status:** Proposed design milestone; follows the M0.1 platform proof and M0.2 API/storage decisions.  
 **Parent documents:** [`PLAN.md`](../../PLAN.md), [`AI_POLICY.md`](../../AI_POLICY.md), [`AGENTS.md`](../../AGENTS.md).  
-**Scope:** make Meridian straightforward and safe to consume from AI applications and coding agents, without adding a model dependency or making the engine AI-dependent.
+**Scope:** prepare the project to improve weather quality through evidence, reproducible analysis, and human-reviewed changes. AI may assist contributors during development and research, but it is not part of Meridian's runtime.
 
 ## 1. Objective
 
-Prove that an independent consumer (not Solstice) can query Meridian through a stable, typed, machine-readable API and obtain weather data with enough metadata for an AI assistant to explain it accurately.
+Define how Meridian will collect, preserve, compare, and learn from forecast snapshots and later observations so that forecast quality can be improved deliberately.
 
-This milestone is about contracts and boundaries, not integrating a production LLM.
+The workflow must remain useful with ordinary code, scripts, fixtures, and manual analysis. A contributor may optionally use AI to explore a dataset or investigate a result, but every material finding must be independently reproducible and reviewed by a human.
 
-## 2. Required design outputs
+## 2. Product boundary
 
-1. **Independent-consumer proof:** a minimal sample application or CLI uses Meridian only through its public API. It must build and run without checking out, compiling, or importing Solstice.
-2. **Machine-readable schemas:** document the public weather result, source/provenance, freshness, uncertainty, missing/stale/error states, and official alert representations.
-3. **Read-only query contract:** define typed queries for current conditions, hourly/daily forecast, observations, alerts, source status, attribution, and provenance. Final names follow the approved M0.2 public API.
-4. **AI context contract:** define how an application can assemble a minimized, typed context for a model without passing database rows, provider DTOs, credentials, unrelated location data, or hidden internal fields.
-5. **Tool contract:** document a small allowlist of read-only weather functions. Each function must define schema, units, time semantics, permissions, bounded result sizes, typed errors, and versioning.
-6. **Protocol decision:** assess whether an optional MCP adapter is useful. MCP or another agent protocol must remain outside the core domain API. Do not add a protocol dependency unless a concrete consumer needs it.
-7. **Evaluation plan:** define a versioned, human-reviewed set of weather questions and expected evidence/claims. Include missing, stale, conflicting, regional, Spanish (Mexico), and official-alert cases.
-8. **Threat model:** document indirect prompt injection through alert/provider text, data leakage, tool misuse, excessive agency, output handling, unbounded use, and fallback behaviour.
-9. **Agent workflow:** ensure `AGENTS.md` and `AI_POLICY.md` define least privilege, untrusted repository content, branch/PR requirements, truthful test reporting, and human approval gates.
+M0.3 does not add an AI capability to Meridian.
 
-## 3. Suggested read-only tools (illustrative only)
+The engine must not require:
+- an LLM, generative model, ML inference service, model file, or AI provider;
+- API keys, tokens, prompts, embeddings, vector databases, or MCP;
+- background model requests or AI-generated user-facing text.
 
-The public API and M0.2 decision determine the final names. Candidate capabilities:
+The public API remains structured and machine-readable because that is good library design for all consumers—not because it is being prepared for an AI assistant. Do not add AI-specific query tools, prompt contexts, or agent protocols to the weather domain.
 
-- query current conditions for a supplied place and feature set;
-- query hourly/daily forecast over a bounded time window;
-- list observations with station and measurement timestamps;
-- list official alerts with issuing authority and full lifecycle metadata;
-- inspect source candidates, status, freshness, and required attribution;
-- retrieve provenance for a returned value or result.
+## 3. Required design outputs
 
-Do not provide tools that write to provider configuration, alter alert state, change user settings, delete data, contact external parties, execute code, access arbitrary files, or browse arbitrary URLs.
+1. **Independent-consumer principle:** confirm that any sample or verification CLI consumes Meridian through its public API and never imports or builds Solstice.
+2. **Forecast record contract:** define the metadata needed to preserve what a provider/model forecast actually said at a given issue time, including provider/model/product, issue/run time, fetch time, place/grid, variable, unit, forecast lead, valid time, and source version where available.
+3. **Observation record contract:** define observation source, station/grid identity, coordinates or spatial reference at the minimum necessary precision, measurement time, fetch time, variable, unit, quality flags, and known representativeness limits.
+4. **Matching rules:** specify how forecasts are paired with observations, including time-zone normalization, valid-time tolerance, station distance/elevation, duplicate handling, missing values, and quality exclusions.
+5. **Evaluation methodology:** define baseline/candidate comparison and appropriate metrics, reported by variable, lead time, region, season, and source where sample sizes permit.
+6. **Reproducibility record:** every experiment identifies dataset versions, algorithm/configuration versions, evaluation code, parameters, exclusions, sample counts, and results.
+7. **Human approval workflow:** document how analysis findings become a reviewed algorithm/configuration change with regression tests; no automatic promotion or self-modifying production engine.
+8. **Contributor AI workflow:** document permitted use of AI for coding and occasional manual data analysis, with data minimization, independent verification, least privilege, and explicit review under `AI_POLICY.md`.
 
-## 4. Truth and provenance requirements
+## 4. Scientific and statistical safeguards
 
-- The deterministic engine remains the source of numeric weather facts.
-- An AI-generated explanation is a separate derived artifact, never a weather observation or authoritative forecast.
-- Every weather claim in an AI output must map to the structured context and relevant source/provenance reference.
-- Missing, stale, failed, uncertain, and contradictory inputs must be represented explicitly.
-- An AI explanation must not alter official alert text, issuing authority, severity, urgency, certainty, onset, expiry, or cancellation state.
-- AI failure, timeout, refusal, or schema-validation failure must fall back to ordinary deterministic weather results.
+- Evaluate forecasts only against observations that were unavailable at the forecast's issue time.
+- Keep tuning and final evaluation periods separate; prefer chronological holdouts for time-dependent weather data.
+- Do not choose metrics after inspecting candidate results.
+- Report sample counts and missing/excluded cases alongside scores.
+- Compare candidates against the previous Meridian baseline and relevant individual source models.
+- Inspect regressions as well as aggregate gains; do not let an aggregate score hide a poor region, variable, season, or forecast lead.
+- Document observation quality, station representativeness, spatial matching, elevation differences, time alignment, and uncertainty.
+- Treat AI-generated interpretations as hypotheses until deterministic analysis reproduces them.
 
-## 5. Security and privacy validation
+## 5. Suggested analysis measures
 
-Test the boundaries with deliberately adversarial fixtures, including provider and alert text containing instruction-like strings such as requests to reveal secrets, ignore rules, invoke tools, or send data elsewhere. Confirm that such text remains data and cannot grant tools or permissions.
+Choose metrics according to variable and task, not convenience. Examples include:
 
-Verify:
-- tool calls are allowlisted and read-only;
-- all tool arguments are schema-validated;
-- exact location data is minimized for the task;
-- credentials and unrelated personal data never enter the AI context;
-- model output is validated and escaped before rendering;
-- request size, time, retries, and cost can be bounded;
-- no-LLM operation leaves core weather functions intact.
+- MAE and RMSE for continuous variables;
+- mean error/bias for systematic over- or under-forecasting;
+- categorical scores for threshold events when thresholds are defined in advance;
+- probabilistic scores and calibration diagnostics when forecast distributions or probabilities are available.
+
+No single score establishes universal forecast quality. Results should be segmented and accompanied by sample counts and uncertainty where practical.
 
 ## 6. Acceptance criteria
 
-M0.3 is complete only when:
+M0.3 design work is complete when:
 
-1. A sample consumer queries Meridian without Solstice or any Solstice dependency.
-2. The weather result and provenance contracts are machine-readable, versioned, and documented.
-3. A read-only tool schema can retrieve forecasts, current conditions, alerts, and source/provenance details.
-4. An AI context can be assembled with explicit data minimization and no credentials.
-5. Adversarial provider/alert fixtures cannot expand tool permissions or override trusted instructions.
-6. Official-alert fidelity and deterministic fallback are specified and covered by tests.
-7. A versioned evaluation plan exists, with test cases and pass/fail thresholds reviewed by the owner.
-8. The decision on MCP or another protocol is documented; no agent protocol has been coupled to the weather core.
-9. No production LLM provider, prompt, model download, vector database, agent runtime, or AI inference is required for Meridian's core tests.
+1. Forecast and observation records have documented, versionable contracts with provenance and time semantics.
+2. A deterministic forecast-verification methodology is documented, including matching, exclusions, data-leakage prevention, baseline comparison, and metrics.
+3. An experiment can be reproduced from identified data, code, parameters, and algorithm/configuration versions.
+4. The human review path from analysis report to algorithm/configuration change is explicit.
+5. `AI_POLICY.md` and `AGENTS.md` govern coding agents and occasional AI-assisted research without authorizing runtime AI.
+6. The milestone and architecture explicitly state that Meridian's core build, tests, runtime, and weather results require no AI provider, credentials, model, or token spend.
 
 ## 7. Explicitly out of scope
 
-Do not select a production LLM vendor, embed API keys, fine-tune a model, build a vector database, add autonomous multi-agent orchestration, create a hosted AI backend, or make AI necessary for forecasts. Each such feature requires its own specification, privacy/security review, evaluation plan, and owner approval.
+Do not integrate an LLM, hosted AI backend, MCP server, vector database, prompt framework, autonomous agent, AI weather assistant, or AI-generated briefing. Do not automatically train, deploy, or promote a learned correction model. Do not implement production forecast algorithms or claim forecast improvements before the necessary forecast/observation archive and validation data exist.
+
+Actual verification tooling and any later statistical/ML correction must be scoped by their own milestone after the source, observation, and forecast history contracts are stable.
