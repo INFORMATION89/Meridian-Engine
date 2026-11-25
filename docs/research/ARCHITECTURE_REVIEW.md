@@ -36,6 +36,10 @@ The latest inspected workflow for PR #2 was [Run #152](https://github.com/INFORM
 
 This is meaningful evidence that the current KMP/JVM proof and its packaging workflow are much more stable than the earlier failing runs.
 
+### Documentation snapshot is now stale on the spike branch
+
+The inspected MER-0.1 branch's `continue.md` still records Run #147 as in progress and an earlier branch SHA, while PR #2's description still calls Run #152 pending. The separate `docs/verification/MER-0_1_RESULTS.md` also predates Run #152. Before MER-0.1 is closed, reconcile those records with Run #152 and the exact tested/current branch SHA. This review does not update the active spike branch.
+
 ### Limits that remain
 
 A green workflow does not close every acceptance criterion:
@@ -189,6 +193,7 @@ The current documentation set contains legacy assumptions that should be reconci
 | Rain probability | A draft blend proposes the share of deterministic models exceeding a rain threshold as a probability | Do not call it calibrated probability without verification; preserve model agreement as a separate statistic |
 | Model selection | A fixed list of models for Mexico City appears as a starting proposal | Verify each model's actual coverage, valid variables, horizon, issue time, and archive availability before finalizing |
 | AI policy status | `AGENTS.md` treats `AI_POLICY.md` as mandatory; the file is marked proposed for owner review | Confirm adoption status and align document headers; mandatory reading and policy approval are different things |
+| MER-0.1 status records | Run #152 is green, but the spike branch continuation, verification record, and PR description still reflect earlier workflow state | Reconcile exact SHA, job results, outstanding gaps, and PR summary before acceptance |
 
 These are not reasons to discard the architecture. They are reasons to make the authoritative documents agree before implementation.
 
