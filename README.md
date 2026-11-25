@@ -24,6 +24,10 @@ Android CI currently targets an x86_64 emulator. Android ARM64 runtime validatio
 
 These are implementation candidates, not production support guarantees. See the [MER-0.1 verification record](docs/verification/MER-0_1_RESULTS.md) and [platform spike specification](docs/specs/MER-0_1_PLATFORM_SPIKE.md) for exact evidence and limitations.
 
+## License
+
+Meridian is intended to be distributed under the Apache License, Version 2.0. See [LICENSE](LICENSE). Third-party dependency notices are tracked separately and must be reviewed before distribution.
+
 ## Architecture principles
 
 - Meridian is a library, not a weather application.
