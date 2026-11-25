@@ -231,13 +231,13 @@ jobs:
     permissions:
       contents: write
     outputs:
-      metadata_sha: \${{ steps.commit-metadata.outputs.sha }}
+      metadata_sha: ${{ steps.commit-metadata.outputs.sha }}
     runs-on: macos-26
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: \${{ github.event.pull_request.head.ref || github.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -269,11 +269,11 @@ jobs:
              [ ! -s android-consumer/gradle.lockfile ] || \
              [ ! -s desktop-consumer/gradle.lockfile ]; then
             echo "No complete committed dependency metadata found; bootstrapping lock state and SHA-256 checksums."
-            ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 "\${tasks[@]}"
+            ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 "${tasks[@]}"
             echo "generated=true" >> "$GITHUB_OUTPUT"
           else
             echo "Committed dependency metadata found; verifying it without rewriting checksums."
-            ./gradlew --no-daemon --no-configuration-cache "\${tasks[@]}"
+            ./gradlew --no-daemon --no-configuration-cache "${tasks[@]}"
             echo "generated=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Verify generated metadata files
@@ -291,8 +291,8 @@ jobs:
         id: commit-metadata
         shell: bash
         env:
-          HEAD_REF: \${{ github.event.pull_request.head.ref }}
-          HEAD_REPOSITORY: \${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
