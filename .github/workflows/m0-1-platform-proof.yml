@@ -44,12 +44,12 @@ jobs:
           distribution: temurin
           java-version: "21"
       - name: Verify committed Gradle Wrapper
-        run: .\\gradlew.bat --version
+        run: .\gradlew.bat --version
       - name: Build, test and execute packaged JVM consumer
         shell: pwsh
         run: |
-          .\\gradlew.bat :engine:desktopTest :desktop-consumer:installDist
-          .\\desktop-consumer\\build\\install\\desktop-consumer\\bin\\desktop-consumer.bat
+          .\gradlew.bat :engine:desktopTest :desktop-consumer:installDist
+          .\desktop-consumer\build\install\desktop-consumer\bin\desktop-consumer.bat
       - uses: actions/upload-artifact@v4
         if: always()
         with:
