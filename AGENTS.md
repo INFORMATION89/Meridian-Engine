@@ -15,7 +15,7 @@ If two documents disagree, do not silently choose one. Report the conflict and f
 
 ## Current assignment
 
-The only currently authorized engineering task is **M0.1: technology and interoperability proof of concept**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
+The only currently authorized engineering task is **M0.1: five-platform Kotlin Multiplatform proof**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
 
 Do not implement the production weather engine until the project owner has approved the M0.1 recommendation and the resulting toolchain decision.
 
@@ -32,7 +32,7 @@ During M0.1, do not implement:
 - app UI, user settings, or Solstice feature integration;
 - a complete production workspace or all planned crates.
 
-Do not add a dependency or choose a final public API merely because it makes the proof easier. Record alternatives and trade-offs. If a task cannot be completed without making a product decision, stop and ask the project owner through the pull request.
+Validate only the Ktor and SQLDelight candidate paths listed in the M0.1 specification. Do not add a dependency or choose a final public API merely because it makes the proof easier. Record alternatives and trade-offs. If a task cannot be completed without making a product decision, stop and ask the project owner through the pull request.
 
 ## Platform validation
 
