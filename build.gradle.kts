@@ -13,3 +13,26 @@ allprojects {
         lockAllConfigurations()
     }
 }
+
+// Resolve every project's resolvable configurations in one controlled pass.
+// Run with --write-locks to generate the committed Gradle lock state.
+tasks.register("resolveAndLockAll") {
+    notCompatibleWithConfigurationCache("Resolves project configurations at execution time")
+
+    doFirst {
+        require(gradle.startParameter.isWriteDependencyLocks) {
+            "Run this task with --write-locks to generate dependency lock state."
+        }
+    }
+
+    doLast {
+        allprojects.forEach { project ->
+            project.configurations
+                .filter { it.isCanBeResolved }
+                .forEach { configuration ->
+                    project.logger.lifecycle("Resolving ${project.path}:${configuration.name}")
+                    configuration.resolve()
+                }
+        }
+    }
+}
