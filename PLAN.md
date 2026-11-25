@@ -263,7 +263,7 @@ The public API should eventually offer these capabilities (names are illustrativ
 - clear Meridian-owned local data;
 - cancel a running operation and shut down resources safely.
 
-Errors should be typed result values at the public boundary. Do not leak Rust panics, exceptions, HTTP client types, SQLite rows, provider JSON types, or platform-specific objects.
+Errors should be typed result values at the public boundary. Do not leak unhandled exceptions or panics, HTTP client types, SQLite rows, provider JSON types, or platform-specific objects.
 
 Keep the first public API batch-oriented. Partial streaming updates may be added only after a real consumer requires them and the FFI behaviour is proven.
 
