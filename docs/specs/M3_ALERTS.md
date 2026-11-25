@@ -1,4 +1,4 @@
-# Meridian M3: official alerts (CAP, WMO, FOSS Public Alert Server)
+# Meridian MER-3: official alerts (CAP, WMO, FOSS Public Alert Server)
 
 Status: **spec, clean room step 1** (2026-11-23), from the OASIS CAP 1.2 standard, WMO's Severe Weather
 Information Centre pages and source list, Google's public CAP guidance, KDE's public pages, and the FOSS
