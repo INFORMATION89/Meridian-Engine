@@ -16,10 +16,10 @@ M0.3 does not add an AI capability to Meridian.
 
 The engine must not require:
 - an LLM, generative model, ML inference service, model file, or AI provider;
-- API keys, tokens, prompts, embeddings, vector databases, or MCP;
+- API keys, tokens, prompts, embeddings, vector databases, or an MCP server dependency in the weather core;
 - background model requests or AI-generated user-facing text.
 
-The public API remains structured and machine-readable because that is good library design for every consumer. Do not add prompts, model clients, or agent protocols to the weather domain. However, an optional MCP adapter outside the core is a valid future consumer integration: it could expose a controlled subset of the public API to an external chat client.
+The public API remains structured and machine-readable because that is good library design for every consumer. Do not add prompts, model clients, or agent protocols to the weather domain. However, an optional MCP adapter outside the core is a valid future consumer integration: it could expose a controlled subset of the public API to an external chat client. The intended flow is chat host/model → MCP client → optional Meridian MCP adapter → Meridian public API → deterministic engine and weather sources. The adapter returns structured data and provenance; it does not invoke a model itself. The external chat host decides how to use the result and is responsible for generated wording and model costs.
 
 ## 3. Required design outputs
 
