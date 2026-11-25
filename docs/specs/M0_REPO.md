@@ -41,7 +41,16 @@
 - [ ] Build a Rust/UniFFI comparator only if native desktop libraries without a JVM are required or the KMP proof exposes a blocker.
 - [ ] Present a written recommendation and obtain owner approval before M1.
 
-## 4. Public API and local storage — M0.2\n\n- [ ] Approve the consumer-neutral public request/result API and batch-first approach.\n- [ ] Define optional cache and forecast/observation history interfaces, including retention, deletion, versioning, and atomicity.\n- [ ] Define offline, freshness, partial-failure, typed-error, and cancellation semantics.\n- [ ] Demonstrate the API through an independent fixture-backed sample consumer with no Solstice dependency.\n- [ ] Validate Android, iOS/Swift, and JVM desktop interop against M0.1 evidence.\n- [ ] Obtain owner approval for API stability, storage boundary, and error model before M1.\n\n## 5. Reproducible verification and research — M0.3
+## 4. Public API and local storage — M0.2
+
+- [ ] Approve the consumer-neutral public request/result API and batch-first approach.
+- [ ] Define optional cache and forecast/observation history interfaces, including retention, deletion, versioning, and atomicity.
+- [ ] Define offline, freshness, partial-failure, typed-error, and cancellation semantics.
+- [ ] Demonstrate the API through an independent fixture-backed sample consumer with no Solstice dependency.
+- [ ] Validate Android, iOS/Swift, and JVM desktop interop against M0.1 evidence.
+- [ ] Obtain owner approval for API stability, storage boundary, and error model before M1.
+
+## 5. Reproducible verification and research — M0.3
 
 - [ ] Create a standalone sample consumer that builds and queries Meridian without Solstice.
 - [ ] Publish versioned machine-readable weather, error, freshness, and provenance schemas.
