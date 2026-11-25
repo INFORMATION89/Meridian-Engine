@@ -1,4 +1,4 @@
-# Meridian M1: first forecast (Open-Meteo)
+# Meridian MER-1: first forecast (Open-Meteo)
 
 Status: **spec, clean room step 1** (2026-11-23), written only from Open-Meteo's public documentation.
 The build session works from this file alone. Context: ENGINE_SPEC.md, MERIDIAN_PLAN.md section 9.
@@ -6,8 +6,8 @@ The build session works from this file alone. Context: ENGINE_SPEC.md, MERIDIAN_
 ## Scope
 
 Given a place, return hourly, daily and current weather from Open-Meteo's best-match forecast, as
-Meridian's own types, with provenance. One source, one model, no blending (that's M5), no storage
-beyond an in-memory cache (M2).
+Meridian's own types, with provenance. One source, one model, no blending (that's MER-5), no storage
+beyond an in-memory cache (MER-2).
 
 ## Request
 
@@ -26,7 +26,7 @@ beyond an in-memory cache (M2).
 | `past_days` | configuration (default 0) | Allowed 0 to 92 |
 | `wind_speed_unit` | `ms` | Already SI |
 | `temperature_unit`, `precipitation_unit` | defaults (`celsius`, `mm`) | |
-| `models` | not sent (best match) | M5 adds explicit models |
+| `models` | not sent (best match) | MER-5 adds explicit models |
 | `cell_selection` | default (`land`) | |
 
 No key. A custom User-Agent naming Meridian and its repo.
