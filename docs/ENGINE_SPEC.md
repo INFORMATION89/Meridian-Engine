@@ -28,13 +28,15 @@ The current recommended KMP target matrix, runtime requirements, dependency supp
 
 Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
 
-## AI integration boundary
+## AI use and optional chat integration
 
-Meridian is designed to be AI-ready, not AI-dependent. Its deterministic engine and public API must remain fully useful without a language model, AI provider, model download, or AI credential.
+Meridian is a deterministic weather engine, not an AI product. It must fetch, normalize, evaluate, combine, and return weather results without calling a generative-AI service or requiring model files, inference runtimes, AI credentials, prompts, tokens, or AI-specific network access. No chatbot, generated briefing, or autonomous agent is part of the engine runtime.
 
-AI-enabled applications may use Meridian's structured results, provenance, freshness, uncertainty, source attribution, and official alerts to provide explanations, summaries, and natural-language queries. Such features belong in an optional consumer or adapter layer, not in the weather-domain core. AI output is derived explanatory content; it must not replace numeric weather values, alter official alerts, or hide missing/stale data.
+An optional MCP adapter may be built outside the weather-domain core so an external chat client can query Meridian through approved read-only tools. MCP is only the connection between the chat host and Meridian; it does not itself provide a model or make AI part of the engine. The external chat host/provider is responsible for model behaviour and any model/token costs. The adapter must preserve structured values, units, timestamps, provenance, freshness, uncertainty, and official alerts, and must enforce authentication, input validation, bounded queries, and least privilege.
 
-The engineering and product requirements for AI are defined in the root [AI_POLICY.md](../AI_POLICY.md). The master architecture and milestone for AI readiness are defined in [PLAN.md](../PLAN.md).
+The engine's normal API remains the primary interface for apps and tools that do not use chat. AI-assisted engineering and manual research are contributor workflows only; any claimed forecast-quality improvement must be reproduced with deterministic code and versioned data, then reviewed by a human.
+
+The contributor policy is defined in [AI_POLICY.md](../AI_POLICY.md). The evidence-based verification workflow and optional MCP assessment are defined in [PLAN.md](../PLAN.md) and its M0.3 specification.
 
 ## 3. Core concepts
 
