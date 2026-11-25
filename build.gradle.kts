@@ -6,33 +6,11 @@ plugins {
     alias(libs.plugins.sqldelight) apply false
 }
 
-// Lock every resolvable configuration once the lock state has been generated
-// and committed. This keeps platform-specific dependency graphs in scope.
+// Lock every resolvable configuration once it is used by a real build/test task.
+// The CI metadata-generation job runs each platform's dependency-consuming tasks
+// with --write-locks so Gradle captures the configurations it actually resolves.
 allprojects {
     dependencyLocking {
         lockAllConfigurations()
-    }
-}
-
-// Resolve every project's resolvable configurations in one controlled pass.
-// Run with --write-locks to generate the committed Gradle lock state.
-tasks.register("resolveAndLockAll") {
-    notCompatibleWithConfigurationCache("Resolves project configurations at execution time")
-
-    doFirst {
-        require(gradle.startParameter.isWriteDependencyLocks) {
-            "Run this task with --write-locks to generate dependency lock state."
-        }
-    }
-
-    doLast {
-        allprojects.forEach { project ->
-            project.configurations
-                .filter { it.isCanBeResolved }
-                .forEach { configuration ->
-                    project.logger.lifecycle("Resolving ${project.path}:${configuration.name}")
-                    configuration.resolve()
-                }
-        }
     }
 }
