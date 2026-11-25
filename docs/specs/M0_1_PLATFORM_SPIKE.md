@@ -158,14 +158,14 @@ Official reference: [Ktor client engines](https://ktor.io/docs/client-engines.ht
 
 ### SQLDelight driver matrix to test
 
-SQLDelight 2.1.0 documentation explicitly demonstrates:
+SQLDelight 2.4.1 (the latest stable release checked on 2026-11-25) documentation explicitly demonstrates:
 - Android: `android-driver`.
 - iOS/Kotlin Native: `native-driver`.
 - Desktop JVM: `sqlite-driver` using JDBC.
 
 Use a tiny schema with a create/insert/select/update transaction test and reopen the database to prove persistence. Test the packaged JVM artifact on each desktop OS; do not assume a driver that compiles on one host behaves identically on all three.
 
-Official reference: [SQLDelight 2.1.0 Multiplatform SQLite guide](https://sqldelight.github.io/sqldelight/2.1.0/multiplatform_sqlite/).
+Official references: [SQLDelight 2.4.1 documentation](https://sqldelight.github.io/sqldelight/2.4.1/), [Native SQLite driver](https://sqldelight.github.io/sqldelight/2.4.1/native_sqlite/), [Android SQLite driver](https://sqldelight.github.io/sqldelight/2.4.1/android_sqlite/), and [JVM SQLite driver](https://sqldelight.github.io/sqldelight/2.4.1/jvm_sqlite/).
 
 ### CI execution matrix
 
@@ -199,3 +199,10 @@ For iOS, distinguish framework compilation from successful Swift import and simu
 ## 11. Out of scope
 
 Do not implement Open-Meteo, METAR, CAP, WMO, FPAS, weather models, source selection, blending, SQLite production schema, cache policy, forecast learning, radar, Solstice feature integration, or any publishable production API during this spike.
+
+
+### Version refresh before the first build (2026-11-25)
+
+The initial draft named SQLDelight 2.1.0 because that was the version in the first compatibility research. A final release check found SQLDelight 2.4.1, released 2026-10-06, as the current stable version. The implementation spike therefore pins 2.4.1 instead. This is a test candidate, not a production dependency approval. If the plugin or any driver fails with Kotlin 2.4.21 / AGP 9.3.1, record the exact failing target and compare the supported version combination before changing the stack.
+
+Sources checked: SQLDelight's official 2.4.1 release notes and platform-specific Android, Native, and JVM SQLite driver documentation.
