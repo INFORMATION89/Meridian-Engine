@@ -1,6 +1,7 @@
 package io.meridian.probe
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.withContext
 
 /**
@@ -21,6 +22,9 @@ class MeridianProbe {
 
     suspend fun transformAsync(input: String, seed: Int): String =
         withContext(Dispatchers.Default) { transform(input, seed) }
+
+    suspend fun awaitCancellation(): String =
+        withContext(Dispatchers.Default) { awaitCancellation() }
 }
 
 enum class ProbeErrorCode {
