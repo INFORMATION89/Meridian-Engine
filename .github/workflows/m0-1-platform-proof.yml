@@ -44,7 +44,7 @@ jobs:
           distribution: temurin
           java-version: "21"
       - name: Verify committed Gradle Wrapper
-        run: ./gradlew --version
+        run: .\gradlew.bat --version
       - name: Build, test and execute packaged JVM consumer
         shell: pwsh
         run: |
@@ -107,7 +107,7 @@ jobs:
           target: google_apis
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           profile: pixel_6
-          script: gradle :android-consumer:connectedDebugAndroidTest
+          script: ./gradlew :android-consumer:connectedDebugAndroidTest
       - uses: actions/upload-artifact@v4
         if: always()
         with:
