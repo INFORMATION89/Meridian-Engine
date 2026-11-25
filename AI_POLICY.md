@@ -16,6 +16,7 @@ This is a product boundary, not merely a fallback requirement:
 - No generated text is required to produce or explain the engine's numeric results.
 - No chatbot, AI briefing, or autonomous AI agent is part of the planned engine product.
 - No AI provider SDK, model runtime, prompt framework, vector database, or MCP dependency belongs in the core.
+- An optional MCP adapter may be built outside the weather core to let an external chat client query Meridian through a narrow read-only interface. That adapter is a separate integration, not a requirement for using Meridian.
 - A normal user must not incur AI token charges or experience AI latency because they requested weather data.
 
 AI may be used deliberately by project contributors during development and research. That use is separate from the shipped engine, is governed by this policy, and does not make AI a product capability.
@@ -111,7 +112,9 @@ The shipped Meridian engine and its ordinary consumer applications must:
 - avoid automatic transmission of weather or location data to an AI service;
 - avoid background AI calls and AI-generated user-facing content.
 
-A future consumer application may independently propose an AI feature, but that is outside Meridian's engine scope. It must not create a dependency in Meridian or be treated as a reason to design AI-specific interfaces into the public API. Any such proposal requires a separate specification, privacy/security review, evidence that deterministic logic is insufficient, cost justification, and explicit owner approval.
+A future consumer may connect Meridian to a chat through an optional MCP adapter. MCP is a tool-transport protocol, not a model and not a weather algorithm: the adapter would expose only approved read-only Meridian queries, while the external chat host/model decides whether to call them and generates any natural-language response. The adapter must remain outside the weather-domain core, must not introduce AI dependencies into ordinary engine use, and must preserve units, timestamps, provenance, freshness, uncertainty, and official-alert fidelity. Its hosting, authentication, data exposure, rate limits, and operational costs require a separate specification and explicit owner approval. Token/model costs and chat behaviour belong to the external chat host/provider, not to Meridian itself.
+
+Any other future consumer-side AI feature is also outside Meridian's engine scope. It must not create a dependency in Meridian or be treated as a reason to design AI-specific interfaces into the weather API. Any such proposal requires a separate specification, privacy/security review, evidence that deterministic logic is insufficient, cost justification, and explicit owner approval.
 
 ## 8. Approval checklist
 
