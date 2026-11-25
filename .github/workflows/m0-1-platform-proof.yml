@@ -404,7 +404,20 @@ jobs:
             git add -- gradle/verification-metadata.xml
             if ! git diff --cached --quiet; then
               git commit -m "build: verify Linux Android tool artifacts"
-              git push origin "HEAD:refs/heads/$HEAD_REF"
+              pushed=false
+              for attempt in 1 2 3; do
+                # A docs or metadata commit may land while this job is running.
+                # Rebase our narrow metadata commit on the latest branch head;
+                # never force-push or overwrite concurrent work.
+                git fetch origin "$HEAD_REF"
+                git rebase "origin/$HEAD_REF"
+                if git push origin "HEAD:refs/heads/$HEAD_REF"; then
+                  pushed=true
+                  break
+                fi
+                echo "Branch advanced during push; retrying after a fresh fetch/rebase ($attempt/3)." >&2
+              done
+              test "$pushed" = true
             else
               echo "Linux verification metadata is already current."
             fi
