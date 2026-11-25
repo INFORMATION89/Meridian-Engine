@@ -1,6 +1,6 @@
-# M0.3 — Reproducible verification, research, and optional chat integration
+# MER-0.3 — Reproducible verification, research, and optional chat integration
 
-**Status:** Proposed design milestone; follows the M0.1 platform proof and M0.2 API/storage decisions.  
+**Status:** Proposed design milestone; follows the MER-0.1 platform proof and MER-0.2 API/storage decisions.  
 **Parent documents:** [`PLAN.md`](../../PLAN.md), [`AI_POLICY.md`](../../AI_POLICY.md), [`AGENTS.md`](../../AGENTS.md).  
 **Scope:** prepare the project to improve weather quality through evidence, reproducible analysis, and human-reviewed changes. AI may assist contributors during development and research, but it is not part of Meridian's runtime.
 
@@ -12,7 +12,7 @@ The workflow must remain useful with ordinary code, scripts, fixtures, and manua
 
 ## 2. Product boundary
 
-M0.3 does not add an AI capability to Meridian.
+MER-0.3 does not add an AI capability to Meridian.
 
 The engine must not require:
 - an LLM, generative model, ML inference service, model file, or AI provider;
@@ -57,7 +57,7 @@ No single score establishes universal forecast quality. Results should be segmen
 
 ## 6. Acceptance criteria
 
-M0.3 design work is complete when:
+MER-0.3 design work is complete when:
 
 1. Forecast and observation records have documented, versionable contracts with provenance and time semantics.
 2. A deterministic forecast-verification methodology is documented, including matching, exclusions, data-leakage prevention, baseline comparison, and metrics.
