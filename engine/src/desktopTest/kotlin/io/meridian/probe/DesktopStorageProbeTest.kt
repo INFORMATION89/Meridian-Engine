@@ -7,5 +7,6 @@ class DesktopStorageProbeTest {
     @Test
     fun sqliteDataSurvivesDriverReopen() {
         assertTrue(DesktopStorageProbe.verifyReopen())
+        assertTrue(DesktopKtorProbe.verifyClientLifecycle())
     }
 }
