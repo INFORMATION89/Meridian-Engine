@@ -32,11 +32,21 @@ jobs:
         run: |
           ./gradlew --warning-mode=all --stacktrace :engine:desktopTest :desktop-consumer:installDist
           ./desktop-consumer/build/install/desktop-consumer/bin/desktop-consumer
+      - name: Package and launch self-contained desktop app image
+        run: |
+          input_dir="desktop-consumer/build/install/desktop-consumer/lib"
+          main_jar="$(basename "$input_dir"/desktop-consumer-*.jar)"
+          dest_dir="desktop-consumer/build/jpackage"
+          jpackage --type app-image --name MeridianProbe --input "$input_dir" --main-jar "$main_jar" --main-class io.meridian.consumer.MainKt --dest "$dest_dir"
+          env -u JAVA_HOME PATH=/usr/bin:/bin "$PWD/$dest_dir/MeridianProbe/bin/MeridianProbe"
+          du -sh "$dest_dir/MeridianProbe"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: mer-0-1-linux-desktop
-          path: desktop-consumer/build/install/
+          path: |
+            desktop-consumer/build/install/
+            desktop-consumer/build/jpackage/
 
   desktop-windows:
     runs-on: windows-2025
@@ -55,11 +65,25 @@ jobs:
         run: |
           .\gradlew.bat --warning-mode=all --stacktrace :engine:desktopTest :desktop-consumer:installDist
           .\desktop-consumer\build\install\desktop-consumer\bin\desktop-consumer.bat
+      - name: Package and launch self-contained desktop app image
+        shell: pwsh
+        run: |
+          $inputDir = (Resolve-Path ".\desktop-consumer\build\install\desktop-consumer\lib").Path
+          $mainJar = (Get-ChildItem $inputDir -Filter "desktop-consumer-*.jar" | Select-Object -First 1).Name
+          $destDir = ".\desktop-consumer\build\jpackage"
+          jpackage --type app-image --name MeridianProbe --input $inputDir --main-jar $mainJar --main-class io.meridian.consumer.MainKt --dest $destDir
+          Remove-Item Env:JAVA_HOME -ErrorAction SilentlyContinue
+          $env:PATH = "$env:SystemRoot\System32"
+          & ".\desktop-consumer\build\jpackage\MeridianProbe\MeridianProbe.exe"
+          $size = (Get-ChildItem ".\desktop-consumer\build\jpackage\MeridianProbe" -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host ("Self-contained app image size: {0:N1} MiB" -f ($size / 1MB))
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: mer-0-1-windows-desktop
-          path: desktop-consumer/build/install/
+          path: |
+            desktop-consumer/build/install/
+            desktop-consumer/build/jpackage/
 
   apple-and-ios:
     runs-on: macos-26
@@ -76,6 +100,14 @@ jobs:
         run: |
           ./gradlew --warning-mode=all --stacktrace :engine:assembleMeridianSharedDebugXCFramework :engine:iosSimulatorArm64Test :engine:desktopTest :desktop-consumer:installDist
           ./desktop-consumer/build/install/desktop-consumer/bin/desktop-consumer
+      - name: Package and launch self-contained desktop app image
+        run: |
+          input_dir="desktop-consumer/build/install/desktop-consumer/lib"
+          main_jar="$(basename "$input_dir"/desktop-consumer-*.jar)"
+          dest_dir="desktop-consumer/build/jpackage"
+          jpackage --type app-image --name MeridianProbe --input "$input_dir" --main-jar "$main_jar" --main-class io.meridian.consumer.MainKt --dest "$dest_dir"
+          env -u JAVA_HOME PATH=/usr/bin:/bin "$PWD/$dest_dir/MeridianProbe.app/Contents/MacOS/MeridianProbe"
+          du -sh "$dest_dir/MeridianProbe.app"
       - name: Prepare Swift package consumer
         run: |
           mkdir -p ios-consumer/Frameworks
