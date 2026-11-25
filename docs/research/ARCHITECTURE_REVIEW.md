@@ -5,6 +5,12 @@
 **Scope:** repository architecture, M0.1 evidence, MER-0.2 API/storage decisions, MER-0.3 verification design  
 **Authority:** `PLAN.md`, `RULES.md`, `CLEAN_ROOM.md`, `AGENTS.md`, and approved milestone specifications remain authoritative.
 
+## Owner decision — testing strategy (2026-11-25)
+
+For the current MER-0.1 stage, a passing supported CI matrix is sufficient. Physical-device testing is deferred because the owner does not yet have access to every target platform; it is not required to close this milestone. The current evidence must continue to say exactly what ran: Android x86_64 emulator, iOS ARM64 Simulator/Swift consumer, and Desktop JVM on Windows/macOS/Linux. Android ARM64 runtime and physical Android/iOS execution remain **NOT TESTED**, accepted as deferred limitations rather than hidden or implied coverage.
+
+Any additional Ktor transport/integration tests are CI work using local deterministic fixtures. They do not require live weather-provider calls or hardware supplied by the owner.
+
 ## 1. Executive assessment
 
 The recommended direction is coherent: Meridian should remain an independent, local-first weather engine embedded in the consuming application. Its core should own weather semantics, provider coordination, normalization, freshness, provenance, and deterministic result assembly. The consuming application should own UI, saved places, permissions, scheduling, settings, secure credential storage, and presentation.
@@ -17,7 +23,7 @@ The current Kotlin Multiplatform proposal is a reasonable way to meet the five-O
 
 This is a five-operating-system strategy, not a promise of native `.dll`, `.dylib`, and `.so` libraries. A consumer that requires a native desktop ABI without a JVM would change the trade-off and justify a separate Rust/UniFFI comparison. Do not add that comparison unless a real consumer requirement or a concrete KMP blocker justifies it.
 
-My main recommendation is to close the remaining MER-0.1 evidence gaps, then approve a small batch-first public API and optional persistence boundary in MER-0.2. In parallel, approve a reproducible, human-reviewed verification policy in MER-0.3. Do not begin production weather providers or forecast algorithms before those gates are resolved.
+My main recommendation is to complete any remaining CI-level MER-0.1 evidence (without requiring physical-device runs), then approve a small batch-first public API and optional persistence boundary in MER-0.2. In parallel, approve a reproducible, human-reviewed verification policy in MER-0.3. Do not begin production weather providers or forecast algorithms before those gates are resolved.
 
 ## 2. Current evidence and what it proves
 
@@ -44,15 +50,15 @@ The continuation record, verified-results document, and PR #2 description have n
 
 A green workflow does not close every acceptance criterion:
 
-1. **Android ARM64 runtime remains NOT TESTED.** The inspected CI run uses an Android x86_64 emulator. Do not infer ARM64 device compatibility from it.
-2. **Physical iOS device execution remains unproven.** The inspected evidence covers an ARM64 iOS Simulator and Swift Package consumer, not a physical-device release validation.
+1. **Android ARM64 runtime remains NOT TESTED.** The inspected CI run uses an Android x86_64 emulator. Under the owner's CI-only decision, this is an accepted deferred limitation for MER-0.1, not a blocker; do not infer ARM64 device compatibility from it.
+2. **Physical Android/iOS device execution remains NOT TESTED.** The inspected evidence covers an Android emulator and an ARM64 iOS Simulator/Swift Package consumer. Physical-device runs are deferred and are not required for the current milestone.
 3. **Actual HTTP requests through each production candidate engine remain unproven.** The current spike has a common fixture path and platform engine lifecycle probes; those are not the same as sending deterministic requests through Android, Darwin, and CIO.
 4. **Timeout behaviour, transport-error mapping, and consumer-boundary cancellation need explicit tests.** Common coroutine cancellation alone does not prove Swift/Android/JVM boundary behaviour.
-5. **Software-emulator fallback without KVM remains unproven.** A run with KVM available cannot prove a TCG/software fallback.
+5. **Software-emulator fallback without KVM remains unproven.** A run with KVM available cannot prove a TCG/software fallback; this optional CI-resilience check is deferred and is not a current MER-0.1 blocker.
 6. **The dependency/licence inventory and the decision about a project `NOTICE` remain open.** Confirm the copyright holder and notice obligations before adding one.
 7. The tested dependency versions and driver choices remain spike candidates until the owner approves the M0.1 recommendation.
 
-PR #2 remains open and Draft. Its own owner gate says not to merge it, close MER-0.1, or start MER-1 until the evidence and subsequent decisions have been reviewed. See the [MER-0.1 pull request](https://github.com/INFORMATION89/Meridian-Engine/pull/2) and its [verification record on the spike branch](https://github.com/INFORMATION89/Meridian-Engine/blob/spike/m0.1-kmp-platform-proof/docs/verification/MER-0_1_RESULTS.md).
+PR #2 remains open and Draft. The owner has now accepted CI-only validation for MER-0.1 and deferred physical-device testing. The remaining gate is review of the actual CI evidence, any required CI-level Ktor checks, dependency/licence findings, and the production language/target/driver/packaging recommendation; this does not imply that untested ARM64 or physical-device paths passed. See the [MER-0.1 pull request](https://github.com/INFORMATION89/Meridian-Engine/pull/2) and its [verification record on the spike branch](https://github.com/INFORMATION89/Meridian-Engine/blob/spike/m0.1-kmp-platform-proof/docs/verification/MER-0_1_RESULTS.md).
 
 ### Run #152 package measurements
 
@@ -207,7 +213,7 @@ These are not reasons to discard the architecture. They are reasons to make the 
 
 MER-1 should begin only after:
 
-1. The owner reviews and approves the M0.1 language, target, driver, and packaging recommendation, including explicit acceptance or resolution of Android ARM64 NOT TESTED.
+1. The owner reviews and approves the M0.1 language, target, driver, and packaging recommendation. The CI-only validation policy and deferral of physical-device/Android ARM64 testing have already been accepted; preserve the NOT TESTED labels.
 2. MER-0.2 approves the public API, feature-result semantics, lifecycle/cancellation, optional storage boundary, retention/deletion, and versioning.
 3. MER-0.3 approves forecast/observation record semantics, archive/access assumptions, matching policy, evaluation metrics, data-leakage controls, and human review workflow.
 4. Every selected provider has current terms, licence, feature/region coverage, rate limit, cost, attribution, credential, and direct-client-use status recorded.
