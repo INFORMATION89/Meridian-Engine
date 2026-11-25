@@ -45,19 +45,21 @@ kotlin {
             implementation(libs.ktor.client.darwin)
             implementation(libs.sqldelight.native.driver)
         }
-        desktopMain.dependencies {
+        val desktopMain by getting {
+            dependencies {
             implementation(libs.ktor.client.cio)
-            implementation(libs.sqldelight.sqlite.driver)
+                implementation(libs.sqldelight.sqlite.driver)
+            }
         }
-        desktopTest.dependencies {
-            implementation(kotlin("test"))
+        val desktopTest by getting {
+            dependencies { implementation(kotlin("test")) }
         }
     }
 }
 
 sqldelight {
     databases {
-        create("ProbeDatabase") {
+        register("ProbeDatabase") {
             packageName.set("io.meridian.probe.db")
         }
     }
