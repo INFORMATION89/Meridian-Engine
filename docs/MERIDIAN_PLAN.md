@@ -119,10 +119,10 @@ About 4 to 6: forecast (multi-model), ensemble mean, air quality, one METAR call
 - Start with **equal weights**: simple and hard to beat until there's local data. A comparison of
   weighting methods found that more complex Bayesian model averaging adds value only when the best
   model beats the equal-weight blend.
-- Then **weights from recent skill**: each model's weight proportional to the inverse of its error
-  (RMSE) over a rolling 30-day window, per variable and lead time. Recent studies (ECMWF and ACCESS
-  blends, Australia's Bureau of Meteorology) found this consistently beats equal and fixed weights,
-  especially at longer lead times. A floor keeps any model from dropping to zero (a token).
+- Then **weights from recent skill**: a candidate approach is to weight each model in proportion to
+  the inverse of its error (RMSE) over a configurable rolling window, initially 30 days for research.
+  This window and weighting policy require archive evaluation and owner approval; a floor can keep a
+  model from dropping to zero if the evidence supports it.
 - **Spread** shown to people: from the disagreement between models, plus Open-Meteo's ensemble
   standard deviation where available.
 
@@ -150,7 +150,9 @@ go in the pull request.
 - Statistics: place, source, variable, lead-time bucket, hour bucket, bias, error, count.
 - Cache: the last responses with their expiry.
 
-All kept 30 days (decided), then deleted; cleared from Settings › Privacy.
+Retention is configurable, bounded, independently disableable, and explicitly deletable. A 30-day
+window is a proposal for evaluation, not an adopted product default; the owner must approve it after
+storage-cost and data-scope review.
 
 ## 8. How it reaches Solstice (decided 2026-11-23: switch directly)
 
