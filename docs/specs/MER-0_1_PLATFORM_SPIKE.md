@@ -32,7 +32,7 @@ Use the same observable behaviour on all five operating systems.
 
 | OS | Build target | Required runtime check |
 |---|---|---|
-| Android | Android/Kotlin target, ARM64 first | Load library from an Android test app on an ARM64 emulator/device |
+| Android | Android/Kotlin target; ARM64 remains a required production ABI | CI instrumentation on an x86_64 Android 35 emulator with KVM; ARM64 runtime is a separate device/host check |
 | iOS | `iosArm64` and `iosSimulatorArm64` | Build framework; call from Swift in an ARM64 simulator; device check where available |
 | Windows | Desktop `jvm()` | Run the same JVM artifact on Windows x64 with the chosen JDK |
 | macOS | Desktop `jvm()` | Run the same JVM artifact on Apple Silicon macOS; Intel macOS if available |
@@ -173,7 +173,7 @@ Use separate jobs on real OS runners:
 - `ubuntu-24.04`: Linux JVM artifact and shared/JVM tests.
 - `windows-2025`: Windows JVM artifact and persistence tests.
 - `macos-15` (Apple Silicon runner where available): iOS framework, Swift simulator consumer, and macOS JVM artifact.
-- Android emulator/device tests should run on an Android-capable Linux runner; record emulator image and ABI.
+- Android emulator tests should run on an Android-capable Linux runner with KVM enabled; record emulator image and ABI. The current CI uses x86_64 for repeatable hardware-accelerated instrumentation. ARM64 remains a required production ABI and must be marked NOT TESTED until exercised on a physical ARM64 device or a hosted environment with working ARM64 virtualization.
 
 GitHub's runner catalogue currently lists public-repository standard runners for Linux, Windows, and macOS, including Apple Silicon macOS runners. Pin runner labels rather than relying indefinitely on `-latest`. Hosted runner availability, Xcode image contents, and included minutes are operational constraints to record. A successful cross-compile is not a substitute for executing the artifact on the target OS.
 
@@ -183,7 +183,7 @@ Official references: [GitHub Actions runner selection](https://docs.github.com/e
 
 The implementation PR must report each cell as **PASS**, **FAIL**, **BLOCKED**, or **NOT TESTED**, with a log/artifact link and exact command. Do not mark a platform PASS from compilation alone.
 
-| Check | Android | iOS | Windows | macOS | Linux |
+| Check | Android (x86_64 CI; ARM64 pending) | iOS | Windows | macOS | Linux |
 |---|---|---|---|---|---|
 | Shared probe compiles | | | | | |
 | Artifact/framework produced | | | | | |
@@ -194,7 +194,7 @@ The implementation PR must report each cell as **PASS**, **FAIL**, **BLOCKED**, 
 | SQLDelight create/write/read/reopen | | | | | |
 | Packaged consumer launch | | | | | |
 
-For iOS, distinguish framework compilation from successful Swift import and simulator execution. For Android, distinguish Gradle compilation from an instrumented test on the declared ABI. For desktop, test the actual packaged JVM artifact on each OS, not only on the build host.
+For iOS, distinguish framework compilation from successful Swift import and simulator execution. For Android, distinguish Gradle compilation from an instrumented test on the declared ABI. An x86_64 emulator PASS must not be represented as ARM64 runtime PASS. For desktop, test the actual packaged JVM artifact on each OS, not only on the build host.
 
 ## 11. Out of scope
 
