@@ -14,9 +14,9 @@ object DesktopStorageProbe {
             JdbcSqliteDriver(url).use { first ->
                 ProbeDatabase.Schema.create(first)
                 val database = ProbeDatabase(first)
-                database.transaction {
-                    probeQueries.insertRecord(1, "initial")
-                    probeQueries.updateRecord("persisted", 1)
+                database.probeQueries.transaction {
+                    database.probeQueries.insertRecord(1, "initial")
+                    database.probeQueries.updateRecord("persisted", 1)
                 }
             }
 

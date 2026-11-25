@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.XCFramework
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -13,8 +13,6 @@ kotlin {
         namespace = "io.meridian.engine"
         compileSdk = 36
         minSdk = 26
-
-        // Exercise commonTest on Android's host JVM as well as on device consumers.
         withHostTest {}
     }
 
@@ -23,7 +21,6 @@ kotlin {
         target.binaries.framework {
             baseName = "MeridianShared"
             isStatic = true
-            // SQLDelight's Native driver uses Apple's system SQLite library.
             linkerOpts("-lsqlite3")
             xcf.add(this)
         }

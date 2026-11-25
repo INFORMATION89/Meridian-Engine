@@ -10,9 +10,9 @@ object IosStorageProbe {
         val first = NativeSqliteDriver(ProbeDatabase.Schema, name)
         try {
             val database = ProbeDatabase(first)
-            database.transaction {
-                probeQueries.insertRecord(1, "initial")
-                probeQueries.updateRecord("persisted", 1)
+            database.probeQueries.transaction {
+                database.probeQueries.insertRecord(1, "initial")
+                database.probeQueries.updateRecord("persisted", 1)
             }
         } finally {
             first.close()
