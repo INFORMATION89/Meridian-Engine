@@ -123,7 +123,27 @@ jobs:
           sdkmanager "system-images;android-35;google_apis;x86_64"
       - name: Enable and verify KVM
         run: |
-          test -c /dev/kvm
+          # Hosted runner images may leave the KVM modules unloaded.
+          sudo modprobe kvm
+          vendor="$(awk -F: '/vendor_id/ {print $2; exit}' /proc/cpuinfo | xargs)"
+          case "$vendor" in
+            GenuineIntel) sudo modprobe kvm_intel ;;
+            AuthenticAMD) sudo modprobe kvm_amd ;;
+            *) echo "Unsupported CPU vendor for KVM: $vendor"; exit 1 ;;
+          esac
+
+          # Recreate the device node only when the kernel registered KVM in sysfs.
+          if [ ! -e /dev/kvm ] && [ -r /sys/devices/virtual/misc/kvm/dev ]; then
+            IFS=: read -r major minor < /sys/devices/virtual/misc/kvm/dev
+            sudo mknod /dev/kvm c "$major" "$minor"
+          fi
+
+          test -c /dev/kvm || {
+            echo "KVM device is unavailable; kernel modules or nested virtualization are not exposed."
+            lsmod | grep -E '^kvm' || true
+            ls -la /dev/kvm || true
+            exit 1
+          }
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
