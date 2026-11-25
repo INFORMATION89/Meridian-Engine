@@ -1,45 +1,63 @@
-# Meridian M0: the empty repo (Saturday step 10, only if time is left)
+# M0 — Repository foundation checklist
 
-Status: **checklist** (2026-11-24). No engine code; M1 starts in a later session from its own spec.
+**Status:** partially complete  
+**Master plan:** [`/PLAN.md`](../../PLAN.md)  
+**Agent instructions:** [`/AGENTS.md`](../../AGENTS.md)  
+**Current status:** documentation and repository identity exist; no production engine code has been authorized.
 
-## Create
+## 1. Repository and governance
 
-- [x] GitHub repo `INFORMATION89/Meridian-Engine` exists, public, default branch `main`.
-- [ ] Add the Apache-2.0 licence and NOTICE file.
-- [ ] Clone it beside Solstice, not inside (it becomes a submodule only when M1 has something to use).
+- [x] GitHub repository `INFORMATION89/Meridian-Engine` exists; default branch is `main`.
+- [x] Product name is Meridian; repository name is Meridian-Engine.
+- [x] Root `RULES.md` exists.
+- [x] Root `CLEAN_ROOM.md` exists as a separate authoritative policy.
+- [ ] Review and approve the root `PLAN.md`.
+- [ ] Add Apache-2.0 `LICENSE` and `NOTICE`.
+- [ ] Add a project `README.md` that says the project is early and not yet usable.
+- [ ] Add a cross-platform `.gitignore` for IDE files, build outputs, local configuration, native artifacts, and secrets.
+- [ ] Configure branch protection for `main` after the first CI build is green.
 
-## Files
+## 2. Documentation home
 
-- [ ] `LICENSE`: Apache 2.0 full text. `NOTICE`: "Meridian, Copyright 2026 INFORMATION89".
-- [ ] `README.md`: one paragraph (a weather engine as a library: several models, local corrections,
-  official alerts, with provenance), status "early, nothing usable yet", link to the specs.
-- [x] Root `RULES.md` and `CLEAN_ROOM.md` created as Meridian-specific policies; CLEAN_ROOM.md is the authoritative clean-room policy.
-- [x] `docs/ENGINE_SPEC.md`, `docs/MERIDIAN_PLAN.md`, and `specs/M1`–`M5`, `M7` are in Meridian's own home. `M6_ALERTS_IN_SOLSTICE.md` remains in Solstice because it specifies consumer-app integration, not engine behaviour.
-- [ ] `.gitignore` for Gradle, IDE files, `local.properties`, keys.
-- [ ] `.github/workflows/ci.yml`: on push and pull request, Ubuntu, Java 21, `./gradlew build`.
-- [ ] SPDX header `Apache-2.0` on every source file (none yet; CI check comes with M1).
+- [x] `docs/ENGINE_SPEC.md` copied as the functional weather-engine specification.
+- [x] `docs/MERIDIAN_PLAN.md` copied as supporting research; its Kotlin/Gradle/Room proposal is explicitly marked historical and non-authoritative.
+- [x] M1 forecast specification copied to `docs/specs/M1_FORECAST.md`.
+- [x] M2 provenance specification copied to `docs/specs/M2_PROVENANCE.md`.
+- [x] M3 alerts specification copied to `docs/specs/M3_ALERTS.md`.
+- [x] M4 observations specification copied to `docs/specs/M4_OBSERVATIONS.md`.
+- [x] M5 blending specification copied to `docs/specs/M5_BLEND.md`.
+- [x] M7 learning specification copied to `docs/specs/M7_LEARNING.md`.
+- [x] M6 consumer-app integration remains in Solstice; it does not belong in the engine's implementation specification set.
+- [x] M0.1 platform/interoperability spike specification is maintained in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
 
-## Gradle
+## 3. Technology gate — M0.1
 
-- [ ] Gradle wrapper (latest stable, checked on Saturday); commit `gradlew` and the wrapper jar, never
-  `gradlew.bat` (same rule as Solstice).
-- [ ] `gradle/libs.versions.toml`: Kotlin, Kotlin Multiplatform, Ktor, kotlinx.serialization,
-  kotlinx-datetime, xmlutil, Room, DataStore. Versions picked on Saturday from each project's latest
-  stable release (MERIDIAN_PLAN.md section 2 gives the minimums: kotlinx-datetime 0.7+, Room 2.7+,
-  xmlutil 1.0.x); none typed into build files.
-- [ ] `settings.gradle.kts` with the modules from MERIDIAN_PLAN.md section 3: `core`,
-  `sources:openmeteo`, `sources:aviationweather`, `sources:wmo`, `sources:fpas`, `storage-room`,
-  `testing`, `cli`.
-- [ ] Each module: a `build.gradle.kts` with targets JVM and Android (macOS comes with M8), no sources.
-  `cli` is JVM only.
-- [ ] A shared convention for the Kotlin settings (one place, not repeated per module).
+- [ ] Build the minimal Rust + UniFFI proof of concept.
+- [ ] Generate and call Kotlin bindings.
+- [ ] Generate and call Swift bindings.
+- [ ] Build the agreed Windows, macOS, iOS, Android, and Linux target artifacts.
+- [ ] Run smoke tests through real bindings on available native runners/simulators.
+- [ ] Build a small Kotlin Multiplatform comparator using the same platform-neutral function.
+- [ ] Record artifact sizes, toolchains, build hosts, packaging constraints, and test outcomes.
+- [ ] Present a written recommendation and obtain owner approval before choosing the production engine language.
 
-## Check
+## 4. CI and release infrastructure
 
-- [ ] `./gradlew build` passes locally and on CI.
-- [ ] Branch protection on `main`: PRs only, CI must pass (after the first green run).
-- [ ] CONTINUE.md and LOG.md in Solstice updated with the repo link.
+- [ ] Add CI for Rust formatting, linting, unit tests, and offline fixture tests after the workspace is approved.
+- [ ] Add Linux x64 and ARM64 build jobs as appropriate.
+- [ ] Add Windows MSVC build and runtime test job.
+- [ ] Add macOS jobs for macOS and iOS SDK targets.
+- [ ] Add Android NDK jobs and emulator smoke tests.
+- [ ] Publish the actual supported-platform matrix in the README; distinguish supported, build-only, and experimental.
+- [ ] Confirm how native binaries and generated language bindings will be versioned and packaged.
+
+## 5. Production-code boundary
+
+No production weather adapter, forecast algorithm, database implementation, blend, learning model, radar processor, or consumer-app integration belongs to M0/M0.1. Those begin only after the relevant specification is reviewed and the technology gate is approved.
 
 ## Done when
 
-CI green on an empty build (MERIDIAN_PLAN.md section 9).
+- The owner has approved `PLAN.md` and the language/interop decision from M0.1.
+- The repository has its license, README, ignore rules, and appropriate CI foundations.
+- The project can state exactly which native target artifacts and language bindings it can build, load, and test.
+- No production weather-engine implementation has been smuggled into the bootstrap milestone.
