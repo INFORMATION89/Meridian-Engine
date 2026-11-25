@@ -30,7 +30,7 @@ During M0.1, do not implement:
 - source blending, alert processing, observations, local learning, or radar;
 - production storage/cache;
 - app UI, user settings, or Solstice feature integration;
-- a complete production workspace or all planned crates.
+- a complete production workspace or all planned modules.
 
 Validate only the Ktor and SQLDelight candidate paths listed in the M0.1 specification. Do not add a dependency or choose a final public API merely because it makes the proof easier. Record alternatives and trade-offs. If a task cannot be completed without making a product decision, stop and ask the project owner through the pull request.
 
@@ -38,14 +38,14 @@ Validate only the Ktor and SQLDelight candidate paths listed in the M0.1 specifi
 
 For every target attempted, report separately:
 
-- target triple and architecture;
+- KMP target, operating system, and architecture;
 - OS and build host;
 - toolchain and dependency versions;
 - compile/link result;
 - whether the produced artifact was loaded and executed;
 - tests actually run and their results;
 - packaging format, artifact size, and runtime dependencies;
-- known limitations and steps requiring a different host (especially Apple SDK/Xcode and Windows MSVC).
+- known limitations and steps requiring a different host (especially Apple SDK/Xcode, Windows runner/JDK, and Linux distribution requirements).
 
 Never report a platform as supported because it merely compiled. Use the support labels in `PLAN.md`.
 
