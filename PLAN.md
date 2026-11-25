@@ -48,7 +48,7 @@ M0.1 must prove the proposed Kotlin path on real target environments, including 
 8. **Reproducible verification:** deterministic fixtures for ordinary tests and historical archives for scientific changes.
 9. **Small public API:** expose stable weather concepts, not provider DTOs, database records, or platform details.
 10. **Specification before implementation:** each substantive milestone has an approved spec, a separate build task, and measurable acceptance criteria.
-11. **AI-ready, never AI-dependent:** structured, provenance-rich contracts must be easy for tools and agents to consume. Generative AI remains an optional layer; the deterministic engine remains authoritative and fully useful without it.
+11. **AI-assisted development, never AI-dependent runtime:** Meridian itself does not call generative-AI services. Contributors may use AI selectively for engineering and manual research, but the shipped engine remains deterministic, independent, and free of AI-provider or token costs.
 12. **Consumer neutrality:** Meridian must build, test, and run independently. Solstice is one consumer among many, never the product boundary.
 
 ---
@@ -68,13 +68,13 @@ M0.1 must prove the proposed Kotlin path on real target environments, including 
 - Local caching and an optional local history for forecast verification and bias correction.
 - A library API that can be consumed by native and managed applications.
 
-### AI direction
+### AI-assisted development and research
 
-Meridian must support AI-powered experiences without making AI mandatory to use the engine. The first AI-ready work should make weather data discoverable and machine-readable: stable schemas, clear units and timestamps, typed missing/error states, provenance, source attribution, quality indicators, and narrow read-only weather queries. A consumer may then add a natural-language assistant, forecast explanations, daily briefings, or alert explanations using its chosen AI provider.
+AI is primarily a contributor tool, not a Meridian product capability. It may help developers research technical decisions, write and review code, generate test ideas, inspect sanitized historical forecast/observation data, explore error patterns, and draft analysis scripts. Its use should be deliberate and limited to tasks where it provides measurable value; ordinary deterministic scripts and manual analysis remain the default.
 
-A language model must never become the source of truth for numerical weather facts or official alerts. It may explain or summarize structured results, with source references and timestamps, but it cannot alter measurements, forecast values, uncertainty, alert severity, issuing authority, or alert validity. If AI is unavailable or fails validation, deterministic weather functionality must continue normally.
+Meridian must not call an LLM or AI provider while fetching, calculating, blending, validating, caching, or returning weather results. No AI model, key, prompt, hosted service, inference runtime, MCP adapter, vector database, or token budget is required by the engine or its consumers. Users must not experience AI latency or AI token charges when asking for weather information.
 
-Keep AI orchestration and provider SDKs outside the domain core. Consider a separate adapter or optional tool server (including an MCP adapter if it proves useful) only after the public query contract is stable. Do not embed one model vendor or agent framework into the core. Any AI feature requires a defined use case, privacy and threat review, versioned evaluation set, cost/latency limits, and owner approval under `AI_POLICY.md`.
+Forecast quality improves through a reproducible loop: preserve forecast snapshots as issued, match them later to quality-controlled observations, evaluate errors by variable/lead time/region/season/source, compare candidate changes against an unchanged baseline, and have a human review and approve every algorithm or configuration change. AI may suggest hypotheses, but deterministic code and versioned data must reproduce every claimed result. Do not add runtime ML or learned correction models without a separate evidence-based specification and owner approval.
 
 ### Non-goals for the first usable release
 
@@ -207,15 +207,13 @@ Meridian-Engine/
 
 This is a proposal, not an instruction to create every module immediately. M0.1 creates only the minimal Gradle/KMP proof. Add each module when an approved milestone needs it.
 
-### AI integration boundary
+### Verification and analysis boundary
 
-- The core exposes structured, deterministic weather results with provenance and quality metadata.
-- An optional AI adapter/application layer prepares minimized context for a model; it is not a dependency of the core.
-- First tool capabilities should be read-only: query forecasts, current conditions, observations, official alerts, sources, timestamps, and attribution.
-- Tool schemas must be typed, versioned, bounded, and validated. Do not expose arbitrary shell, database, filesystem, network, or write tools to a weather assistant.
-- Provider responses and official alert text are untrusted data, never instructions to an agent.
-- AI explanations must retain references to the exact source data used. Official alert content remains independently visible and unchanged.
-- A future MCP server or other agent protocol is a transport adapter, not the definition of Meridian's public domain API.
+- The engine exposes structured weather results with units, time semantics, source attribution, freshness, uncertainty, quality indicators, and provenance because these are fundamental library requirements for every consumer.
+- Developer-facing verification tools may compare preserved forecast snapshots with later observations and generate reproducible reports.
+- Each report identifies data versions, matching rules, algorithm/configuration versions, evaluation code, metrics, exclusions, and sample counts.
+- AI-assisted interpretation is an occasional contributor workflow only. Analysis findings must be reproduced by deterministic code and reviewed by a human before any algorithm or configuration change.
+- No AI adapter, prompt context, agent tool contract, MCP server, or model SDK belongs in Meridian's runtime architecture.
 
 ### Dependency direction
 
@@ -333,7 +331,7 @@ Each milestone follows the same cycle: **research → specification → owner ap
 | M0 — Project foundation | Repository policies, license, README, KMP workspace skeleton, CI skeleton, coding-agent instructions | Clean repository; documented decisions; CI runs on PRs |
 | M0.1 — Platform and dependency proof | KMP Android, iOS framework, JVM desktop on Windows/macOS/Linux; Ktor and SQLDelight driver checks | The same probe works on all five OS; runtime and packaging requirements documented; owner approves stack |
 | M0.2 — Public API and storage decision | Stable domain/API contract, storage boundary, cache model, HTTP and async lifecycle | API and storage specs approved; no feature code yet |
-| [M0.3 — AI readiness and agent workflow](docs/specs/M0_3_AI_READINESS.md) | Machine-readable weather schemas, read-only query/tool contract, provenance context, AI threat/evaluation plan, independent-consumer tests | A no-LLM client can query Meridian without Solstice; AI remains optional; no production model is required |
+| [M0.3 — Reproducible verification and AI-assisted development](docs/specs/M0_3_AI_READINESS.md) | Forecast/observation record contracts, matching rules, reproducible evaluation methodology, human-reviewed improvement workflow, contributor AI policy | Analysis is reproducible from versioned data and code; no AI provider, model, credential, or token spend is needed at runtime |
 | M1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass |
 | M2 — Provenance and resilience | Per-value provenance, source catalog, source selection, typed problems, cache/rate limits | Every value traceable; failed/stale provider produces explicit fallback/problem; request limits tested |
 | M3 — Official alerts | CAP parsing, WMO feeds, FPAS as an additional route | Mexico, US, and Germany fixtures parse/merge correctly; update/cancel and attribution tests pass |
@@ -391,7 +389,7 @@ Do not promise a package format until a proof of concept is built and loaded on 
 | `CLEAN_ROOM.md` | Independent research and implementation policy |
 | `PLAN.md` | Master plan, decisions, milestones, acceptance criteria |
 | `AGENTS.md` | Instructions for coding agents operating in a code environment |
-| `AI_POLICY.md` | Governance for AI-assisted engineering and AI-enabled product features |
+| `AI_POLICY.md` | Governance for AI-assisted engineering and occasional manual research; prohibits AI runtime dependencies |
 | `docs/ENGINE_SPEC.md` | Weather engine behaviour and domain requirements |
 | `docs/MERIDIAN_PLAN.md` | Supporting research and earlier design notes; not authority for the toolchain |
 | `docs/specs/M*` | Milestone-specific specifications |
@@ -423,7 +421,7 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 3. SQLDelight with SQLite as the official optional local persistence implementation; no mandatory Room dependency.
 4. A batch-oriented first public API; defer streaming partial updates.
 5. M0.1 and M0.2 as mandatory gates before weather-feature implementation.
-6. AI remains optional and consumer-neutral; AI_POLICY.md is mandatory for any model, agent, or AI coding integration.
+6. Meridian has no AI runtime integration. AI_POLICY.md governs AI-assisted development and research; any future AI/ML runtime proposal requires a separate specification and explicit owner approval.
 7. Meridian must have an independent build, API smoke test, and example consumer that do not require Solstice.
 
 ### Questions for later milestones
