@@ -14,7 +14,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 1. Read before every session
 
-1. Read this file and CLEAN_ROOM.md before changing code or project documentation.
+1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Read AI_POLICY.md before AI-related engineering, AI feature design, model integration, or any coding-agent task.
 2. Read the current decision, status, roadmap, and history documents when they exist.
 3. Read the approved specification for the task. A research note or draft is not automatically an approved implementation requirement.
 4. Inspect the actual repository, code, tests, and build configuration. Never assume a planned feature already exists.
@@ -24,11 +24,11 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 1. Meridian is a reusable weather-data and forecasting engine exposed as a library.
 2. Meridian has no user interface: no screens, navigation, visual styling, presentation components, or app-specific copy.
-3. Consuming applications depend on Meridian. Meridian must never depend on Solstice or another consuming application.
+3. Consuming applications depend on Meridian. Meridian must never depend on Solstice or another consuming application. Solstice is only the first reference consumer, never an architectural authority or a required build/test dependency. Meridian must build and pass its own tests without checking out Solstice.
 4. The core must not depend on Android Context, an application's lifecycle, or a UI framework.
 5. Meridian does not schedule refreshes. The consuming application decides when to refresh and supplies scheduling facilities.
 6. Meridian returns structured, documented data. Each application decides how to present it.
-7. Accounts, analytics, advertising, tracking, social features, and remote services require explicit approval.
+7. Accounts, analytics, advertising, tracking, social features, AI providers, model downloads, and remote services require explicit approval.
 
 ## 3. Changes that require approval
 
@@ -126,6 +126,10 @@ Before adding or changing a source:
 CLEAN_ROOM.md is the authoritative policy for permitted research sources, independent specifications, implementation sessions, source records, and code-similarity concerns. Read and follow it before writing or changing implementation code. If its requirements cannot be met, stop and report the blocker.
 
 Review every new dependency for maintenance, supported targets, and licence compatibility before adding it. Keep Meridian's Apache-2.0 licence and notices accurate.
+
+## AI development and integration
+
+AI-assisted engineering and AI-powered product features are governed by `AI_POLICY.md`. Read it before using coding agents, modifying AI-related code, selecting a model/provider, or proposing an AI feature. The deterministic weather engine remains the authority for weather data; AI features are optional, isolated, evaluated, privacy-reviewed, and must never require Solstice or an AI provider for core operation.
 
 ## 12. Testing and verification
 
