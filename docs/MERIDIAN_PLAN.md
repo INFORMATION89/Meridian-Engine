@@ -1,18 +1,17 @@
 # Meridian: research and build plan
 
-Status: **plan for Marco** (2026-11-23). The what is in ENGINE_SPEC.md; this is the how and the order.
-Clean room (CLEAN_ROOM.md): everything here comes from public docs and papers (listed at the end),
-none of it from Breezy's code.
+Status: **supporting research draft** (originally written 2026-11-23). The root [PLAN.md](../PLAN.md) is now the master architecture and delivery plan. This document preserves earlier source, library, and algorithm research; it is not authority for the implementation language, toolchain, module layout, database, or release strategy. The Kotlin Multiplatform / Gradle / Room entries below are historical candidates and must not be treated as adopted decisions. Revalidate provider terms and technical details before implementation.
+
+Clean-room research (CLEAN_ROOM.md): the original research was written from public docs and papers listed at the end, not from Breezy's implementation code.
 
 ## 1. In one paragraph
 
-Meridian is a Kotlin Multiplatform library in its own repo (`INFORMATION89/Meridian-Engine`, Apache 2.0).
-It starts with four keyless sources (Open-Meteo, aviationweather.gov, WMO, FOSS Public Alert Server),
+Meridian is a cross-platform weather library in its own repo (`INFORMATION89/Meridian-Engine`, Apache 2.0). Its technical stack is governed by the root PLAN.md, not by this earlier Kotlin-oriented proposal. It starts with four researched source candidates (Open-Meteo, aviationweather.gov, WMO, FOSS Public Alert Server),
 returns every value with where it came from, blends models, merges alerts, and later learns a local
 correction on the phone. Solstice uses it as a git submodule, like Motion. It's built in nine
 milestones, each with a spec section first, then a build session, then a check against real data.
 
-## 2. Libraries
+## 2. Earlier Kotlin-centric dependency candidates (not adopted)
 
 | Need | Choice | Why | Watch out |
 |---|---|---|---|
@@ -27,7 +26,7 @@ milestones, each with a spec section first, then a build session, then a check a
 
 Everything above is Apache 2.0 or compatible.
 
-## 3. Repo and modules
+## 3. Earlier Kotlin/Gradle module-layout candidate (superseded by root PLAN.md)
 
 ```
 Meridian-Engine/
