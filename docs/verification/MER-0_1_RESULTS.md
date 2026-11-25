@@ -2,7 +2,9 @@
 
 **Branch:** `spike/m0.1-kmp-platform-proof`  
 **PR:** [#2](https://github.com/INFORMATION89/Meridian-Engine/pull/2)  
-**Verified workflow:** [Run #103](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45695023715)  
+**Baseline workflow:** [Run #103](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45695023715)  
+**Latest full workflow:** [Run #152](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45717462136)  
+**Latest inspected commit:** 28817f6a09c0099ac340ff4df55ea5377ec5ed0a  
 **Commit tested:** `8cb472db60920d425feb81dea89843a5be03aadf`  
 **Recorded:** 2026-11-25
 
@@ -19,6 +21,29 @@ Run #103 completed successfully on one commit SHA. All four jobs and their relev
 | Linux | Ubuntu 24.04; Desktop JVM | PASS | Desktop tests and packaged consumer launch |
 
 The Windows Gradle-cache warning was addressed by omitting Gradle cache setup only in the Windows job. The Windows build, tests, packaged consumer launch, and artifact upload remain enabled and passed in run #103.
+
+## 1A. Latest full-matrix run — #152
+
+Run #152 completed all six jobs successfully on commit 28817f6a09c0099ac340ff4df55ea5377ec5ed0a:
+
+| Job | Result | Evidence |
+|---|---|---|
+| Dependency metadata | PASS | Main dependency metadata generated and verified |
+| Linux dependency metadata | PASS | Linux-specific Android checksums added; Android build passed in normal verification mode |
+| Apple and iOS | PASS | iOS framework/simulator tests, macOS JVM consumer/app-image, native Swift Package consumer tests |
+| Desktop Linux | PASS | JVM consumer and self-contained app-image launched |
+| Desktop Windows | PASS | JVM consumer and self-contained app-image launched |
+| Android | PASS | Host-side tests and Android 35 x86_64 emulator instrumentation |
+
+Run #152 app-image measurements:
+- Windows: 169.7 MiB.
+- Linux: approximately 183 MB.
+- macOS: approximately 184 MB.
+
+The packaged JVM consumers launched after the runner Java environment was removed. These measurements are for the spike app-images, not final release packages.
+
+The Android log confirms /dev/kvm was available and writable. Android instrumentation therefore passed with KVM; this run does not prove TCG/software fallback without KVM. Android ARM64 remains NOT TESTED. Apple/iOS validation used an ARM64 simulator and Swift Package consumer, not a physical device.
+
 
 ## 2. What the current tests actually prove
 
@@ -45,13 +70,15 @@ The Windows Gradle-cache warning was addressed by omitting Gradle cache setup on
 
 These gaps do not invalidate the successful platform jobs. They limit the claims that can be made from them.
 
-## 4. Next work, still within MER-0.1
+## 4. Remaining work, still within MER-0.1
 
-1. Add deterministic Ktor tests that exercise the actual platform engine integrations on Android, iOS, and JVM desktop, without live external services.
-2. Add explicit timeout and transport-error mapping tests and document expected cancellation semantics at the consumer boundary.
-3. Keep Android ARM64 as a separate deferred device validation.
-4. Re-run the full matrix after code changes and record the exact tested SHA.
-5. Obtain owner review of the evidence and toolchain recommendation before closing MER-0.1 or beginning MER-1.
+1. Add deterministic fixture requests through the actual Android, Darwin, and JVM/CIO engines, without live external services.
+2. Add explicit timeout, transport-error mapping, resource close, and consumer-boundary cancellation tests.
+3. Keep Android ARM64 explicitly NOT TESTED until a physical ARM64 device or reproducible, provenance-reviewed environment is exercised; obtain owner acceptance if the gap is deferred.
+4. Test TCG fallback only in an environment where KVM is confirmed unavailable; Run #152 had KVM.
+5. Complete the dependency/licence inventory and confirm whether NOTICE is required.
+6. Re-run the full matrix after code changes and record the exact tested SHA.
+7. Obtain owner review of the evidence and toolchain recommendation before closing MER-0.1 or beginning MER-1.
 
 ## 5. Owner gate
 
