@@ -14,7 +14,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 1. Read before every session
 
-1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Read AI_POLICY.md before AI-related engineering, AI feature design, model integration, or any coding-agent task.
+1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Read AI_POLICY.md before any coding-agent session or when using AI tools with project data.
 2. Read the current decision, status, roadmap, and history documents when they exist.
 3. Read the approved specification for the task. A research note or draft is not automatically an approved implementation requirement.
 4. Inspect the actual repository, code, tests, and build configuration. Never assume a planned feature already exists.
@@ -127,9 +127,9 @@ CLEAN_ROOM.md is the authoritative policy for permitted research sources, indepe
 
 Review every new dependency for maintenance, supported targets, and licence compatibility before adding it. Keep Meridian's Apache-2.0 licence and notices accurate.
 
-## AI development and integration
+## AI-assisted development and optional chat adapters
 
-AI-assisted engineering and AI-powered product features are governed by `AI_POLICY.md`. Read it before using coding agents, modifying AI-related code, selecting a model/provider, or proposing an AI feature. The deterministic weather engine remains the authority for weather data; AI features are optional, isolated, evaluated, privacy-reviewed, and must never require Solstice or an AI provider for core operation.
+Contributor use of AI for engineering and occasional manual data analysis is governed by `AI_POLICY.md`. Read it before using a coding agent or sharing project data with an AI tool. Meridian has no AI runtime integration: the shipped engine must not call a model, require an AI provider or credentials, or incur token costs. An optional MCP adapter may be considered outside the weather core to expose approved read-only queries to an external chat client; it must not become a core dependency and requires its own specification and owner approval.
 
 ## 12. Testing and verification
 
