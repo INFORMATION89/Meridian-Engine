@@ -158,6 +158,9 @@ Store numeric quantities in stable canonical units. Keep provider-native values/
 | Wind direction | Degrees | Clockwise from true north and meteorological “from” direction when that is the source convention |
 | Wind vector components | m/s | Use components for interpolation and averaging |
 | Precipitation amount | mm | Must identify accumulation interval and precipitation type |
+| Rain/snow rate or intensity | mm/h or an explicitly documented equivalent | Distinguish instantaneous rate from interval accumulation |
+| Snow depth | m | Depth on the ground at an instant; never confuse with snowfall accumulated during an interval |
+| Snowfall water equivalent | mm | Liquid-water equivalent, distinct from snow depth and snowfall depth |
 | Precipitation probability | Fraction 0–1 | Must identify event threshold, time window, and probability method |
 | Cloud cover | Fraction 0–1 | Keep source layer/height if provided |
 | Visibility | m | Record source convention and lower/upper bounds such as “10+” |
@@ -307,7 +310,17 @@ Station representativeness is variable-specific. Distance alone is not enough: a
 13. Alerts preserve issuing-authority content and lifecycle semantics.
 14. Storage and diagnostics do not silently become location tracking or telemetry.
 
-## 13. Questions to resolve in MER-0.2 / later specifications
+## 13. Standards and source references
+
+These references guide semantics; they do not replace the provider-specific mapping and validation required for each adapter.
+
+- [BIPM — The International System of Units (SI), 9th edition, version 4.01](https://www.bipm.org/en/si-brochure-9): authoritative reference for SI units and quantity notation. Meridian should store typed quantity/unit identifiers and use explicit conversions rather than guessing from magnitudes.
+- [IANA Time Zone Database](https://www.iana.org/time-zones): rules for location-based civil time and daylight-saving transitions. Time-zone rules change; use the platform/runtime tz database and test relevant changes rather than hard-coding UTC offsets.
+- [WMO Guide to Instruments and Methods of Observation (WMO-No. 8)](https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/instruments-and-methods-of-observation-programme-imop/guide-instruments-and-methods-of-observation-wmo-no-8-0): reference for measurement methods, instrumentation, and observing practices. The provisional 2026 edition was published for submission to INFCOM-4 on 23–27 November 2026; re-check its approval status before treating it as the approved edition.
+- [OASIS Common Alerting Protocol 1.2](https://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2.html): normative alert message identity, lifecycle, and information semantics.
+- [Open-Meteo Forecast API documentation](https://open-meteo.com/en/docs): provider-specific variable names, units, interval semantics, and availability; use only for Open-Meteo adapter mappings, not as a universal weather-domain standard.
+
+## 14. Questions to resolve in MER-0.2 / later specifications
 
 - Exact typed unit representation and public serialization.
 - Whether a public value has one record type or a sealed family for instant and interval statistics.
