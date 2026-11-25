@@ -103,7 +103,11 @@ jobs:
           ./gradlew --version
       - uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools;emulator;platforms;android-35;system-images;android-35;google_apis;x86_64'
+          packages: |
+            platform-tools
+            emulator
+            platforms;android-35
+            system-images;android-35;google_apis;x86_64
       - name: Run Android x86_64 emulator instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         timeout-minutes: 25
