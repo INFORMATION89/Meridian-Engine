@@ -30,7 +30,7 @@
 - [x] M7 learning specification copied to `docs/specs/M7_LEARNING.md`.
 - [x] M6 consumer-app integration remains in Solstice; it does not belong in the engine's implementation specification set.
 - [x] M0.1 platform proof specification is maintained in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
-- [x] M0.3 AI readiness specification is maintained in `docs/specs/M0_3_AI_READINESS.md`.
+- [x] M0.3 reproducible verification and research specification is maintained in `docs/specs/M0_3_VERIFICATION_RESEARCH.md`.
 
 ## 3. Technology gate — M0.1
 
@@ -41,7 +41,7 @@
 - [ ] Build a Rust/UniFFI comparator only if native desktop libraries without a JVM are required or the KMP proof exposes a blocker.
 - [ ] Present a written recommendation and obtain owner approval before M1.
 
-## 4. AI readiness — M0.3
+## 4. Reproducible verification and research — M0.3
 
 - [ ] Create a standalone sample consumer that builds and queries Meridian without Solstice.
 - [ ] Publish versioned machine-readable weather, error, freshness, and provenance schemas.
