@@ -123,6 +123,79 @@ M0.1 is complete only when:
 8. The recommendation states whether KMP meets the five-OS requirement and whether any consumer actually needs native desktop libraries.
 9. The project owner approves the production language, driver matrix, and packaging approach before M1 implementation begins.
 
-## 8. Out of scope
+
+## 9. Current compatibility research (2026-11-25)
+
+This section records a starting point for the spike, not a permanent version lock. Re-check official compatibility tables immediately before implementation and pin the exact versions in the spike branch.
+
+### Kotlin and Gradle baseline
+
+- Kotlin Multiplatform stable documentation currently identifies Kotlin 2.4.21 as stable.
+- The official compatibility guide lists Kotlin Gradle Plugin 2.4.20–2.4.21 with Gradle 7.6.3–9.7.0, Android Gradle Plugin 8.5.2–9.3.1, and Xcode 26.4.
+- Start the spike with the latest stable Kotlin patch, a Gradle wrapper inside its fully supported range, an AGP version inside the listed range, and an installed Xcode version explicitly compatible with that Kotlin release. Do not use a Kotlin 2.5 release candidate for the baseline.
+- Record the JDK required by the selected Gradle/AGP combination separately from the JVM bytecode target and the runtime Meridian consumers need. These are different compatibility decisions.
+
+Official reference: [Kotlin Multiplatform compatibility guide](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html) and [Gradle project configuration](https://kotlinlang.org/docs/gradle-configure-project.html).
+
+### Platform support is not uniform
+
+Kotlin's target tiers are not equivalent. Current Kotlin/Native documentation lists iOS simulator ARM64 and Linux x64 among targets that can be tested in CI, while Windows MinGW x64 is Tier 3. Android and JVM support should be validated through their actual Android/JVM toolchains, not inferred from Kotlin/Native tiers.
+
+This reinforces the initial choice to use JVM for Windows/macOS/Linux desktop instead of making Windows/Linux Kotlin/Native a release requirement. It does not prove that every third-party dependency or packaging approach works.
+
+Official reference: [Kotlin/Native supported targets and hosts](https://kotlinlang.org/docs/native-target-support.html).
+
+### Ktor engine matrix to test
+
+Use one common Ktor request/response implementation and inject the engine at the platform boundary. The current Ktor engine matrix documents:
+- Android: Android or CIO engine (compare the Android engine with CIO in the spike; select one based on tests and footprint).
+- iOS: Darwin engine, backed by Apple's URL loading stack.
+- JVM desktop: CIO as the initial lightweight candidate; compare Java engine only if a concrete requirement justifies it.
+
+Ktor also documents CIO on JVM, Android, and Native targets. Do not make an engine choice from documentation alone: exercise fixture requests, cancellation, timeout, TLS defaults, and error mapping on the real targets. Keep live provider calls out of M0.1.
+
+Official reference: [Ktor client engines](https://ktor.io/docs/client-engines.html).
+
+### SQLDelight driver matrix to test
+
+SQLDelight 2.1.0 documentation explicitly demonstrates:
+- Android: `android-driver`.
+- iOS/Kotlin Native: `native-driver`.
+- Desktop JVM: `sqlite-driver` using JDBC.
+
+Use a tiny schema with a create/insert/select/update transaction test and reopen the database to prove persistence. Test the packaged JVM artifact on each desktop OS; do not assume a driver that compiles on one host behaves identically on all three.
+
+Official reference: [SQLDelight 2.1.0 Multiplatform SQLite guide](https://sqldelight.github.io/sqldelight/2.1.0/multiplatform_sqlite/).
+
+### CI execution matrix
+
+Use separate jobs on real OS runners:
+- `ubuntu-24.04`: Linux JVM artifact and shared/JVM tests.
+- `windows-2025`: Windows JVM artifact and persistence tests.
+- `macos-15` (Apple Silicon runner where available): iOS framework, Swift simulator consumer, and macOS JVM artifact.
+- Android emulator/device tests should run on an Android-capable Linux runner; record emulator image and ABI.
+
+GitHub's runner catalogue currently lists public-repository standard runners for Linux, Windows, and macOS, including Apple Silicon macOS runners. Pin runner labels rather than relying indefinitely on `-latest`. Hosted runner availability, Xcode image contents, and included minutes are operational constraints to record. A successful cross-compile is not a substitute for executing the artifact on the target OS.
+
+Official references: [GitHub Actions runner selection](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job) and [hosted runner images](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
+
+## 10. Required evidence matrix
+
+The implementation PR must report each cell as **PASS**, **FAIL**, **BLOCKED**, or **NOT TESTED**, with a log/artifact link and exact command. Do not mark a platform PASS from compilation alone.
+
+| Check | Android | iOS | Windows | macOS | Linux |
+|---|---|---|---|---|---|
+| Shared probe compiles | | | | | |
+| Artifact/framework produced | | | | | |
+| Real consumer loads it | | | | | |
+| Deterministic operation and typed error | | | | | |
+| Async operation and cancellation | | | | | |
+| Ktor fixture request | | | | | |
+| SQLDelight create/write/read/reopen | | | | | |
+| Packaged consumer launch | | | | | |
+
+For iOS, distinguish framework compilation from successful Swift import and simulator execution. For Android, distinguish Gradle compilation from an instrumented test on the declared ABI. For desktop, test the actual packaged JVM artifact on each OS, not only on the build host.
+
+## 11. Out of scope
 
 Do not implement Open-Meteo, METAR, CAP, WMO, FPAS, weather models, source selection, blending, SQLite production schema, cache policy, forecast learning, radar, Solstice feature integration, or any publishable production API during this spike.
