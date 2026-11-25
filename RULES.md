@@ -9,7 +9,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 ## Adopted project decisions
 
 1. **Repository identity:** the repository is INFORMATION89/Meridian-Engine. The product and library name remains Meridian.
-2. **Storage boundary:** the core must remain independent of concrete databases. The current cross-platform proposal is an optional SQLDelight/SQLite implementation behind a storage boundary; Room is not a Meridian-wide requirement. Final storage and extension decisions are governed by PLAN.md M0.2.
+2. **Storage boundary:** the core must remain independent of concrete databases. The current cross-platform proposal is an optional SQLDelight/SQLite implementation behind a storage boundary; Room is not a Meridian-wide requirement. Final storage and extension decisions are governed by PLAN.md MER-0.2.
 3. **Clean-room policy:** CLEAN_ROOM.md is a separate, authoritative policy. This file explains when it applies but does not duplicate its detailed requirements.
 
 ## 1. Read before every session
@@ -40,7 +40,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 4. Architecture and dependency boundaries
 
-1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected by PLAN.md. Kotlin Multiplatform with Android/iOS targets and Desktop JVM is the current recommendation pending M0.1 approval.
+1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected by PLAN.md. Kotlin Multiplatform with Android/iOS targets and Desktop JVM is the current recommendation pending MER-0.1 approval.
 2. Keep provider-specific request and response details inside that provider's adapter. Provider DTOs must not leak into the public domain model.
 3. Put platform-specific implementations behind narrow interfaces or in the appropriate platform source sets. Do not add platform dependencies to common code for convenience.
 4. Access storage, HTTP, time, and other external capabilities through explicit interfaces or injected dependencies. Core logic must be testable without a real network, database, device, or wall clock.
@@ -112,7 +112,7 @@ Before adding or changing a source:
 
 1. The core defines storage contracts; it does not depend on a concrete database.
 2. An optional SQLDelight/SQLite implementation may provide the official local storage backend. It depends on the core contract, never the reverse. Do not make Android Jetpack Room a required engine dependency.
-3. A consuming application may use Meridian's supported storage implementation or provide an adapter only through an extension mechanism proven and documented in M0.2. The choice must not change the meaning of the core API.
+3. A consuming application may use Meridian's supported storage implementation or provide an adapter only through an extension mechanism proven and documented in MER-0.2. The choice must not change the meaning of the core API.
 4. Document what is stored, why it is needed, where it is stored, how long it is retained, and how it is deleted.
 5. Do not store saved-place history or introduce location tracking into Meridian. Persist only the minimum data required by explicitly approved engine functions.
 6. Apply the approved retention period to forecasts, observations, statistics, and cached responses. Do not extend retention silently.
