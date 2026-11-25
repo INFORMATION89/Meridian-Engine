@@ -19,7 +19,7 @@ The only currently authorized engineering task is **M0.1: five-platform Kotlin M
 
 Do not implement the production weather engine until the project owner has approved the M0.1 recommendation and the resulting toolchain decision.
 
-M0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that a minimal native library can be built, loaded, called, and packaged through the proposed Kotlin/Swift boundaries on the required operating systems. Follow the M0.1 specification's target matrix and acceptance criteria exactly.
+M0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that the same minimal KMP operation works on Android and iOS, and through a Desktop JVM artifact on Windows, macOS, and Linux. Follow the M0.1 specification's target matrix and acceptance criteria exactly.
 
 ## Scope discipline
 
