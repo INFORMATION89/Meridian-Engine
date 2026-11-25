@@ -124,6 +124,9 @@ jobs:
         env:
           ANDROID_I_WANT_MY_TCG: "yes"
         with:
+          # TCG boot is slow and Android settings services can be unstable
+          # immediately after boot; avoid optional post-boot animation writes.
+          disable-animations: false
           api-level: 35
           arch: x86_64
           target: google_apis
