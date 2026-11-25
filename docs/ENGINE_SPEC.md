@@ -117,8 +117,9 @@ validity match. Updates replace what they reference; cancels remove it. The most
 
 ## 8. Learning (on the phone)
 
-- A short rolling log per saved place: what each source forecast for each hour, and what the nearest
-  observation later measured. Kept 30 days by default (configuration; decided 2026-11-23), then deleted.
+- A configurable, bounded rolling log per requested place context: what each source forecast and what a
+  quality-controlled observation later measured. A 30-day window is a research proposal, not an adopted
+  default; retention requires owner approval under MER-0.2/MER-0.3 and must be independently disableable.
 - From it: each source's recent error, used for weights, and a bias correction for the next hours
   that fades out with lead time.
 - Seeded from public data so it works from day one: archived past forecasts (Open-Meteo's Previous Runs
