@@ -46,7 +46,8 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: gradle
+          # Gradle lock files can remain busy during setup-java's post-job
+          # cache save on Windows. Skip only this cache; keep build/test intact.
       - name: Verify committed Gradle Wrapper
         run: .\gradlew.bat --version
       - name: Build, test and execute packaged JVM consumer
