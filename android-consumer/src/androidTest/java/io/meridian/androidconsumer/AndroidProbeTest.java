@@ -28,6 +28,11 @@ public class AndroidProbeTest {
     }
 
     @Test
+    public void createsAndClosesAndroidKtorEngine() {
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyClientLifecycle());
+    }
+
+    @Test
     public void persistsSqliteDataAcrossDriverReopen() {
         assertTrue(AndroidStorageProbe.verifyReopen(
             InstrumentationRegistry.getInstrumentation().getTargetContext()
