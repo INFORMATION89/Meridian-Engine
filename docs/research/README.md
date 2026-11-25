@@ -12,6 +12,7 @@ These documents prepare work that can proceed alongside MER-0.1 without changing
 2. [Weather data model](WEATHER_DATA_MODEL.md) — proposed semantics for observations, forecasts, derived values, time, units, quality, freshness, and provenance.
 3. [Weather intelligence](WEATHER_INTELLIGENCE.md) — meteorological rules, source selection, blending, verification, and regional test strategy.
 4. [Provider research](PROVIDER_RESEARCH.md) — provider capabilities, access conditions, limitations, and research tasks.
+5. [Remaining work](REMAINING_WORK.md) — review checklist, unresolved evidence, owner decisions, and gates before MER-1.
 
 ## Authority and change control
 
