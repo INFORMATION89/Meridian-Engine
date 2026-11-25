@@ -11,7 +11,7 @@ returns every value with where it came from, blends models, merges alerts, and l
 correction on the phone. Solstice uses it as a git submodule, like Motion. It's built in nine
 milestones, each with a spec section first, then a build session, then a check against real data.
 
-## 2. Earlier dependency candidates (not adopted without M0.1/M0.2 validation)
+## 2. Earlier dependency candidates (not adopted without MER-0.1/MER-0.2 validation)
 
 | Need | Choice | Why | Watch out |
 |---|---|---|---|
@@ -157,24 +157,24 @@ All kept 30 days (decided), then deleted; cleared from Settings › Privacy.
 
 ## 9. Milestones
 
-Specs written so far: M1 `docs/specs/M1_FORECAST.md`, M2 `M2_PROVENANCE.md`, M3 `M3_ALERTS.md`
-(complete, including the FOSS Public Alert Server), M4 `M4_OBSERVATIONS.md`, M5 `M5_BLEND.md`, M6
-`M6_ALERTS_IN_SOLSTICE.md`, M7 `M7_LEARNING.md`; M0's checklist `M0_REPO.md`. M8 has none yet.
+Specs written so far: MER-1 `docs/specs/MER-1_FORECAST.md`, MER-2 `MER-2_PROVENANCE.md`, MER-3 `MER-3_ALERTS.md`
+(complete, including the FOSS Public Alert Server), MER-4 `MER-4_OBSERVATIONS.md`, MER-5 `MER-5_BLEND.md`, MER-6
+`M6_ALERTS_IN_SOLSTICE.md`, MER-7 `MER-7_LEARNING.md`; MER-0's checklist `MER-0_REPO.md`. MER-8 has none yet.
 
 Each one: a spec section written from public sources, a separate build session (clean room), then a
 check with real data. Nothing starts without Marco's OK.
 
 | # | Milestone | Done when |
 |---|---|---|
-| M0 | Repo set up: KMP project, licence, rules, CI, empty modules | CI green on an empty build |
-| M1 | Core models, units, Open-Meteo forecast for one place | The CLI prints a correct forecast; fixture tests pass |
-| M2 | Provenance, source selection per refresh, caching, storage interface | Results show their sources; no source called more often than allowed |
-| M3 | Alerts: CAP parsing, WMO and FPAS, merging duplicates | Recorded real alerts (Mexico, US, Germany) merge correctly |
-| M4 | Observations: nearest airport, current conditions rule | Current conditions in CDMX come from MMMX when fresh |
-| M5 | Blend and spread: several models, ensemble spread | Blend beats or matches best match on the archive check |
-| M6 | Solstice reads alerts from Meridian (first feature switched) | Alerts on the phone come from Meridian, checked against recorded real alerts |
-| M7 | Learning on the phone: log, decaying-average correction, skill weights | Error drops on the archive check; shown in the sources sheet |
-| M8 | macOS framework build (for the menu bar app) | A Swift sample prints a forecast |
+| MER-0 | Repo set up: KMP project, licence, rules, CI, empty modules | CI green on an empty build |
+| MER-1 | Core models, units, Open-Meteo forecast for one place | The CLI prints a correct forecast; fixture tests pass |
+| MER-2 | Provenance, source selection per refresh, caching, storage interface | Results show their sources; no source called more often than allowed |
+| MER-3 | Alerts: CAP parsing, WMO and FPAS, merging duplicates | Recorded real alerts (Mexico, US, Germany) merge correctly |
+| MER-4 | Observations: nearest airport, current conditions rule | Current conditions in CDMX come from MMMX when fresh |
+| MER-5 | Blend and spread: several models, ensemble spread | Blend beats or matches best match on the archive check |
+| MER-6 | Solstice reads alerts from Meridian (first feature switched) | Alerts on the phone come from Meridian, checked against recorded real alerts |
+| MER-7 | Learning on the phone: log, decaying-average correction, skill weights | Error drops on the archive check; shown in the sources sheet |
+| MER-8 | macOS framework build (for the menu bar app) | A Swift sample prints a forecast |
 
 ## 10. Risks
 
@@ -190,7 +190,7 @@ check with real data. Nothing starts without Marco's OK.
 
 ## Decided (Marco, 2026-11-23)
 
-Room for the database; switch directly, feature by feature; M0 starts at the end of Saturday's
+Room for the database; switch directly, feature by feature; MER-0 starts at the end of Saturday's
 session if time is left (CONTINUE.md, step 10).
 
 ## Consulted
