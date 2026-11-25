@@ -260,7 +260,9 @@ jobs:
             :engine:assembleMeridianSharedDebugXCFramework
             :engine:iosSimulatorArm64Test
             :engine:desktopTest
+            :engine:testAndroidHostTest
             :desktop-consumer:installDist
+            :android-consumer:assembleDebugAndroidTest
             :android-consumer:assembleDebug
           )
 
@@ -321,7 +323,9 @@ jobs:
             :engine:assembleMeridianSharedDebugXCFramework \
             :engine:iosSimulatorArm64Test \
             :engine:desktopTest \
+            :engine:testAndroidHostTest \
             :desktop-consumer:installDist \
+            :android-consumer:assembleDebugAndroidTest \
             :android-consumer:assembleDebug
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
