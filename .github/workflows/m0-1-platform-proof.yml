@@ -159,11 +159,12 @@ jobs:
           sdkmanager "platforms;android-36"
           sdkmanager "build-tools;36.0.0"
           sdkmanager "system-images;android-35;google_apis;x86_64"
-      - name: Configure KVM access when available
+      - name: Configure KVM access when possible
         run: |
-          # Try to load KVM, but do not fail the job when the hosted runner
-          # does not expose nested virtualization. The emulator action below
-          # detects /dev/kvm and falls back to software acceleration in auto mode.
+          # KVM is optional on hosted runners. Try to load the host modules and
+          # grant the current runner access when the device exists. The emulator
+          # action's "auto" mode checks read/write access and selects software
+          # acceleration when KVM is missing or inaccessible.
           sudo modprobe kvm || true
           vendor="$(awk -F: '/vendor_id/ {print $2; exit}' /proc/cpuinfo | xargs)"
           case "$vendor" in
@@ -174,14 +175,16 @@ jobs:
 
           if [ -c /dev/kvm ]; then
             echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-            sudo udevadm control --reload-rules
-            sudo udevadm trigger --name-match=kvm
-            test -r /dev/kvm
-            test -w /dev/kvm
+            sudo udevadm control --reload-rules || true
+            sudo udevadm trigger --name-match=kvm || true
+            sudo chmod a+rw /dev/kvm || true
+          fi
+
+          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
             echo "KVM is available to the Android emulator."
             ls -l /dev/kvm
           else
-            echo "::notice::KVM is unavailable on this runner. Android emulator tests will use software acceleration."
+            echo "::notice::KVM is missing or inaccessible. Emulator action auto mode will use software acceleration."
             lsmod | grep -E '^kvm' || true
             ls -la /dev/kvm || true
           fi
