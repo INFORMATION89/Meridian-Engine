@@ -36,9 +36,9 @@ The latest inspected workflow for PR #2 was [Run #152](https://github.com/INFORM
 
 This is meaningful evidence that the current KMP/JVM proof and its packaging workflow are much more stable than the earlier failing runs.
 
-### Documentation snapshot is now stale on the spike branch
+### Status records synchronized after Run #152
 
-The inspected MER-0.1 branch's `continue.md` still records Run #147 as in progress and an earlier branch SHA, while PR #2's description still calls Run #152 pending. The separate `docs/verification/MER-0_1_RESULTS.md` also predates Run #152. Before MER-0.1 is closed, reconcile those records with Run #152 and the exact tested/current branch SHA. This review does not update the active spike branch.
+The continuation record, verified-results document, and PR #2 description have now been updated to reflect Run #152. Run #152 exercised code/workflow commit `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`; subsequent changes to the spike branch head (`3575f51752b15fecff76c4405610b44fdafeea2c` at the time of this review) only refreshed those status documents. No production implementation or test code changed in that documentation-only synchronization. Re-run the matrix if implementation or workflow code changes.
 
 ### Limits that remain
 
@@ -60,9 +60,9 @@ The workflow logs for Run #152 report self-contained app-image sizes of **169.7 
 
 ### Recommended M0.1 completion checklist
 
-- [ ] Record Run #152 and its exact tested commit in the verification record.
+- [x] Record Run #152 and its exact tested commit in the verification record and continuation notes; PR #2 description is synchronized.
 - [ ] Preserve Android ARM64 as NOT TESTED unless a physical ARM64 device or reproducible ARM64 emulator route is exercised; obtain an explicit owner decision if accepting that gap for the first release.
-- [ ] Record the self-contained app-image sizes measured in Run #152: Windows 169.7 MiB, Linux approximately 183 MB, and macOS approximately 184 MB. Retain these as measurements of the tested app-images, not as promised release-package sizes.
+- [x] Record the self-contained app-image sizes measured in Run #152: Windows 169.7 MiB, Linux approximately 183 MB, and macOS approximately 184 MB. Retain these as measurements of the tested app-images, not as promised release-package sizes.
 - [ ] Add deterministic real-engine request tests for Android, Darwin, and JVM/CIO.
 - [ ] Test timeout and transport-error mapping on the target engines.
 - [ ] Assert cancellation from each public consumer boundary, including Swift.
@@ -199,7 +199,7 @@ The current documentation set contains legacy assumptions that should be reconci
 | Model selection | A fixed list of models for Mexico City appears as a starting proposal | Verify each model's actual coverage, valid variables, horizon, issue time, and archive availability before finalizing |
 | AI policy status | `AGENTS.md` treats `AI_POLICY.md` as mandatory; the file is marked proposed for owner review | Confirm adoption status and align document headers; mandatory reading and policy approval are different things |
 | MER-0.1 test classification | Device execution and TCG fallback appear in the surrounding work notes but are not identical to the spike's formal acceptance criteria | Mark product/platform acceptance, CI resilience, and optional release validation separately
-| MER-0.1 status records | Run #152 is green, but the spike branch continuation, verification record, and PR description still reflect earlier workflow state | Reconcile exact SHA, job results, outstanding gaps, and PR summary before acceptance |
+| MER-0.1 status records | The spike branch status files and PR #2 description were stale after Run #152 | Synchronized to Run #152; repeat this reconciliation after future workflow/code changes |
 
 These are not reasons to discard the architecture. They are reasons to make the authoritative documents agree before implementation.
 
