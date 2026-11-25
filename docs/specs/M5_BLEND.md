@@ -1,4 +1,4 @@
-# Meridian M5: blend and spread
+# Meridian MER-5: blend and spread
 
 Status: **spec, clean room step 1** (2026-11-23), from Open-Meteo's API documentation and the published
 work listed in MERIDIAN_PLAN.md section 6. No other engine's code read.
@@ -6,7 +6,7 @@ work listed in MERIDIAN_PLAN.md section 6. No other engine's code read.
 ## Scope
 
 Ask several models for the same place, blend them into one forecast, and say how much they disagree.
-Equal weights first; skill weights come once M7's statistics exist (the switch is configuration).
+Equal weights first; skill weights come once MER-7's statistics exist (the switch is configuration).
 
 ## Models
 
@@ -15,7 +15,7 @@ Equal weights first; skill weights come once M7's statistics exist (the switch i
   GFS, ICON global, GEM global, and best match as the reference.
 - Each variable comes back per model (suffixed by model id). A model without a variable, or past its
   range, is simply absent for those hours; the blend uses whoever is there.
-- Call weight grows with models × variables × days (M2 counts it). One request for all models.
+- Call weight grows with models × variables × days (MER-2 counts it). One request for all models.
 - Spread from Open-Meteo's ensemble API (`ensemble-api.open-meteo.com/v1/ensemble`) for temperature
   and precipitation, one ensemble from configuration: its members' standard deviation and the share
   of members with rain.
@@ -34,8 +34,8 @@ Per variable, per hour:
 | Weather code | from the blended values (rain amount, cloud, temperature for snow), not a vote between codes |
 
 Weights:
-- **Phase 1 (M5):** equal.
-- **Phase 2 (after M7):** inverse RMSE over a rolling 30 days, per variable and lead-time bucket
+- **Phase 1 (MER-5):** equal.
+- **Phase 2 (after MER-7):** inverse RMSE over a rolling 30 days, per variable and lead-time bucket
   (0–24 h, 24–72 h, 3–7 days, beyond), normalised, with a floor (configuration, default 0.05) so no
   model drops out. Fewer than 14 days of data for a bucket: equal weights for that bucket.
 
