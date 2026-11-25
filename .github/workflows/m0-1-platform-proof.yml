@@ -118,6 +118,11 @@ jobs:
       - name: Run Android x86_64 emulator instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         timeout-minutes: 25
+        # GitHub's standard Linux runner does not expose KVM to this job.
+        # Explicitly allow the emulator's software CPU backend instead of
+        # letting the action force -accel off without enabling TCG.
+        env:
+          ANDROID_I_WANT_MY_TCG: "yes"
         with:
           api-level: 35
           arch: x86_64
