@@ -20,11 +20,13 @@ Do not merge either PR merely because the workflows are green. They have differe
 
 ### P0 — reconcile the evidence record
 
-- [ ] Update continue.md on the spike branch. It still describes Run #147 as in progress and records an older branch SHA.
-- [ ] Update docs/verification/MER-0_1_RESULTS.md with Run #152, its exact tested commit, job results, platform/runtime details, and the limits that remain.
-- [ ] Update PR #2's description. It still describes Run #152 as pending and cites Run #104 as the last fully green baseline.
-- [ ] Verify the branch head after workflow-generated metadata commits, and record the SHA actually exercised by the final matrix.
-- [ ] Keep all platform cells explicit: PASS, FAIL, BLOCKED, or NOT TESTED.
+- [x] Update continue.md on the spike branch with Run #152 and the latest inspected head.
+- [x] Update docs/verification/MER-0_1_RESULTS.md with Run #152, its exact tested commit, job results, platform/runtime details, and the limits that remain.
+- [x] Update PR #2's description to record Run #152 and current remaining gaps.
+- [x] Record that Run #152 tested commit 28817f6a09c0099ac340ff4df55ea5377ec5ed0a; documentation-only commits then advanced the PR head to 3575f51752b15fecff76c4405610b44fdafeea2c.
+- [x] Keep all platform cells explicit: PASS, FAIL, BLOCKED, or NOT TESTED.
+
+The evidence-record synchronization is complete. Re-run the relevant workflows and update these records whenever implementation or workflow code changes.
 
 Run #152 completed six jobs successfully on the inspected workflow: dependency metadata, Linux dependency metadata, Apple/iOS, Linux desktop, Windows desktop, and Android. Its logs show:
 
@@ -148,11 +150,10 @@ The following decisions materially determine the next stage:
 
 ## 8. Recommended next sequence
 
-1. Update MER-0.1 status files and PR #2 description from Run #152.
-2. Close the real-engine Ktor tests and determine the Android ARM64 disposition.
-3. Complete dependency licence/NOTICE review and get owner acceptance of the M0.1 platform recommendation.
-4. Review and approve the MER-0.2 decision register; then build the independent fixture-backed contract consumer.
-5. Review and approve MER-0.3 archive, matching, metrics, privacy, and human-approval decisions.
-6. Only then authorize MER-1's first production forecast adapter.
+1. Close the real-engine Ktor tests and determine the Android ARM64 disposition.
+2. Complete dependency licence/NOTICE review and get owner acceptance of the M0.1 platform recommendation.
+3. Review and approve the MER-0.2 decision register; then build the independent fixture-backed contract consumer.
+4. Review and approve MER-0.3 archive, matching, metrics, privacy, and human-approval decisions.
+5. Only then authorize MER-1's first production forecast adapter.
 
 **Stop condition:** no production forecast/provider implementation should start until the explicit owner gates in the master plan and milestone specifications are satisfied.
