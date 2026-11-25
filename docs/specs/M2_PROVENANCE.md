@@ -1,4 +1,4 @@
-# Meridian M2: provenance, source selection, caching, storage
+# Meridian MER-2: provenance, source selection, caching, storage
 
 Status: **spec, clean room step 1** (2026-11-23). Written from Meridian's own docs (ENGINE_SPEC.md,
 MERIDIAN_PLAN.md, SOURCES.md) and the sources' published rate limits. No other engine's code read.
@@ -20,7 +20,7 @@ Every value Meridian returns can be traced to:
 | `issued` | When the source made it (model run, observation time, alert `sent`) |
 | `fetched` | When Meridian got it |
 | `weight` | Share in the blend, 0–1 (1 when it's the only one) |
-| `correction` | Applied correction id and amount, if any (M7) |
+| `correction` | Applied correction id and amount, if any (MER-7) |
 | `fallback` | `true` when the preferred source failed and this one stood in |
 
 `Provenance` on a result holds one entry per source and model used, plus per variable the list of
