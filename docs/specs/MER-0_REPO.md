@@ -1,6 +1,6 @@
 # MER-0 — Repository foundation checklist
 
-**Status:** partially complete  
+**Status:** partially complete; README and ignore rules are now present  
 **Master plan:** [`/PLAN.md`](../../PLAN.md)  
 **Agent instructions:** [`/AGENTS.md`](../../AGENTS.md)  
 **Current status:** documentation and repository identity exist; no production engine code has been authorized.
@@ -14,8 +14,8 @@
 - [x] Root `AI_POLICY.md` governs AI-assisted engineering and AI-enabled product features.
 - [ ] Review and approve the root `PLAN.md`.
 - [ ] Add Apache-2.0 `LICENSE` and `NOTICE`.
-- [ ] Add a project `README.md` that says the project is early and not yet usable.
-- [ ] Add a cross-platform `.gitignore` for IDE files, build outputs, local configuration, native artifacts, and secrets.
+- [x] Add a project `README.md` that says the project is early and not yet usable.
+- [x] Add a cross-platform `.gitignore` for IDE files, build outputs, local configuration, native artifacts, and secrets.
 - [ ] Configure branch protection for `main` after the first CI build is green.
 
 ## 2. Documentation home
