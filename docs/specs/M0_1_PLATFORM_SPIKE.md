@@ -1,118 +1,128 @@
-# M0.1 — Platform and language interoperability spike
+# M0.1 — Five-platform Kotlin Multiplatform proof
 
-**Status:** proposed execution spec; no production engine implementation is authorized by this document.  
+**Status:** proposed execution spec; no production weather-engine implementation is authorized by this document.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 4–5, 11–12, and 16.  
-**Purpose:** decide the engine implementation language and native binding strategy using build/run evidence for all five required operating systems.
+**Purpose:** prove that one shared KMP engine can be consumed on Windows, macOS, iOS, Android, and Linux using the intended runtime strategy.
 
 ## 1. Question to answer
 
-Can Meridian ship one portable native engine to Windows, macOS, iOS, Android, and Linux, with a maintainable public API for Kotlin and Swift consumers?
+Can Meridian keep its domain and weather-engine logic in Kotlin Multiplatform, target Android and iOS directly, and support Windows/macOS/Linux desktop through the stable JVM target?
 
-The recommended candidate is a Rust library with UniFFI-generated Kotlin and Swift bindings. The comparator is a minimal Kotlin Multiplatform library using only Kotlin standard-library features. Do not decide from marketing claims or a successful compile alone.
+The recommended strategy is:
+- Android: KMP Android target.
+- iOS: Kotlin/Native framework linked into a native Swift/Objective-C app.
+- Windows, macOS, Linux: one JVM desktop artifact, run with a supported JDK/JRE. A desktop app may bundle a runtime to avoid requiring the user to install Java.
+
+This is OS compatibility, not a promise of a native `.dll`, `.dylib`, or `.so` for every desktop OS. Native Windows/Linux libraries are a separate future requirement.
 
 ## 2. Scope
 
-Build only a minimal compatibility probe. It must not contain weather data models, provider adapters, HTTP requests, persistence, caching, algorithms, or application UI.
+Build only a minimal compatibility probe. It must not contain weather models, provider adapters, live HTTP requests, production database schema, caching, forecast algorithms, blending, or application UI.
 
-The probe should expose:
+The probe should expose from shared code:
 - a version string;
 - one deterministic input/output operation using simple strings and integers;
 - one typed error case;
-- one asynchronous operation that can be cancelled or cleanly completed;
-- explicit create/use/release or equivalent lifecycle behaviour.
+- one asynchronous operation;
+- predictable lifecycle and cancellation behaviour.
 
-Use the same observable behaviour for each candidate implementation.
+Use the same observable behaviour on all five operating systems.
 
-## 3. Candidate A — Rust plus UniFFI
+## 3. KMP targets to validate
 
-1. Create a minimal Cargo workspace or single crate sufficient for the probe.
-2. Build a native library and define a small UniFFI interface (proc-macro or UDL; compare only if there is a concrete blocker).
-3. Generate Kotlin bindings and compile a small Kotlin consumer.
-4. Generate Swift bindings and compile a small Swift consumer.
-5. Verify the Kotlin native-loading path and its JNA/coroutines dependencies. Verify that the same generated Kotlin API can be used on Android and a desktop JVM target without special-case business logic.
-6. Verify the Swift binding on macOS and iOS. Test the generated error and async/cancellation mappings.
-7. Record how each native binary is packaged alongside the generated language binding. UniFFI generates bindings; it does not replace building and shipping platform-native binaries.
-
-Do not hand-edit generated bindings. Pin the Rust toolchain, UniFFI version, and binding dependencies used by the spike.
-
-## 4. Candidate B — Kotlin Multiplatform comparator
-
-Build the same probe using Kotlin Multiplatform and standard-library-only common code.
-
-Attempt the targets relevant to the requirements:
-- Android/JVM;
-- iOS ARM64 device and ARM64 simulator;
-- macOS ARM64;
-- Linux x64;
-- Windows x64 using the currently supported Kotlin/Native target.
-
-Record compiler support tier, required host, whether tests execute, output artifact, and any limitation. Do not add Room, Ktor, or other Jetpack/provider libraries to this comparator; the point is to separate compiler capability from dependency compatibility.
-
-## 5. Required target matrix
-
-| OS | Target to attempt | Minimum evidence |
+| OS | Build target | Required runtime check |
 |---|---|---|
-| Windows | x86_64 MSVC | Build DLL/library, load it from the intended consumer binding, call probe |
-| macOS | ARM64 | Build and load native artifact, call Swift binding; Kotlin/JVM loading where proposed |
-| iOS | ARM64 device + ARM64 simulator | Build with Xcode SDK, link generated Swift binding, run simulator/device smoke test where available |
-| Android | ARM64 device + x86_64 emulator | Build native library with Android NDK, package with Kotlin bindings, call from emulator/device |
-| Linux | x86_64 glibc | Build shared library, load through intended desktop binding, call probe |
+| Android | Android/Kotlin target, ARM64 first | Load library from an Android test app on an ARM64 emulator/device |
+| iOS | `iosArm64` and `iosSimulatorArm64` | Build framework; call from Swift in an ARM64 simulator; device check where available |
+| Windows | Desktop `jvm()` | Run the same JVM artifact on Windows x64 with the chosen JDK |
+| macOS | Desktop `jvm()` | Run the same JVM artifact on Apple Silicon macOS; Intel macOS if available |
+| Linux | Desktop `jvm()` | Run the same JVM artifact on Linux x64 and record the tested distribution |
 
-Additional targets (Windows ARM64, Linux ARM64, macOS Intel, musl, x86 simulators) are useful but not allowed to delay the baseline decision. Record them as follow-up or experimental rather than claiming them supported.
+Do not use `mingwX64` or `linuxX64` Kotlin/Native as the initial Windows/Linux release path. They are optional only if the project later needs native desktop libraries independent of a JVM. An optional `macosArm64` framework check is useful only if a native Swift macOS consumer is part of the v1 requirement.
 
-Apple artifacts must use the official Apple SDK/Xcode toolchain on macOS. Windows MSVC artifacts must use an appropriate Windows runner/toolchain. Report cross-compilation constraints honestly.
+## 4. Shared-code and dependency validation
 
-## 6. Runtime and packaging checks
+### Kotlin Multiplatform
 
-For each platform/consumer combination, separately record:
+1. Create a minimal Gradle KMP workspace with one shared `commonMain` source set.
+2. Expose the probe through the public common API.
+3. Add Android and iOS targets.
+4. Add `jvm()` for desktop. The same JVM artifact must run on Windows, macOS, and Linux.
+5. Test typed error mapping and async/cancellation semantics at the platform boundary.
 
-- build and link success;
-- actual library loading;
-- successful probe invocation;
-- typed error mapping;
-- async completion and cancellation behaviour;
-- native library naming and lookup/loading behaviour;
-- dependency on JNA, Kotlin coroutines, Swift runtime, system libraries, or other components;
-- artifact size and packaging output;
-- minimum OS version tested;
-- any manual build or signing step.
+### Networking candidate — Ktor
 
-For iOS, a successful archive build is not enough: compile and run the probe in an iOS simulator. A physical device run is desirable when available. For Android, use an emulator or device; do not treat an NDK build alone as runtime proof.
+Build a small isolated test that:
+- compiles common request/response code;
+- uses an Android-supported client engine;
+- uses the Darwin client engine for iOS;
+- uses a JVM engine (for example CIO) for desktop;
+- serializes/deserializes a local fixture without requiring live network access.
 
-## 7. Measurements and comparison
+Do not make a live provider request. Record the exact client engine and dependency version for each target.
 
-Record for both candidates:
+### Storage candidate — SQLDelight/SQLite
 
+Build a small isolated schema and one read/write test that:
+- compiles generated common Kotlin query APIs;
+- uses the Android driver on Android;
+- uses the Native driver on iOS;
+- uses the JVM driver on desktop Windows/macOS/Linux.
+
+The Windows/Linux desktop check must use the JVM driver in this strategy. Native Windows/Linux SQLDelight drivers are not part of the v1 desktop promise.
+
+### Rust fallback (conditional)
+
+Do not build a Rust/UniFFI comparator by default. Only add a small Rust proof if:
+- the owner requires native Windows/macOS/Linux libraries with no JVM, or
+- the KMP proof shows a concrete blocker that justifies comparing a native implementation.
+
+If used, keep it limited to the same compatibility probe and record the extra FFI and packaging costs.
+
+## 5. Runtime, packaging, and test checks
+
+For every OS, record separately:
+- target and architecture;
+- build host, OS version, toolchain, Kotlin/Gradle versions;
+- compile and link result;
+- whether the artifact was loaded and executed;
+- typed error mapping and async/cancellation result;
+- runtime requirement (Android, iOS framework, JDK/JRE);
+- package format and artifact size;
+- steps required to bundle a JRE for desktop;
+- known limitations and untested architectures.
+
+Apple framework builds and iOS simulator tests require macOS/Xcode. A Windows build must actually run on a Windows runner, and Linux must run on a Linux environment; do not infer runtime compatibility from another host's cross-compilation.
+
+## 6. Comparison and evidence
+
+Record:
 - setup and implementation time;
-- build time per target;
-- test execution time;
-- artifact size per target;
-- binding generation and packaging complexity;
-- number of platform-specific workarounds;
-- third-party dependency and licence footprint;
-- maintainability and upgrade risks;
-- ability to integrate with Solstice (Kotlin), a native Swift consumer, and desktop consumers.
+- build/test time for each OS;
+- artifact sizes;
+- dependency and licence footprint;
+- platform-specific code required;
+- Swift interoperability ergonomics;
+- JVM installation or bundling impact on desktop users;
+- maintenance cost of Kotlin/Native versus JVM desktop;
+- whether any actual consumer requires a native desktop ABI.
 
 Use a results table in the pull request. Distinguish measured facts from estimates.
 
-## 8. Acceptance criteria
+## 7. Acceptance criteria
 
 M0.1 is complete only when:
 
-1. Both candidates have a documented comparison; if a candidate cannot be built, include the exact error and reason.
-2. Rust target artifacts are compiled for the five baseline OS targets in section 5, or any unavailable target is explained with a concrete host/toolchain blocker.
-3. Kotlin and Swift bindings are generated from the same Rust probe.
-4. At least one Kotlin Android consumer and one Swift iOS/macOS consumer actually load and call the Rust library.
-5. At least one Windows and one Linux consumer actually load and call a native library (Kotlin/JVM or C binding, as tested).
-6. The artifact formats, native-loading mechanism, and packaging strategy are documented.
-7. The PR contains exact commands, toolchain versions, build-host details, target outcomes, and artifact sizes.
-8. A recommendation states whether Rust is viable, whether KMP is viable, and which trade-offs remain.
-9. The project owner explicitly approves the production language and binding approach before M1 implementation begins.
+1. The same shared probe is called successfully on Android, iOS, Windows, macOS, and Linux.
+2. The iOS framework works through a Swift consumer in an iOS simulator.
+3. The JVM desktop artifact works on Windows, macOS, and Linux with the documented runtime.
+4. Ktor client engine candidates compile for Android, iOS, and JVM desktop.
+5. SQLDelight read/write tests pass with Android, Native iOS, and JVM desktop drivers.
+6. The PR lists exact commands, toolchain versions, build hosts, platform outcomes, and artifact sizes.
+7. Desktop runtime requirements and any JRE bundling plan are clearly documented.
+8. The recommendation states whether KMP meets the five-OS requirement and whether any consumer actually needs native desktop libraries.
+9. The project owner approves the production language, driver matrix, and packaging approach before M1 implementation begins.
 
-## 9. Sources to consult
+## 8. Out of scope
 
-Use the official references linked in [PLAN.md](../../PLAN.md), plus the current official documentation for Rust, Cargo, UniFFI, Kotlin Multiplatform, Xcode, Android NDK, JNA, and the selected build runners. Re-check target tiers and binding requirements at execution time.
-
-## 10. Explicitly out of scope
-
-Do not implement Open-Meteo, METAR, CAP, WMO, FPAS, weather models, source selection, blending, SQLite, Room, cache policy, forecast learning, radar, Solstice integration, or a publishable production API during this spike.
+Do not implement Open-Meteo, METAR, CAP, WMO, FPAS, weather models, source selection, blending, SQLite production schema, cache policy, forecast learning, radar, Solstice feature integration, or any publishable production API during this spike.
