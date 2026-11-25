@@ -7,7 +7,7 @@ milestones: MERIDIAN_PLAN.md.
 
 ## 1. What it is
 
-**Meridian** (name decided 2026-11-23; repo `INFORMATION89/Meridian-Engine` when it's created) is a
+**Meridian** (name decided 2026-11-23; repo `INFORMATION89/Meridian-Engine`) is a
 weather library with no UI. Given a place, it returns a forecast, current conditions, next-hour
 rain, alerts, air quality and UV, each with a record of where every number came from. Solstice uses it
 first; other apps (a macOS menu bar app, a Windhawk mod, a clock app) can use it later.
@@ -156,7 +156,7 @@ else plugs in later.
 ## 13. Configuration and tokens
 
 Every threshold, weight, distance, age, window, cell size and interval is configuration with a named
-default, never typed into code (RULES.md section 3). The list grows with the code; each new one is
+default, never typed into code (RULES.md section 9). The list grows with the code; each new one is
 agreed with Marco.
 
 ## 14. Testing
