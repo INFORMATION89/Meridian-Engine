@@ -54,14 +54,19 @@ A green workflow does not close every acceptance criterion:
 
 PR #2 remains open and Draft. Its own owner gate says not to merge it, close MER-0.1, or start MER-1 until the evidence and subsequent decisions have been reviewed. See the [MER-0.1 pull request](https://github.com/INFORMATION89/Meridian-Engine/pull/2) and its [verification record on the spike branch](https://github.com/INFORMATION89/Meridian-Engine/blob/spike/m0.1-kmp-platform-proof/docs/verification/MER-0_1_RESULTS.md).
 
+### Run #152 package measurements
+
+The workflow logs for Run #152 report self-contained app-image sizes of **169.7 MiB on Windows**, approximately **183 MB on Linux**, and approximately **184 MB on macOS**. Each packaged consumer launched after the runner Java environment was removed. These values describe the spike's app-images and are not a release-size guarantee.
+
 ### Recommended M0.1 completion checklist
 
 - [ ] Record Run #152 and its exact tested commit in the verification record.
-- [ ] Preserve Android ARM64 as NOT TESTED unless a physical ARM64 device or reproducible ARM64 emulator route is exercised.
+- [ ] Preserve Android ARM64 as NOT TESTED unless a physical ARM64 device or reproducible ARM64 emulator route is exercised; obtain an explicit owner decision if accepting that gap for the first release.
+- [ ] Record the self-contained app-image sizes measured in Run #152: Windows 169.7 MiB, Linux approximately 183 MB, and macOS approximately 184 MB. Retain these as measurements of the tested app-images, not as promised release-package sizes.
 - [ ] Add deterministic real-engine request tests for Android, Darwin, and JVM/CIO.
 - [ ] Test timeout and transport-error mapping on the target engines.
 - [ ] Assert cancellation from each public consumer boundary, including Swift.
-- [ ] Test TCG fallback only in an environment where KVM is confirmed unavailable.
+- [ ] Test TCG fallback only in an environment where KVM is confirmed unavailable; treat this as CI resilience unless the owner makes it a product acceptance criterion.
 - [ ] Re-run the full matrix after relevant changes and record one exact SHA.
 - [ ] Complete the dependency and licence inventory; decide whether NOTICE is required.
 - [ ] Present the resulting recommendation for explicit owner approval.
@@ -193,6 +198,7 @@ The current documentation set contains legacy assumptions that should be reconci
 | Rain probability | A draft blend proposes the share of deterministic models exceeding a rain threshold as a probability | Do not call it calibrated probability without verification; preserve model agreement as a separate statistic |
 | Model selection | A fixed list of models for Mexico City appears as a starting proposal | Verify each model's actual coverage, valid variables, horizon, issue time, and archive availability before finalizing |
 | AI policy status | `AGENTS.md` treats `AI_POLICY.md` as mandatory; the file is marked proposed for owner review | Confirm adoption status and align document headers; mandatory reading and policy approval are different things |
+| MER-0.1 test classification | Device execution and TCG fallback appear in the surrounding work notes but are not identical to the spike's formal acceptance criteria | Mark product/platform acceptance, CI resilience, and optional release validation separately
 | MER-0.1 status records | Run #152 is green, but the spike branch continuation, verification record, and PR description still reflect earlier workflow state | Reconcile exact SHA, job results, outstanding gaps, and PR summary before acceptance |
 
 These are not reasons to discard the architecture. They are reasons to make the authoritative documents agree before implementation.
