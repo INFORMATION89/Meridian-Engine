@@ -20,11 +20,11 @@ Meridian is an independent library. Solstice is only its first reference consume
 
 ## Current assignment
 
-The only currently authorized engineering task is **MER-0.1: five-platform Kotlin Multiplatform proof**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/MER-0_1_PLATFORM_SPIKE.md`.
+The project owner has authorized continued work through the prerequisites needed to reach **MER-1**. The current engineering focus is to complete and document MER-0.1 stabilization, then prepare and validate the MER-0.2 public API/storage contract and MER-0.3 reproducible-verification design according to their specifications.
 
-Do not implement the production weather engine until the project owner has approved the MER-0.1 recommendation and the resulting toolchain decision.
+This authorization is **not** permission to merge PRs, publish packages, or skip the owner approval gates defined by the milestone specifications. Do not implement production weather providers or forecast algorithms until the MER-0.1 platform/runtime recommendation and the MER-0.2 public API, storage boundary, error/cancellation model, and versioning decisions have been explicitly approved.
 
-MER-0.1 is a throwaway/minimal technical validation, not the start of the product implementation. It should prove only that the same minimal KMP operation works on Android and iOS, and through a Desktop JVM artifact on Windows, macOS, and Linux. Follow the MER-0.1 specification's target matrix and acceptance criteria exactly.
+MER-0.1 remains a technical validation, not the production engine. The Android CI emulator exercises x86_64 only. Android ARM64 runtime validation is deferred until a physical or hosted ARM64 environment is available; it must remain visible as **NOT TESTED** and must never be inferred from x86_64 results. Continue other approved preparation work without describing MER-0.1 as fully accepted while that item remains open.
 
 ## Scope discipline
 
