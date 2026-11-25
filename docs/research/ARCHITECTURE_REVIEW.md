@@ -48,7 +48,7 @@ A green workflow does not close every acceptance criterion:
 6. **The dependency/licence inventory and the decision about a project `NOTICE` remain open.** Confirm the copyright holder and notice obligations before adding one.
 7. The tested dependency versions and driver choices remain spike candidates until the owner approves the M0.1 recommendation.
 
-PR #2 remains open and Draft. Its own owner gate says not to merge it, close MER-0.1, or start MER-1 until the evidence and subsequent decisions have been reviewed. See the [MER-0.1 pull request](https://github.com/INFORMATION89/Meridian-Engine/pull/2) and its [verification record](../verification/MER-0_1_RESULTS.md).
+PR #2 remains open and Draft. Its own owner gate says not to merge it, close MER-0.1, or start MER-1 until the evidence and subsequent decisions have been reviewed. See the [MER-0.1 pull request](https://github.com/INFORMATION89/Meridian-Engine/pull/2) and its [verification record on the spike branch](https://github.com/INFORMATION89/Meridian-Engine/blob/spike/m0.1-kmp-platform-proof/docs/verification/MER-0_1_RESULTS.md).
 
 ### Recommended M0.1 completion checklist
 
