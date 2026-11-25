@@ -19,7 +19,7 @@ The engine must not require:
 - API keys, tokens, prompts, embeddings, vector databases, or an MCP server dependency in the weather core;
 - background model requests or AI-generated user-facing text.
 
-The public API remains structured and machine-readable because that is good library design for every consumer. Do not add prompts, model clients, or agent protocols to the weather domain. However, an optional MCP adapter outside the core is a valid future consumer integration: it could expose a controlled subset of the public API to an external chat client. The intended flow is chat host/model → MCP client → optional Meridian MCP adapter → Meridian public API → deterministic engine and weather sources. The adapter returns structured data and provenance; it does not invoke a model itself. The external chat host decides how to use the result and is responsible for generated wording and model costs.
+The public API remains structured and machine-readable because that is good library design for every consumer. Do not add prompts, model clients, or agent protocols to the weather domain. An optional MCP adapter outside the core may expose a controlled subset of the public API to a compatible chat client. Prefer an in-process or local adapter when the chat client runs on the same device and supports local MCP transports; this can avoid hosting a Meridian service. Important limitation: a cloud-hosted chat client cannot normally reach a phone's or laptop's localhost process. Connecting such a remote chat to a device-local Meridian instance would require a separately approved relay/tunnel or hosted endpoint, which violates the no-hosting default and must never be silently assumed. The intended local flow is chat host/model → local MCP client → optional local Meridian MCP adapter → Meridian public API → deterministic engine and weather sources. The adapter returns structured data and provenance; it does not invoke a model itself. The external chat host decides how to use the result and is responsible for generated wording and model costs.
 
 ## 3. Required design outputs
 
@@ -31,7 +31,7 @@ The public API remains structured and machine-readable because that is good libr
 6. **Reproducibility record:** every experiment identifies dataset versions, algorithm/configuration versions, evaluation code, parameters, exclusions, sample counts, and results.
 7. **Human approval workflow:** document how analysis findings become a reviewed algorithm/configuration change with regression tests; no automatic promotion or self-modifying production engine.
 8. **Contributor AI workflow:** document permitted use of AI for coding and occasional manual data analysis, with data minimization, independent verification, least privilege, and explicit review under `AI_POLICY.md`.
-9. **Optional chat/MCP assessment:** assess whether an external MCP adapter would provide a useful way to query Meridian from a chat. Define its boundary, allowed read-only tools, authentication, user-data exposure, provenance requirements, failure behaviour, deployment options, and operational costs. Do not make MCP a core dependency or assume it must be implemented in this milestone.
+9. **Optional chat/MCP assessment:** assess whether a local/in-process MCP adapter would be useful with chat clients that support local transports. Explicitly distinguish same-device clients from cloud-hosted clients that cannot reach localhost without a relay or hosted endpoint. Define allowed read-only tools, authentication, user-data exposure, provenance, failure behaviour, deployment, and costs. Do not make MCP a core dependency or assume it must be implemented in this milestone; do not introduce a relay or hosted endpoint under the no-hosting default.
 
 ## 4. Scientific and statistical safeguards
 
@@ -65,7 +65,7 @@ M0.3 design work is complete when:
 4. The human review path from analysis report to algorithm/configuration change is explicit.
 5. `AI_POLICY.md` and `AGENTS.md` govern coding agents and occasional AI-assisted research without authorizing runtime AI.
 6. The milestone and architecture explicitly state that Meridian's core build, tests, runtime, and weather results require no AI provider, credentials, model, or token spend.
-7. The optional MCP decision is documented separately from the engine API, with no MCP dependency in the core and no assumption that the user must use a chat to access weather data.
+7. The optional MCP decision is documented separately from the engine API, with no MCP dependency in the core and no assumption that the user must use a chat to access weather data. Local MCP feasibility is distinguished from remote/cloud chat connectivity, including the hosting requirement of any relay.
 
 ## 7. Explicitly out of scope
 
