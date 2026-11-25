@@ -21,6 +21,8 @@ kotlin {
         target.binaries.framework {
             baseName = "MeridianShared"
             isStatic = true
+            // SQLDelight's Native driver uses Apple's system SQLite library.
+            linkerOpts("-lsqlite3")
             xcf.add(this)
         }
     }
