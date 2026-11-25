@@ -124,15 +124,18 @@ validity match. Updates replace what they reference; cancels remove it. The most
 - Seeded from public data so it works from day one: archived past forecasts (Open-Meteo's Previous Runs
   API, from January 2024; see M7_LEARNING.md) checked against station observations.
 - **Opt-in sharing** (RULES.md section 10): only aggregated forecast errors, area-rounded and
-  hour-rounded, computed on the phone. Not built until the server and the legal check exist.
+  hour-rounded, computed on the device. This is a separate future feature and is not required for
+  local learning or normal engine operation. Do not add a Meridian-hosted collection server by default.
 
 ## 9. Storage, caching and scheduling
 
 - `core` defines storage contracts for the cache, forecast/observation history and local verification statistics.
-- `storage-room` may provide Meridian's official Room-backed implementation behind those contracts; consuming applications may use it or provide their own adapter. The core never depends on Room.
-- Application settings, secure storage for provider credentials, and refresh scheduling remain the consuming application's responsibility.
+- The preferred implementation is local SQLite through the cross-platform storage module (SQLDelight candidate, subject to M0.2 proof). On-device storage is owned by the consuming application and remains available without a Meridian account or remote database.
+- Application settings, secure storage for any user-supplied provider credentials, and refresh scheduling remain the consuming application's responsibility.
 - Cache each response for its source's update cadence; never call a source more often than its minimum interval, whatever the app asks.
 - The engine never schedules itself; the app decides when to refresh (WorkManager on Android).
+- Network access is used only to contact configured weather/observation/alert providers directly. The engine does not call a Meridian-operated backend or require a persistent connection to a Meridian service.
+- When offline, return valid cached data with its original timestamp and freshness state, or a typed unavailable/stale result. Never imply cached data is current.
 
 ## 10. Phase 2: radar nowcast (not before phase 1 works)
 
