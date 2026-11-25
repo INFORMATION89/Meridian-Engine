@@ -55,7 +55,7 @@ Verify:
 - credentials and unrelated personal data never enter the AI context;
 - model output is validated and escaped before rendering;
 - request size, time, retries, and cost can be bounded;
-- no-LMM operation leaves core weather functions intact.
+- no-LLM operation leaves core weather functions intact.
 
 ## 6. Acceptance criteria
 
