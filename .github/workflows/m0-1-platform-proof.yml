@@ -90,9 +90,9 @@ jobs:
             ios-consumer/.build/
 
   android:
-    # Apple Silicon runs the ARM64 guest natively with Hypervisor.framework.
-    # This matches the MER-0.1 Android ABI requirement and avoids slow TCG.
-    runs-on: macos-15
+    # GitHub-hosted Linux runners expose KVM for hardware-accelerated x86_64
+    # Android emulation. ARM64 device execution remains a separate acceptance gate.
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
@@ -101,9 +101,9 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - name: Verify Apple Silicon runner and committed Gradle Wrapper
+      - name: Verify Linux x86_64 runner and committed Gradle Wrapper
         run: |
-          test "$(uname -m)" = "arm64"
+          test "$(uname -m)" = "x86_64"
           ./gradlew --version
       - uses: android-actions/setup-android@v4.0.4
         with:
@@ -118,24 +118,34 @@ jobs:
           sdkmanager "platforms;android-35"
           sdkmanager "platforms;android-36"
           sdkmanager "build-tools;36.0.0"
-          sdkmanager "system-images;android-35;google_apis;arm64-v8a"
+          sdkmanager "system-images;android-35;google_apis;x86_64"
+      - name: Enable and verify KVM
+        run: |
+          test -c /dev/kvm
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+          ls -l /dev/kvm
       - name: Run Android host-side common tests
         run: ./gradlew --warning-mode=all --stacktrace :engine:testAndroidHostTest
-      - name: Run Android ARM64 emulator instrumentation tests
+      - name: Run Android x86_64 emulator instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2.38.0
         timeout-minutes: 25
         with:
           disable-animations: true
           api-level: 35
-          arch: arm64-v8a
+          arch: x86_64
           target: google_apis
+          disable-linux-hw-accel: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           profile: pixel_6
           script: ./gradlew --warning-mode=all --stacktrace :android-consumer:connectedDebugAndroidTest
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: mer-0-1-android-arm64
+          name: mer-0-1-android-x86_64
           path: |
             android-consumer/build/reports/
             android-consumer/build/outputs/androidTest-results/
