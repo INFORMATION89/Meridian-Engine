@@ -305,14 +305,15 @@ The current research shortlist is not an irrevocable provider commitment. Re-che
 
 | Provider | Initial role | Main validation |
 |---|---|---|
-| Open-Meteo | Forecast models, current/hourly/daily data, air quality, historical forecast archives | Terms and attribution, model availability by region, request weight and rate limits |
+| Open-Meteo | Forecast models, current/hourly/daily data, air quality, historical forecast archives | Commercial/non-commercial eligibility per consuming app, archive access tier, attribution, model coverage, client credential distribution, request weights and quotas |
 | aviationweather.gov | Airport METAR observations | Station coverage, schema, freshness, rate limits, user agent |
 | WMO Severe Weather Information Centre / official feeds | Official severe weather alerts | Feed availability, authority and issuing-service attribution |
 | FOSS Public Alert Server | Additional CAP alert aggregation | Operational maturity, terms, feed duplication, fallback-only status |
 
 Provider rules:
 - Prefer documented APIs over scraping.
-- Read current terms before coding an adapter.
+- Read current terms before coding an adapter. A consumer's commercial status must be checked per deployment; a free/non-commercial endpoint must not be assumed valid for every app that embeds Meridian.
+- Confirm service access rights separately from the data licence. For any paid/client-key source, document who supplies the credential, whether client distribution is permitted, and the security implications. Do not add a hosted proxy to hide keys without a separate approved architecture decision.
 - Store source metadata declaratively: identity, operator, links, access method, coverage, features, key/cost requirements, cadence, attribution, rate limits.
 - A source failure must be isolated and recorded.
 - Website-reading sources, if any, are best-effort and never the only source for a critical feature.
@@ -344,7 +345,7 @@ Each milestone follows the same cycle: **research → specification → owner ap
 | MER-0.1 — Platform and dependency proof | KMP Android, iOS framework, JVM desktop on Windows/macOS/Linux; Ktor and SQLDelight driver checks | The same probe works on all five OS; runtime and packaging requirements documented; owner approves stack |
 | [MER-0.2 — Public API and storage decision](docs/specs/MER-0_2_PUBLIC_API_STORAGE.md) | Stable domain/API contract, optional local storage boundary, cache/history semantics, offline behaviour, errors and cancellation | API and storage contracts tested with an independent sample consumer; owner approves decisions before MER-1 |
 | [MER-0.3 — Reproducible verification, research, and optional chat integration](docs/specs/MER-0_3_VERIFICATION_RESEARCH.md) | Forecast/observation record contracts, matching rules, reproducible evaluation methodology, human-reviewed improvement workflow, contributor AI policy, optional MCP adapter assessment | Analysis is reproducible from versioned data and code; MCP remains an optional external adapter; the weather core needs no AI provider, model, credential, or token spend |
-| MER-1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass |
+| MER-1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass; the selected endpoint/plan is permitted for each intended consumer, attribution is implemented, request costs are estimated, rate-limit behaviour is tested, and credential distribution is explicitly approved |
 | MER-2 — Provenance and resilience | Per-value provenance, source catalog, source selection, typed problems, cache/rate limits | Every value traceable; failed/stale provider produces explicit fallback/problem; request limits tested |
 | MER-3 — Official alerts | CAP parsing, WMO feeds, FPAS as an additional route | Mexico, US, and Germany fixtures parse/merge correctly; update/cancel and attribution tests pass |
 | MER-4 — Observations | Airport station discovery and METAR mapping | Fresh nearby observation selected per variable; stale/distant/elevation-mismatched stations rejected |
