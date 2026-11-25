@@ -97,6 +97,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+          architecture: aarch64
       - name: Verify ARM64 runner and committed Gradle Wrapper
         run: |
           test "$(uname -m)" = "aarch64"
