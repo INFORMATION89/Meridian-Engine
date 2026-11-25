@@ -13,9 +13,8 @@ Status: **checklist** (2026-11-24). No engine code; M1 starts in a later session
 - [ ] `LICENSE`: Apache 2.0 full text. `NOTICE`: "Meridian, Copyright 2026 INFORMATION89".
 - [ ] `README.md`: one paragraph (a weather engine as a library: several models, local corrections,
   official alerts, with provenance), status "early, nothing usable yet", link to the specs.
-- [ ] `CLEAN_ROOM.md`: a copy of Solstice's CLEAN_ROOM.md (allowed sources, spec then build, each
-  PR lists what was consulted).
-- [ ] `docs/`: copy ENGINE_SPEC.md, MERIDIAN_PLAN.md and `specs/M1`–`M7` into Meridian's own home. The initial engine specification and research plan have been copied; remaining milestone specs are still to be transferred.
+- [x] Root `RULES.md` and `CLEAN_ROOM.md` created as Meridian-specific policies; CLEAN_ROOM.md is the authoritative clean-room policy.
+- [x] `docs/ENGINE_SPEC.md`, `docs/MERIDIAN_PLAN.md`, and `specs/M1`–`M5`, `M7` are in Meridian's own home. `M6_ALERTS_IN_SOLSTICE.md` remains in Solstice because it specifies consumer-app integration, not engine behaviour.
 - [ ] `.gitignore` for Gradle, IDE files, `local.properties`, keys.
 - [ ] `.github/workflows/ci.yml`: on push and pull request, Ubuntu, Java 21, `./gradlew build`.
 - [ ] SPDX header `Apache-2.0` on every source file (none yet; CI check comes with M1).
