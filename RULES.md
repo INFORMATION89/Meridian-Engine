@@ -111,7 +111,7 @@ Before adding or changing a source:
 ## 10. Storage, caching, privacy, and retention
 
 1. The core defines storage contracts; it does not depend on a concrete database.
-2. An optional portable SQLite implementation may provide the official local storage backend. It depends on the core contract, never the reverse. Do not make Android Jetpack Room a required engine dependency.
+2. An optional SQLDelight/SQLite implementation may provide the official local storage backend. It depends on the core contract, never the reverse. Do not make Android Jetpack Room a required engine dependency.
 3. A consuming application may use Meridian's supported storage implementation or provide an adapter only through an extension mechanism proven and documented in M0.2. The choice must not change the meaning of the core API.
 4. Document what is stored, why it is needed, where it is stored, how long it is retained, and how it is deleted.
 5. Do not store saved-place history or introduce location tracking into Meridian. Persist only the minimum data required by explicitly approved engine functions.
