@@ -12,7 +12,9 @@ permissions:
 # canonical PR run and cancel superseded runs for the same PR.
 concurrency:
   group: mer-0-1-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Keep every platform result for the same PR; do not cancel an active matrix
+  # when a documentation or follow-up commit arrives. New runs wait in queue.
+  cancel-in-progress: false
 
 jobs:
   desktop-linux:
