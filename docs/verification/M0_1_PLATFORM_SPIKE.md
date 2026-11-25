@@ -1,6 +1,6 @@
 # M0.1 platform spike — initial execution report
 
-**Status: in progress.** This report records the Windows-hosted evidence collected so far. It is not a production stack recommendation or an approval to start M1.
+**Status: in progress.** This report records local Windows and hosted CI evidence collected so far. It is not a production stack recommendation or an approval to start M1.
 
 ## Local host and pinned candidate versions
 
@@ -25,13 +25,13 @@ The official compatibility guide lists Kotlin 2.4.21 with Gradle through 9.7 and
 
 | OS / target / architecture | Compile or link | Consumer loaded and executed | Ktor | SQLDelight | Current label |
 |---|---|---|---|---|---|
-| Windows / Desktop JVM / x64 | PASS: JVM library and consumer distribution built | PASS: packaged consumer launched on Windows with JDK 21 | PASS: common JSON fixture test; CIO instantiated | PASS: SQLite file write, close, reopen, read | Experimental; one local host, not CI |
-| Android / Android-KMP / ARM64 | PASS: Android app/APK and instrumented tests compile | BLOCKED locally: emulator is x86_64 and Windows has no Android Emulator hypervisor driver | PASS: Android and CIO candidates compile; actual engine request not run | PASS: Android driver test compiles; device execution pending | Build-only |
-| iOS / `iosSimulatorArm64` / ARM64 simulator | PASS: shared and simulator-test Kotlin code compile on Windows | NOT TESTED: framework link and Swift app require macOS/Xcode | PASS: Darwin candidate compiles; simulator execution pending | PASS: Native driver test compiles; simulator execution pending | Build-only |
-| macOS / Desktop JVM / Apple Silicon | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | Not supported yet |
-| Linux / Desktop JVM / x64 | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | Not supported yet |
+| Windows / Desktop JVM / x64 | PASS: JVM library and consumer distribution built | PASS: packaged consumer launched locally and in CI | PASS: common JSON fixture test; CIO instantiated | PASS: SQLite file write, close, reopen, read | Experimental |
+| Android / Android-KMP / ARM64 | PASS: Android app/APK and instrumented tests compile | BLOCKED: first hosted x64 runner could not start ARM64 emulator; ARM64-host retry pending | PASS: Android and CIO candidates compile; actual engine request not run | BUILD-ONLY: Android driver test compiles; device execution pending | Build-only |
+| iOS / `iosSimulatorArm64` / ARM64 simulator | PASS: device and simulator frameworks linked in CI | PASS: Swift consumer ran in iPhone simulator; shared transform/error and async callback returned PASS; Native SQLite test passed | BUILD-ONLY: Darwin candidate compiles; real fixture request not run | PASS: Native driver test ran on simulator | Experimental |
+| macOS / Desktop JVM / Apple Silicon | PASS: JVM tests and consumer distribution built in CI | PASS: packaged consumer launched in CI with JDK 21 | PASS: common JSON fixture test; CIO instantiated | PASS: SQLite file write, close, reopen, read | Experimental |
+| Linux / Desktop JVM / x64 | PASS: JVM tests and consumer distribution built in CI | PASS: packaged consumer launched in CI with JDK 21 | PASS: common JSON fixture test; CIO instantiated | PASS: SQLite file write, close, reopen, read | Experimental |
 
-**No platform is marked Supported.** The project definition reserves that label for a build and real-runtime check in CI. Android x86_64 emulator execution, iOS simulator execution, macOS JVM execution, and Linux JVM execution remain outstanding.
+**No platform is marked Supported.** The project definition reserves that label for a build and real-runtime check in CI; these are experimental spike results. Android ARM64 runtime execution remains outstanding. Ktor's target engines still need local-fixture requests and cancellation checks on their real targets.
 
 ## Windows evidence
 
@@ -51,8 +51,11 @@ Results:
 
 - JVM test suites: 5 tests passed, 0 failures. These cover the deterministic transform, typed error, async success/cancellation, Ktor MockEngine JSON fixture, CIO construction, and SQLDelight persistence after reopening a file database.
 - Packaged Windows consumer: PASS; prints `m0.1: JVM consumer PASS`.
-- Android library and smoke app: PASS compile/package. Instrumented test sources: PASS compile. The installed AVD is x86_64, and emulator startup reported that hardware acceleration is required but no emulator hypervisor driver is installed; device tests did not run.
+- Android library and smoke app: PASS compile/package. Instrumented test sources: PASS compile. The local Windows AVD is x86_64, and emulator startup reported that hardware acceleration is required but no emulator hypervisor driver is installed; device tests did not run. The first hosted CI attempt used an x64 Linux runner with an ARM64 image; the emulator did not appear in ADB and timed out. The workflow is now configured for GitHub's ARM64 Linux runner, and that retry is pending.
 - iOS simulator Kotlin source and test source: PASS cross-compilation. No Apple framework was linked and no Swift code was run on this Windows host.
+- Hosted CI (first complete matrix except Android): macOS 15.8.2 Apple Silicon with Temurin 21.0.13.1+2 linked `iosArm64` and `iosSimulatorArm64`, passed `iosSimulatorArm64Test` including the Native SQLite test, built the Swift consumer using Xcode 16.4 / iOS Simulator SDK 18.5, launched it on an iPhone 16 Pro simulator, and observed the `PASS` result marker. Exact workflow run: `45721774111`.
+- Hosted CI Desktop JVM: Windows Server 2025 x64, macOS 15.8.2 Apple Silicon, and Ubuntu 24.04.5 x64 each passed `:probe:jvmTest`, `:desktop-smoke:run`, and `:desktop-smoke:installDist`; the packaged consumer printed `m0.1: JVM consumer PASS` on all three. CI used Temurin JDK 21.0.13.1+2 (runner builds identify it as 21.0.13). Run: `45721774111`.
+- Android CI on Ubuntu x64 failed before Gradle tests because the ARM64 emulator never appeared in ADB and timed out during boot. The CI job now uses the hosted ARM64 Linux runner so its host architecture matches the required Android ARM64 image; this retry is pending.
 - A JDK 21 Gradle invocation without `--no-build-cache` first hit an unreadable Kotlin incremental cache file. Re-running with `--no-build-cache` succeeded. This is recorded as an environment issue, not a source failure.
 - One early AndroidX coordinate `androidx.test:core:1.6.2` did not resolve; it was corrected to the stable `1.7.0` release documented by Android.
 - Warm local task times were about 24 seconds for the first successful JVM test build, 27 seconds for the desktop consumer/distribution, 35 seconds for the Android debug APK, and 17–18 seconds to compile Android instrumented and iOS simulator test sources. These are single Windows host measurements, not cross-OS benchmarks. Setup and implementation elapsed time was not tracked.
@@ -73,9 +76,9 @@ The Desktop `installDist` directory contains launch scripts and runtime dependen
 
 ## Outstanding platform checks
 
-- Android ARM64 emulator/device: load the APK; run deterministic, typed-error, Android/CIO engine, and Android SQLite persistence checks.
-- iOS ARM64 simulator: link framework; build and launch the Swift consumer; run the async/cancellation and Native SQLite tests; record the framework size.
-- macOS Apple Silicon and Linux x64: run the packaged JVM consumer and record OS version, JDK, test result, and distribution size.
+- Android ARM64 emulator/device: load the APK; run deterministic, typed-error, Android/CIO engine, and Android SQLite persistence checks on an ARM64 runner.
+- Record the linked iOS framework and Desktop installDist sizes from CI. The size task previously ran before independent build tasks; task ordering is now explicit for the next workflow run.
+- Collect Android runtime and artifact size results after the ARM64 runner retry.
 - Exercise Ktor fixture serialization through each selected real engine with a local fixture server. Current offline JSON coverage uses Ktor MockEngine; target engines have been compiled, and some have been constructed, but have not made a fixture request.
 - Obtain CI logs and record measured execution time and sizes per OS before recommending the language/driver/package combination.
 
@@ -121,7 +124,7 @@ The 36 third-party jars in the measured desktop runtime distribution resolve to 
 - SQLDelight drivers: [SQLDelight 2.1.0 multiplatform SQLite guide](https://sqldelight.github.io/sqldelight/2.1.0/multiplatform_sqlite/).
 - Swift interop and error handling: [Kotlin/Native Objective-C and Swift interop](https://kotlinlang.org/docs/native-objc-interop.html).
 - AndroidX Test versions: [AndroidX Test release notes](https://developer.android.com/jetpack/androidx/releases/test).
-- GitHub runner OS/architecture labels: [GitHub-hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
+- GitHub runner OS/architecture labels, including `ubuntu-24.04-arm`: [GitHub-hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 - Android emulator workflow: [android-emulator-runner README](https://github.com/ReactiveCircus/android-emulator-runner).
 - CI action source and licence files: [checkout](https://github.com/actions/checkout), [setup-java](https://github.com/actions/setup-java), and [android-emulator-runner](https://github.com/ReactiveCircus/android-emulator-runner).
 - Transitive runtime artifacts include Kotlinx IO, Kaml, URL encoder, SnakeYAML Engine, Okio, SLF4J, and Xerial SQLite JDBC. Their upstream repository or published POM license information was checked; SQLite JDBC bundles native SQLite libraries for multiple operating systems in one jar.

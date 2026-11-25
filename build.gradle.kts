@@ -14,6 +14,13 @@ allprojects {
 }
 
 tasks.register("printM01ArtifactSizes") {
+    mustRunAfter(
+        ":probe:jvmJar",
+        ":desktop-smoke:installDist",
+        ":android-smoke:assembleDebug",
+        ":probe:linkDebugFrameworkIosArm64",
+        ":probe:linkDebugFrameworkIosSimulatorArm64",
+    )
     doLast {
         val paths = listOf(
             "probe/build/libs/probe-jvm.jar",
