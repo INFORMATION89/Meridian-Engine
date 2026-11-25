@@ -20,7 +20,7 @@
 ## 2. Documentation home
 
 - [x] `docs/ENGINE_SPEC.md` copied as the functional weather-engine specification.
-- [x] `docs/MERIDIAN_PLAN.md` copied as supporting research; its Kotlin/Gradle/Room proposal is explicitly marked historical and non-authoritative.
+- [x] `docs/MERIDIAN_PLAN.md` copied as supporting research; its older dependency and Room proposals are supporting research, not adopted decisions.
 - [x] M1 forecast specification copied to `docs/specs/M1_FORECAST.md`.
 - [x] M2 provenance specification copied to `docs/specs/M2_PROVENANCE.md`.
 - [x] M3 alerts specification copied to `docs/specs/M3_ALERTS.md`.
@@ -32,22 +32,20 @@
 
 ## 3. Technology gate — M0.1
 
-- [ ] Build the minimal Rust + UniFFI proof of concept.
-- [ ] Generate and call Kotlin bindings.
-- [ ] Generate and call Swift bindings.
-- [ ] Build the agreed Windows, macOS, iOS, Android, and Linux target artifacts.
-- [ ] Run smoke tests through real bindings on available native runners/simulators.
-- [ ] Build a small Kotlin Multiplatform comparator using the same platform-neutral function.
-- [ ] Record artifact sizes, toolchains, build hosts, packaging constraints, and test outcomes.
-- [ ] Present a written recommendation and obtain owner approval before choosing the production engine language.
+- [ ] Build the minimal KMP proof of concept with Android, iOS framework, and Desktop JVM targets.
+- [ ] Run the same probe on Android and iOS, and through JVM desktop on Windows, macOS, and Linux.
+- [ ] Validate Ktor HTTP-client and SQLDelight SQLite driver choices on the required source sets.
+- [ ] Record JDK/runtime requirements, artifact sizes, toolchains, build hosts, packaging constraints, and test outcomes.
+- [ ] Build a Rust/UniFFI comparator only if native desktop libraries without a JVM are required or the KMP proof exposes a blocker.
+- [ ] Present a written recommendation and obtain owner approval before M1.
 
 ## 4. CI and release infrastructure
 
-- [ ] Add CI for Rust formatting, linting, unit tests, and offline fixture tests after the workspace is approved.
+- [ ] Add CI for Gradle/Kotlin formatting, tests, and offline fixtures after the workspace is approved.
 - [ ] Add Linux x64 and ARM64 build jobs as appropriate.
-- [ ] Add Windows MSVC build and runtime test job.
+- [ ] Add Windows JVM desktop build and runtime test job.
 - [ ] Add macOS jobs for macOS and iOS SDK targets.
-- [ ] Add Android NDK jobs and emulator smoke tests.
+- [ ] Add Android build and emulator smoke tests.
 - [ ] Publish the actual supported-platform matrix in the README; distinguish supported, build-only, and experimental.
 - [ ] Confirm how native binaries and generated language bindings will be versioned and packaged.
 
@@ -59,5 +57,5 @@ No production weather adapter, forecast algorithm, database implementation, blen
 
 - The owner has approved `PLAN.md` and the language/interop decision from M0.1.
 - The repository has its license, README, ignore rules, and appropriate CI foundations.
-- The project can state exactly which native target artifacts and language bindings it can build, load, and test.
+- The project can state exactly which platform packages it can build, load, and test, and which runtime each requires.
 - No production weather-engine implementation has been smuggled into the bootstrap milestone.
