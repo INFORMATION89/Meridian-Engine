@@ -75,14 +75,19 @@ depends on Meridian's types directly.
 
 ### Open-Meteo (forecast, models, spread, air quality, archives)
 - **Endpoints:** `/v1/forecast` (best match, or chosen models with `models=`), `/v1/ensemble` and the
-  ensemble mean API (mean and standard deviation from ensemble members; stored since about March
-  2026), the air quality API (CAMS), and the historical forecast API for seeding and verification.
-- **Terms:** free for non-commercial use, under 10,000 calls a day, 5,000 an hour and 600 a minute;
-  data under CC BY 4.0, so the credit is required. No uptime guarantee. Solstice is free and open
-  source, so it qualifies; a paid or commercial app would need Open-Meteo's paid plan.
-- **Budget:** limits count per caller, and one request with several models or long ranges counts as
-  more than one call (the ensemble docs show an example at 4.0). Meridian counts its own "call
-  weight" per refresh and stays within a share of the limits set in configuration.
+  ensemble mean API (mean and standard deviation from ensemble members), the air quality API (CAMS),
+  the Previous Runs API for fixed-lead skill analysis, and the Single Runs API for full model-run
+  records. The Historical Forecast API is a separate stitched archive; do not treat it as equivalent
+  to Previous Runs or Single Runs.
+- **Terms:** the no-key free service is non-commercial only; the published limits include 10,000
+  calls/day, 5,000/hour, 600/minute, and 300,000/month. Limits are applied by IP and application.
+  Data is CC BY 4.0 and requires credit plus indication of changes. Apps with subscriptions,
+  advertising, or commercial-product use require a commercial plan. Re-check current terms before
+  production and do not infer that every app embedding Meridian qualifies for the free service.
+- **Budget:** call accounting is not always one HTTP request = one call; more than 10 weather variables
+  or ranges longer than two weeks can count as multiple fractional calls. A local counter is only an
+  estimate because provider enforcement also uses IP and application. The provider's current terms,
+  usage weights, endpoint and access tier must be recorded per deployment.
 
 ### aviationweather.gov (airport observations)
 - **Endpoint:** METAR in JSON by station id; a station info product (worldwide) for coordinates.
