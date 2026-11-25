@@ -220,8 +220,14 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - name: Resolve all configurations and generate dependency metadata
-        run: ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 resolveAndLockAll
+      - name: Build platform dependency graphs and generate lock/verification metadata
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 \
+            :engine:assembleMeridianSharedDebugXCFramework \
+            :engine:iosSimulatorArm64Test \
+            :engine:desktopTest \
+            :desktop-consumer:installDist \
+            :android-consumer:assembleDebug
       - name: Verify generated metadata files
         shell: bash
         run: |
