@@ -18,12 +18,12 @@ concurrency:
 
 jobs:
   desktop-linux:
-    needs: dependency-metadata
+    needs: dependency-metadata-linux
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -53,12 +53,12 @@ jobs:
             desktop-consumer/build/jpackage/
 
   desktop-windows:
-    needs: dependency-metadata
+    needs: dependency-metadata-linux
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -94,12 +94,12 @@ jobs:
             desktop-consumer/build/jpackage/
 
   apple-and-ios:
-    needs: dependency-metadata
+    needs: dependency-metadata-linux
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -139,7 +139,7 @@ jobs:
             desktop-consumer/build/jpackage/
 
   android:
-    needs: dependency-metadata
+    needs: dependency-metadata-linux
     # Prefer KVM for x86_64 Android emulation when the hosted runner exposes it.
     # Fall back to explicit TCG software emulation if KVM is unavailable.
     # Android ARM64 runtime remains a separate device/host acceptance gate.
@@ -148,7 +148,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
@@ -339,4 +339,80 @@ jobs:
           path: |
             **/gradle.lockfile
             gradle/verification-metadata.xml
+
+  dependency-metadata-linux:
+    # Android Gradle Plugin resolves a host-specific AAPT2 binary. The first
+    # metadata pass runs on Apple Silicon and cannot see the Linux classifier.
+    # Add the Linux artifact checksum incrementally, preserving all existing
+    # macOS and common dependency verification entries.
+    needs: dependency-metadata
+    if: (github.event_name == 'workflow_dispatch' && github.ref_name == 'spike/m0.1-kmp-platform-proof') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof')
+    permissions:
+      contents: write
+    outputs:
+      metadata_sha: \${{ steps.commit-linux-metadata.outputs.sha }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: \${{ needs.dependency-metadata.outputs.metadata_sha }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
+          packages: platform-tools
+      - name: Install Android SDK compile packages
+        run: |
+          sdkmanager "platforms;android-35"
+          sdkmanager "platforms;android-36"
+          sdkmanager "build-tools;36.0.0"
+      - name: Add Linux-specific Android tool checksums
+        shell: bash
+        run: |
+          if ! grep -Fq 'aapt2-9.3.1-15703166-linux.jar' gradle/verification-metadata.xml; then
+            echo "Adding the Linux AAPT2 checksum while preserving existing platform checksums."
+            ./gradlew --no-daemon --no-configuration-cache --write-verification-metadata sha256 \\
+              :android-consumer:assembleDebugAndroidTest \\
+              :android-consumer:assembleDebug
+          else
+            echo "Linux AAPT2 checksum is already present."
+          fi
+          grep -Fq 'aapt2-9.3.1-15703166-linux.jar' gradle/verification-metadata.xml
+          grep -Fq 'aapt2-9.3.1-15703166-osx.jar' gradle/verification-metadata.xml
+      - name: Verify Android build with committed checksums
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \\
+            :android-consumer:assembleDebugAndroidTest \\
+            :android-consumer:assembleDebug
+      - name: Commit Linux-specific verification metadata
+        id: commit-linux-metadata
+        shell: bash
+        env:
+          HEAD_REF: \${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: \${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
+            test "$HEAD_REF" = "spike/m0.1-kmp-platform-proof"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -- gradle/verification-metadata.xml
+            if ! git diff --cached --quiet; then
+              git commit -m "build: verify Linux Android tool artifacts"
+              git push origin "HEAD:refs/heads/$HEAD_REF"
+            else
+              echo "Linux verification metadata is already current."
+            fi
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: meridian-gradle-linux-verification-metadata
+          path: gradle/verification-metadata.xml
 
