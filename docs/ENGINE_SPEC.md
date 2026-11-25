@@ -9,8 +9,9 @@ milestones: MERIDIAN_PLAN.md.
 
 **Meridian** (name decided 2026-11-23; repo `INFORMATION89/Meridian-Engine`) is a
 weather library with no UI. Given a place, it returns a forecast, current conditions, next-hour
-rain, alerts, air quality and UV, each with a record of where every number came from. Solstice uses it
-first; other apps (a macOS menu bar app, a Windhawk mod, a clock app) can use it later.
+rain, alerts, air quality and UV, each with a record of where every number came from. Solstice is its
+first consumer, not its owner or a required dependency. Meridian must build, test, and operate independently;
+other applications on iOS, Android, Windows, macOS, and Linux must be able to consume the same public API.
 
 - **Licence:** Apache 2.0.
 - **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a Kotlin Multiplatform engine with Android/iOS targets and a Desktop JVM artifact for Windows, macOS, and Linux, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
