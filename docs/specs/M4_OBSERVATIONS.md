@@ -1,4 +1,4 @@
-# Meridian M4: observations (nearest airport)
+# Meridian MER-4: observations (nearest airport)
 
 Status: **spec, clean room step 1** (2026-11-23), from aviationweather.gov's public Data API page and
 the METAR format as published by WMO and ICAO. No other engine's code read.
@@ -6,7 +6,7 @@ the METAR format as published by WMO and ICAO. No other engine's code read.
 ## Scope
 
 Find the airports near a place, fetch their latest reports, and use them for current conditions when
-they're fresh and close enough. Keep observations for M7 (correcting forecasts) and verification.
+they're fresh and close enough. Keep observations for MER-7 (correcting forecasts) and verification.
 
 ## Stations
 
@@ -29,7 +29,7 @@ they're fresh and close enough. Keep observations for M7 (correcting forecasts) 
   adapter sends nothing else.
 - `hours` from configuration (3 gives the last few reports, for trend and gaps). Most endpoints return
   at most 400 entries.
-- History up to 30 days is available; M7 uses `hours` larger once a day, not every refresh.
+- History up to 30 days is available; MER-7 uses `hours` larger once a day, not every refresh.
 
 ## Mapping
 
@@ -73,7 +73,7 @@ Current conditions use the observation when **all** are true (thresholds in conf
   10 °C in an hour flagged).
 
 Otherwise the forecast's current values. Per variable: temperature can come from the airport while
-the sky condition comes from the forecast. Provenance says which (M2). Night-time conditions (clear
+the sky condition comes from the forecast. Provenance says which (MER-2). Night-time conditions (clear
 night, not sunny) follow the place's sun times.
 
 ## Tests
