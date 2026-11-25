@@ -421,7 +421,7 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 
 - Product name: Meridian.
 - Repository: `INFORMATION89/Meridian-Engine`.
-- Licence target: Apache-2.0 (repository bootstrap must add the full licence and notice).
+- Licence: Apache-2.0; the canonical `LICENSE` text is now present. Complete `NOTICE` only after confirming the copyright holder and auditing third-party notices.
 - Meridian is an independent library with no UI and no dependency on Solstice.
 - Meridian does not own saved-place lists or refresh scheduling.
 - Data provenance and source attribution are mandatory.
