@@ -105,6 +105,8 @@ jobs:
         with:
           cmdline-tools-version: 12266719
           accept-android-sdk-licenses: true
+          # Avoid setup-android's deprecated default "tools" package.
+          packages: platform-tools
       # Install each package in its own sdkmanager invocation. The action's
       # multiline packages input is passed as one argument by this version.
       - name: Install Android SDK packages
