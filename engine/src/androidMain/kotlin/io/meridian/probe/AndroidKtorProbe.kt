@@ -8,6 +8,7 @@ import io.ktor.client.engine.android.Android
  * inside a real Android runtime. This does not make a network request.
  */
 object AndroidKtorProbe {
+    @JvmStatic
     fun verifyClientLifecycle(): Boolean {
         val client = HttpClient(Android)
         try {
