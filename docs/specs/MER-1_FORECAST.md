@@ -138,13 +138,23 @@ fetch time. Request-cost estimates belong in diagnostics/accounting metadata, no
 - Timeouts and network failures: a problem; cached values are returned if still fresh, marked stale.
 - Never an exception across the API.
 
-## Limits and caching
+## Usage accounting and caching
 
-- Free tier: under 10,000 calls a day, 5,000 an hour, 600 a minute; long ranges, many variables or many
-  models count as more than one call. Meridian keeps a running call-weight estimate and refuses to exceed
-  a configured share of each limit.
+- Calculate a best-effort request-cost estimate from endpoint, variable count, range, and model count
+  before sending a request. The consuming app may set a local usage budget and Meridian should avoid
+  exceeding that configured budget.
+- A local counter is not a global quota guarantee: provider enforcement is shared across the applicable
+  IP/application scope and may include other devices or apps. Do not claim that Meridian can reserve or
+  guarantee the free-tier allowance for an installation.
+- Handle provider rate-limit responses explicitly, honor any retry guidance returned by the service,
+  and use bounded backoff. A 429 must not trigger an immediate retry loop.
+- For a commercial deployment, use the provider's approved customer endpoint/plan. Provider credentials
+  are supplied by the host application through a secure configuration boundary; never compile a private
+  developer key into Meridian or a sample app. Confirm the provider's terms permit the chosen client-side
+  credential distribution model before shipping.
 - Cache by rounded coordinates (precision from configuration) and the request's parameters; time to
-  live from configuration (a model updates every few hours, so a short TTL buys nothing).
+  live from configuration and the source's actual update cadence. A short TTL that causes repeat calls
+  without producing fresher data is not useful.
 
 ## Credit
 
