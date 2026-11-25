@@ -34,7 +34,7 @@ Rust is a strong alternative if Meridian must be a native library with no JVM ru
 
 ### Decision gate
 
-M0.1 must prove the proposed Kotlin path on real target environments, including iOS framework integration and JVM execution on Windows, macOS, and Linux. It must also validate the likely Ktor and SQLDelight driver matrix. If those tests fail or the owner requires native desktop libraries without a JVM, compare a small Rust/UniFFI proof before committing to M1. The implementation language is not irrevocably locked until the owner approves the M0.1 report.
+MER-0.1 must prove the proposed Kotlin path on real target environments, including iOS framework integration and JVM execution on Windows, macOS, and Linux. It must also validate the likely Ktor and SQLDelight driver matrix. If those tests fail or the owner requires native desktop libraries without a JVM, compare a small Rust/UniFFI proof before committing to MER-1. The implementation language is not irrevocably locked until the owner approves the MER-0.1 report.
 
 ## Local-first and no-hosting principle
 
@@ -163,7 +163,7 @@ Do not use a vague "cross-platform" badge without publishing this matrix.
 - UniFFI does not replace native build/release pipelines; Kotlin bindings depend on JNA and coroutines, which must be tested in the selected environments.
 - Rust's iOS and Android ARM64 targets are Tier 2, and third-party crate support must be validated separately.
 
-### M0.1 decision gate
+### MER-0.1 decision gate
 
 Build a small, non-weather proof of concept before full engine implementation:
 
@@ -175,12 +175,12 @@ Build a small, non-weather proof of concept before full engine implementation:
 6. Validate a minimal SQLDelight SQLite slice using Android, Native iOS, and JVM desktop drivers.
 7. Record build times, test results, artifact sizes, runtime requirements, and packaging steps.
 8. If a native desktop library with no JVM is a firm requirement, build a small Rust/UniFFI comparator against the same matrix.
-9. Recommend the production stack and obtain owner approval before M1.
+9. Recommend the production stack and obtain owner approval before MER-1.
 
 
 ## 6. Proposed architecture
 
-The following is a logical architecture. Exact module names and dependency choices are finalized by M0.1/M0.2, not guessed during feature implementation.
+The following is a logical architecture. Exact module names and dependency choices are finalized by MER-0.1/MER-0.2, not guessed during feature implementation.
 
 ### Core layers
 
@@ -217,7 +217,7 @@ Meridian-Engine/
     verification/
 ```
 
-This is a proposal, not an instruction to create every module immediately. M0.1 creates only the minimal Gradle/KMP proof. Add each module when an approved milestone needs it.
+This is a proposal, not an instruction to create every module immediately. MER-0.1 creates only the minimal Gradle/KMP proof. Add each module when an approved milestone needs it.
 
 ### Verification and analysis boundary
 
@@ -247,7 +247,7 @@ The earlier Kotlin-oriented plan proposed Room. Do not make Android Jetpack Room
 - Evaluate **SQLDelight + SQLite** as the official optional storage implementation. SQLDelight documents SQLite for Android, Native targets, and JVM; the initial five-OS path uses Android, Native iOS, and JVM desktop drivers as appropriate.
 - Do not use the Windows/Linux Kotlin/Native SQLite drivers in the first release unless native desktop binaries become a requirement.
 - Solstice may continue using Room for Solstice-owned app data. Meridian's cache/history must not require access to the Solstice database.
-- Consumer-provided custom storage is desirable, but do not make it public API until its lifecycle and driver injection are proven in M0.2.
+- Consumer-provided custom storage is desirable, but do not make it public API until its lifecycle and driver injection are proven in MER-0.2.
 
 ### Data policy
 
@@ -340,20 +340,20 @@ Each milestone follows the same cycle: **research → specification → owner ap
 
 | Milestone | Scope | Acceptance criteria |
 |---|---|---|
-| M0 — Project foundation | Repository policies, license, README, KMP workspace skeleton, CI skeleton, coding-agent instructions | Clean repository; documented decisions; CI runs on PRs |
-| M0.1 — Platform and dependency proof | KMP Android, iOS framework, JVM desktop on Windows/macOS/Linux; Ktor and SQLDelight driver checks | The same probe works on all five OS; runtime and packaging requirements documented; owner approves stack |
-| [M0.2 — Public API and storage decision](docs/specs/M0_2_PUBLIC_API_STORAGE.md) | Stable domain/API contract, optional local storage boundary, cache/history semantics, offline behaviour, errors and cancellation | API and storage contracts tested with an independent sample consumer; owner approves decisions before M1 |
-| [M0.3 — Reproducible verification, research, and optional chat integration](docs/specs/M0_3_VERIFICATION_RESEARCH.md) | Forecast/observation record contracts, matching rules, reproducible evaluation methodology, human-reviewed improvement workflow, contributor AI policy, optional MCP adapter assessment | Analysis is reproducible from versioned data and code; MCP remains an optional external adapter; the weather core needs no AI provider, model, credential, or token spend |
-| M1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass |
-| M2 — Provenance and resilience | Per-value provenance, source catalog, source selection, typed problems, cache/rate limits | Every value traceable; failed/stale provider produces explicit fallback/problem; request limits tested |
-| M3 — Official alerts | CAP parsing, WMO feeds, FPAS as an additional route | Mexico, US, and Germany fixtures parse/merge correctly; update/cancel and attribution tests pass |
-| M4 — Observations | Airport station discovery and METAR mapping | Fresh nearby observation selected per variable; stale/distant/elevation-mismatched stations rejected |
-| M5 — Blend and spread | Multi-model forecast, equal-weight blend, spread | Reproducible archive evaluation; wind direction and missing-model edge cases pass |
-| M6 — Consumer integration | Solstice Kotlin integration; sample native Swift/iOS and desktop JVM integrations | Solstice bridge uses only public API; each advertised binding/package is tested |
-| M7 — Local learning | Forecast/observation matching, rolling skill statistics, bias correction | Archive evaluation shows measured impact; privacy and retention rules pass |
-| M8 — Radar nowcast research | Radar/satellite input, motion estimation, short-range extrapolation | Separate feasibility study and benchmark before implementation approval |
+| MER-0 — Project foundation | Repository policies, license, README, KMP workspace skeleton, CI skeleton, coding-agent instructions | Clean repository; documented decisions; CI runs on PRs |
+| MER-0.1 — Platform and dependency proof | KMP Android, iOS framework, JVM desktop on Windows/macOS/Linux; Ktor and SQLDelight driver checks | The same probe works on all five OS; runtime and packaging requirements documented; owner approves stack |
+| [MER-0.2 — Public API and storage decision](docs/specs/MER-0_2_PUBLIC_API_STORAGE.md) | Stable domain/API contract, optional local storage boundary, cache/history semantics, offline behaviour, errors and cancellation | API and storage contracts tested with an independent sample consumer; owner approves decisions before MER-1 |
+| [MER-0.3 — Reproducible verification, research, and optional chat integration](docs/specs/MER-0_3_VERIFICATION_RESEARCH.md) | Forecast/observation record contracts, matching rules, reproducible evaluation methodology, human-reviewed improvement workflow, contributor AI policy, optional MCP adapter assessment | Analysis is reproducible from versioned data and code; MCP remains an optional external adapter; the weather core needs no AI provider, model, credential, or token spend |
+| MER-1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass |
+| MER-2 — Provenance and resilience | Per-value provenance, source catalog, source selection, typed problems, cache/rate limits | Every value traceable; failed/stale provider produces explicit fallback/problem; request limits tested |
+| MER-3 — Official alerts | CAP parsing, WMO feeds, FPAS as an additional route | Mexico, US, and Germany fixtures parse/merge correctly; update/cancel and attribution tests pass |
+| MER-4 — Observations | Airport station discovery and METAR mapping | Fresh nearby observation selected per variable; stale/distant/elevation-mismatched stations rejected |
+| MER-5 — Blend and spread | Multi-model forecast, equal-weight blend, spread | Reproducible archive evaluation; wind direction and missing-model edge cases pass |
+| MER-6 — Consumer integration | Solstice Kotlin integration; sample native Swift/iOS and desktop JVM integrations | Solstice bridge uses only public API; each advertised binding/package is tested |
+| MER-7 — Local learning | Forecast/observation matching, rolling skill statistics, bias correction | Archive evaluation shows measured impact; privacy and retention rules pass |
+| MER-8 — Radar nowcast research | Radar/satellite input, motion estimation, short-range extrapolation | Separate feasibility study and benchmark before implementation approval |
 
-Milestones may be reordered only by an explicit decision recorded in `PLAN.md`. M6 contains app-side work; its app-specific implementation instructions remain in Solstice.
+Milestones may be reordered only by an explicit decision recorded in `PLAN.md`. MER-6 contains app-side work; its app-specific implementation instructions remain in Solstice.
 
 
 ## 12. CI, tests, and release artifacts
@@ -432,7 +432,7 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 2. Desktop applications may bundle or require a compatible JVM; no native Windows/Linux library is promised in v1.
 3. SQLDelight with SQLite as the official optional local persistence implementation; no mandatory Room dependency.
 4. A batch-oriented first public API; defer streaming partial updates.
-5. M0.1 and M0.2 as mandatory gates before weather-feature implementation.
+5. MER-0.1 and MER-0.2 as mandatory gates before weather-feature implementation.
 6. Meridian has no AI runtime integration. AI_POLICY.md governs AI-assisted development and research; any future AI/ML runtime proposal requires a separate specification and explicit owner approval.
 7. Meridian must have an independent build, API smoke test, and example consumer that do not require Solstice.
 
@@ -444,15 +444,15 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 - Which Linux distributions and architectures should be in the first support matrix?
 - Are Windows ARM64 and Linux ARM64 desktop builds first-release requirements or follow-up targets?
 - Should apps be allowed to provide a custom storage backend in v1, or should the official SQLDelight/SQLite implementation be the only supported persistence path initially?
-- Which Open-Meteo model set is defensible for Mexico and other target regions at the time M5 is implemented?
+- Which Open-Meteo model set is defensible for Mexico and other target regions at the time MER-5 is implemented?
 
 
 ## 16. Immediate next task for a coding agent
 
-**Task:** execute only M0.1, the platform and dependency proof described in section 5 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`.
+**Task:** execute only MER-0.1, the platform and dependency proof described in section 5 and specified in `docs/specs/MER-0_1_PLATFORM_SPIKE.md`.
 
 The coding agent must:
-1. Read `RULES.md`, `CLEAN_ROOM.md`, this `PLAN.md`, `AGENTS.md`, and the M0.1 task specification.
+1. Read `RULES.md`, `CLEAN_ROOM.md`, this `PLAN.md`, `AGENTS.md`, and the MER-0.1 task specification.
 2. Inspect the actual repository and report what exists before creating files.
 3. Create a short-lived feature branch for the spike.
 4. Build the smallest KMP library possible with a shared deterministic probe, typed error, and async operation.
@@ -460,9 +460,9 @@ The coding agent must:
 6. Validate one Ktor and one SQLDelight/SQLite path on the actual target source sets.
 7. Record exact commands, toolchain versions, build-host details, target outcomes, runtime requirements, artifact sizes, and failures.
 8. Do not build a Rust/UniFFI comparator unless the owner states that native desktop libraries without a JVM are required, or the KMP proof shows a blocker that merits comparison.
-9. Open a pull request with the evidence and a recommendation. Do not merge it or begin M1 without owner approval.
+9. Open a pull request with the evidence and a recommendation. Do not merge it or begin MER-1 without owner approval.
 
-**Prohibited during M0.1:** implementing weather providers, domain algorithms, production storage, blending, learning, alerts, radar, or app UI. The proof is not the production engine.
+**Prohibited during MER-0.1:** implementing weather providers, domain algorithms, production storage, blending, learning, alerts, radar, or app UI. The proof is not the production engine.
 
 ## 17. Research references checked for the platform decision
 
