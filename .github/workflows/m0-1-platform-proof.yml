@@ -102,9 +102,18 @@ jobs:
         run: |
           test "$(uname -m)" = "aarch64"
           ./gradlew --version
+      # The stable Android SDK repository does not publish the emulator package
+      # for Linux ARM64. Install the ARM64-host emulator from the canary channel
+      # first, then install the stable platform and ARM64 guest system image.
       - uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools platforms;android-35 system-images;android-35;google_apis;arm64-v8a emulator'
+          packages: 'platform-tools'
+      - name: Install ARM64-host Android emulator from canary
+        run: sdkmanager --channel=3 "emulator"
+      - name: Install Android 35 platform and ARM64 Google APIs image
+        run: |
+          sdkmanager "platforms;android-35"
+          sdkmanager "system-images;android-35;google_apis;arm64-v8a"
       - name: Run ARM64 Android emulator instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         timeout-minutes: 25
