@@ -123,6 +123,8 @@ jobs:
             engine/build/XCFrameworks/
             engine/build/test-results/
             ios-consumer/.build/
+            desktop-consumer/build/install/
+            desktop-consumer/build/jpackage/
 
   android:
     # GitHub-hosted Linux runners expose KVM for hardware-accelerated x86_64
