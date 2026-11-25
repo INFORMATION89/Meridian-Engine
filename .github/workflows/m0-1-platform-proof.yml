@@ -170,3 +170,35 @@ jobs:
             android-consumer/build/reports/
             android-consumer/build/outputs/androidTest-results/
             engine/build/reports/tests/testAndroidHostTest/
+
+  dependency-metadata:
+    # Generate lock state and SHA-256 verification metadata from the complete
+    # resolvable dependency graph. This job is limited to the active spike PR.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof'
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Resolve all configurations and generate dependency metadata
+        run: ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 resolveAndLockAll
+      - name: Verify generated metadata files
+        shell: bash
+        run: |
+          test -s gradle/verification-metadata.xml
+          echo "Generated lockfiles:"
+          find . -name gradle.lockfile -not -path './.gradle/*' -print
+          test "$(find . -name gradle.lockfile -not -path './.gradle/*' | wc -l)" -gt 0
+          echo "Verification metadata entries:"
+          grep -c '<component ' gradle/verification-metadata.xml || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: meridian-gradle-dependency-metadata
+          path: |
+            **/gradle.lockfile
+            gradle/verification-metadata.xml
+
