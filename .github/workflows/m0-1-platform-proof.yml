@@ -376,8 +376,8 @@ jobs:
         run: |
           if ! grep -Fq 'aapt2-9.3.1-15703166-linux.jar' gradle/verification-metadata.xml; then
             echo "Adding the Linux AAPT2 checksum while preserving existing platform checksums."
-            ./gradlew --no-daemon --no-configuration-cache --write-verification-metadata sha256 \\
-              :android-consumer:assembleDebugAndroidTest \\
+            ./gradlew --no-daemon --no-configuration-cache --write-verification-metadata sha256 \
+              :android-consumer:assembleDebugAndroidTest \
               :android-consumer:assembleDebug
           else
             echo "Linux AAPT2 checksum is already present."
@@ -386,8 +386,8 @@ jobs:
           grep -Fq 'aapt2-9.3.1-15703166-osx.jar' gradle/verification-metadata.xml
       - name: Verify Android build with committed checksums
         run: |
-          ./gradlew --no-daemon --no-configuration-cache \\
-            :android-consumer:assembleDebugAndroidTest \\
+          ./gradlew --no-daemon --no-configuration-cache \
+            :android-consumer:assembleDebugAndroidTest \
             :android-consumer:assembleDebug
       - name: Commit Linux-specific verification metadata
         id: commit-linux-metadata
