@@ -72,7 +72,7 @@ M0.1 must prove the proposed Kotlin path on real target environments, including 
 
 AI is primarily a contributor tool, not a Meridian product capability. It may help developers research technical decisions, write and review code, generate test ideas, inspect sanitized historical forecast/observation data, explore error patterns, and draft analysis scripts. Its use should be deliberate and limited to tasks where it provides measurable value; ordinary deterministic scripts and manual analysis remain the default.
 
-Meridian must not call an LLM or AI provider while fetching, calculating, blending, validating, caching, or returning weather results. No AI model, key, prompt, hosted service, inference runtime, MCP adapter, vector database, or token budget is required by the engine or its consumers. Users must not experience AI latency or AI token charges when asking for weather information.
+Meridian must not call an LLM or AI provider while fetching, calculating, blending, validating, caching, or returning weather results. No AI model, key, prompt, hosted service, inference runtime, MCP adapter, vector database, or token budget is required by the engine or by consumers using its ordinary API. An optional MCP adapter may later let an external chat client query Meridian; that adapter is a separate integration, not part of the core. Any model/token costs and generated response behaviour belong to the external chat host/provider. Users of ordinary Meridian consumers must not experience AI latency or AI token charges when asking for weather information.
 
 Forecast quality improves through a reproducible loop: preserve forecast snapshots as issued, match them later to quality-controlled observations, evaluate errors by variable/lead time/region/season/source, compare candidate changes against an unchanged baseline, and have a human review and approve every algorithm or configuration change. AI may suggest hypotheses, but deterministic code and versioned data must reproduce every claimed result. Do not add runtime ML or learned correction models without a separate evidence-based specification and owner approval.
 
@@ -213,7 +213,7 @@ This is a proposal, not an instruction to create every module immediately. M0.1 
 - Developer-facing verification tools may compare preserved forecast snapshots with later observations and generate reproducible reports.
 - Each report identifies data versions, matching rules, algorithm/configuration versions, evaluation code, metrics, exclusions, and sample counts.
 - AI-assisted interpretation is an occasional contributor workflow only. Analysis findings must be reproduced by deterministic code and reviewed by a human before any algorithm or configuration change.
-- No AI adapter, prompt context, agent tool contract, MCP server, or model SDK belongs in Meridian's runtime architecture.
+- No AI adapter, prompt context, agent tool contract, MCP server, or model SDK belongs in the weather core. A future MCP connector may live as a separately scoped adapter that consumes only the stable public API.
 
 ### Dependency direction
 
@@ -331,7 +331,7 @@ Each milestone follows the same cycle: **research → specification → owner ap
 | M0 — Project foundation | Repository policies, license, README, KMP workspace skeleton, CI skeleton, coding-agent instructions | Clean repository; documented decisions; CI runs on PRs |
 | M0.1 — Platform and dependency proof | KMP Android, iOS framework, JVM desktop on Windows/macOS/Linux; Ktor and SQLDelight driver checks | The same probe works on all five OS; runtime and packaging requirements documented; owner approves stack |
 | M0.2 — Public API and storage decision | Stable domain/API contract, storage boundary, cache model, HTTP and async lifecycle | API and storage specs approved; no feature code yet |
-| [M0.3 — Reproducible verification and AI-assisted development](docs/specs/M0_3_AI_READINESS.md) | Forecast/observation record contracts, matching rules, reproducible evaluation methodology, human-reviewed improvement workflow, contributor AI policy | Analysis is reproducible from versioned data and code; no AI provider, model, credential, or token spend is needed at runtime |
+| [M0.3 — Reproducible verification, research, and optional chat integration](docs/specs/M0_3_VERIFICATION_RESEARCH.md) | Forecast/observation record contracts, matching rules, reproducible evaluation methodology, human-reviewed improvement workflow, contributor AI policy, optional MCP adapter assessment | Analysis is reproducible from versioned data and code; MCP remains an optional external adapter; the weather core needs no AI provider, model, credential, or token spend |
 | M1 — First forecast | Domain model and one Open-Meteo forecast path | CLI and binding sample return hourly/daily forecast with source and timestamps; fixtures pass |
 | M2 — Provenance and resilience | Per-value provenance, source catalog, source selection, typed problems, cache/rate limits | Every value traceable; failed/stale provider produces explicit fallback/problem; request limits tested |
 | M3 — Official alerts | CAP parsing, WMO feeds, FPAS as an additional route | Mexico, US, and Germany fixtures parse/merge correctly; update/cancel and attribution tests pass |
