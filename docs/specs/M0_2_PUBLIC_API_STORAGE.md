@@ -1,15 +1,15 @@
-# M0.2 — Public API and local storage contract
+# MER-0.2 — Public API and local storage contract
 
 **Status:** proposed design specification; no production weather feature or storage implementation is authorized by this document.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 6–8, 11–16.  
-**Depends on:** M0.1 platform proof and owner approval of the supported target/runtime strategy.  
+**Depends on:** MER-0.1 platform proof and owner approval of the supported target/runtime strategy.  
 **Purpose:** define a small, consumer-neutral API and local persistence boundary before implementing weather providers or algorithms.
 
 ## 1. Objective
 
 Specify how an application embeds Meridian, requests weather data, receives structured results, and optionally supplies local persistence. Meridian must remain a library running in the consumer's process. The normal path must not require a Meridian-hosted service, account, remote database, daemon, or AI provider.
 
-M0.2 is a contract and compatibility decision milestone. It must not implement real weather providers, production forecasts, blending, or the production database.
+MER-0.2 is a contract and compatibility decision milestone. It must not implement real weather providers, production forecasts, blending, or the production database.
 
 ## 2. Product and runtime boundaries
 
@@ -32,7 +32,7 @@ Design and document a minimal API around these concepts:
 5. **Cancellation:** cancellation must stop work where practical, propagate predictably across Kotlin/JVM/Swift boundaries, and never leave partially written cache records marked complete.
 6. **Versioning:** public types and serialized persistence records need explicit compatibility/versioning rules. Provider response schemas must remain internal to adapters.
 
-Prefer a batch-oriented request/response API for the first release. Do not commit to streaming partial updates, Kotlin Flow, callback APIs, or Swift-specific wrappers until the M0.1 interop proof demonstrates an ergonomic and reliable approach.
+Prefer a batch-oriented request/response API for the first release. Do not commit to streaming partial updates, Kotlin Flow, callback APIs, or Swift-specific wrappers until the MER-0.1 interop proof demonstrates an ergonomic and reliable approach.
 
 Errors should be typed and distinguish invalid input, unsupported feature, no eligible source, provider failure, rate limiting, storage failure, cancellation, and stale/unavailable data. Do not collapse a partial feature failure into a total request failure when other requested features succeeded. Never fabricate missing weather values.
 
@@ -48,7 +48,7 @@ Define storage as optional interfaces owned by the engine contract, with impleme
 - **Retention and deletion:** configurable retention, bounded storage, explicit deletion/clear operations, and documented defaults. The host must be able to disable history while retaining ordinary in-memory or response-cache operation.
 - **Transactions and concurrency:** define atomic write boundaries, duplicate handling, concurrent refresh behaviour, and recovery from interrupted writes.
 
-The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths, or database row types. SQLDelight/SQLite remains a candidate implementation only if M0.1 proves the target driver matrix. A custom host-provided store must remain possible unless the owner explicitly chooses a narrower v1 contract.
+The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths, or database row types. SQLDelight/SQLite remains a candidate implementation only if MER-0.1 proves the target driver matrix. A custom host-provided store must remain possible unless the owner explicitly chooses a narrower v1 contract.
 
 ## 5. Offline and freshness semantics
 
@@ -76,7 +76,7 @@ The sample should:
 - instantiate Meridian with fake/in-memory dependencies;
 - make a deterministic request against fixture-backed fake sources;
 - receive a structured result with units, timestamps, provenance, freshness, and a typed partial failure;
-- run the same contract test on Android, iOS/Swift, and JVM desktop according to the approved M0.1 matrix;
+- run the same contract test on Android, iOS/Swift, and JVM desktop according to the approved MER-0.1 matrix;
 - demonstrate offline cache behaviour and cancellation;
 - show that the core can be constructed and queried without persistent storage, provider credentials, a remote endpoint, or AI.
 
@@ -84,28 +84,28 @@ The sample is a compatibility test, not a user-facing weather application.
 
 ## 8. Decisions required from the owner
 
-M0.2 must present explicit recommendations and obtain approval for:
+MER-0.2 must present explicit recommendations and obtain approval for:
 
 1. The minimal public request/result API and batch-first approach.
 2. Whether persistent storage is optional in the first release and whether a host-supplied storage interface is supported.
 3. The official cache/history record boundary and retention defaults.
 4. The error and partial-result model.
-5. The cancellation and Swift interoperability shape based on M0.1 evidence.
+5. The cancellation and Swift interoperability shape based on MER-0.1 evidence.
 6. The initial public API stability/versioning policy.
 
-Do not begin M1 provider or forecast implementation until these decisions are approved.
+Do not begin MER-1 provider or forecast implementation until these decisions are approved.
 
 ## 9. Acceptance criteria
 
-M0.2 is complete only when:
+MER-0.2 is complete only when:
 
 - Public API types and examples are documented independently of provider and database schemas.
 - A dependency diagram confirms that core has no dependency on Solstice, UI frameworks, a hosted service, or an AI provider.
 - Cache and forecast/observation history contracts include freshness, provenance, schema versioning, retention, deletion, and atomicity semantics.
 - Offline, stale, unavailable, partial-failure, and cancellation behaviour are specified and exercised by deterministic contract tests.
 - An independent sample consumer demonstrates the public API without Solstice.
-- Android, iOS/Swift, and JVM desktop interop constraints are recorded against the M0.1 results.
-- The owner approves the public API, storage boundary, error model, and versioning policy before M1.
+- Android, iOS/Swift, and JVM desktop interop constraints are recorded against the MER-0.1 results.
+- The owner approves the public API, storage boundary, error model, and versioning policy before MER-1.
 
 ## 10. Out of scope
 
