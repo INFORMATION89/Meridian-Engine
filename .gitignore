@@ -1,0 +1,7 @@
+.gradle/
+**/build/
+**/.DS_Store
+ios-consumer/.build/
+local.properties
+*.iml
+.idea/
