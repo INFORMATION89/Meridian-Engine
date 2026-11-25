@@ -8,7 +8,8 @@ No other engine's code read.
 
 For each saved place: log what each model forecast and what the nearest airport later measured, learn
 each model's bias and error, correct the next hours with the bias, and feed the errors to MER-5's skill
-weights. Everything stays on the phone (RULES.md section 10); kept 30 days.
+weights. Everything stays on the phone (RULES.md section 10); retention is configurable and bounded.
+A 30-day window is a proposal pending owner approval, not an adopted default.
 
 ## What gets logged
 
@@ -35,7 +36,7 @@ Kept per place, model, variable, lead bucket (0–24 h, 24–72 h, 3–7 days) a
   `bias ← (1 − w) · bias + w · error`, with `w = max(w_min, 1 / n)` so the first values are a plain
   running mean and later ones decay. `w_min` from configuration, NCEP's 0.02 as the starting value,
   tuned on the Mexico City archive.
-- `rmse` over the rolling 30 days, for MER-5's weights.
+- `rmse` over a configurable rolling window (30 days is the current research proposal), for MER-5's weights.
 - `count`: number of verified pairs. Fewer than the minimum (configuration, default 10) means no
   correction for that bucket.
 
@@ -64,9 +65,9 @@ correction switch on separately, each only after its own archive check.
 
 ## Storage
 
-MER-2's `StatRow` holds one row per statistic key. Forecast and observation logs older than 30 days are
-deleted (`deleteOlderThan`); statistics keep only what the window needs. Settings › Privacy › Clear
-removes all of it.
+MER-2's `StatRow` holds one row per statistic key. Forecast and observation logs are removed according
+to the approved configurable retention policy; statistics keep only what the active window needs.
+Settings › Privacy › Clear removes all of it.
 
 ## Tests
 
