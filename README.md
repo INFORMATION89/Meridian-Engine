@@ -35,7 +35,9 @@ These are implementation candidates, not production support guarantees. See the 
 
 ## Roadmap
 
-The master roadmap is [PLAN.md](PLAN.md). The next gates are:
+The master roadmap is [PLAN.md](PLAN.md). Decision proposals for the upcoming gates are available for review: [MER-0.2 API/storage](docs/specs/MER-0_2_DECISION_PROPOSAL.md) and [MER-0.3 forecast verification](docs/specs/MER-0_3_DECISION_PROPOSAL.md).
+
+The next gates are:
 
 1. Complete and review the MER-0.1 platform, dependency, and packaging evidence.
 2. Approve the public API, storage boundary, errors, and cancellation contract in MER-0.2.
