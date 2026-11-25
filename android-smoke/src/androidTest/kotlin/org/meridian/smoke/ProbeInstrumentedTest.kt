@@ -6,6 +6,8 @@ import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.engine.cio.CIO
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -21,6 +23,12 @@ class ProbeInstrumentedTest {
         assertEquals("m0.1", Probe.version)
         assertEquals("okok", Probe.transform("ok", 2))
         assertThrows(ProbeException.NegativeCount::class.java) { Probe.transform("x", -1) }
+    }
+
+    @Test
+    fun asyncOperationReturnsAndPropagatesCancellation() = runBlocking {
+        assertEquals("async", Probe.asyncTransform("async", 1))
+        assertEquals(null, withTimeoutOrNull(0) { Probe.asyncTransform("cancel", 1) })
     }
 
     @Test
