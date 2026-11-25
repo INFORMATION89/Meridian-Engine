@@ -170,6 +170,7 @@ Official references:
 - [Servicio Meteorológico Nacional](https://smn.conagua.gob.mx/es)
 - [SMN functions and objectives](https://smn.conagua.gob.mx/es/component/content/article?id=3%3Aacerca-del-smn)
 - [SMN automatic weather stations (EMAS)](https://smn.conagua.gob.mx/tools/GUI/EMAS.php)
+- [SMN terms and conditions for data use](https://wwwsmn.conagua.gob.mx/es/terminos-y-condiciones)
 - [SMN climatological statistics](https://smn.conagua.gob.mx/Es/Climatologia/Informacion-Climatologica/Informacion-Estadistica-Climatologica)
 - [CONAGUA open data portal](https://datos.conagua.gob.mx/)
 - [CONAGUA open-data catalogue](https://datos.conagua.gob.mx/views/index_datos_abiertos.html)
@@ -281,6 +282,6 @@ No provider adapter should start until the owner-facing proposal includes:
 - OASIS CAP 1.2: https://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2.html
 - WMO Severe Weather Information Centre: https://severeweather.wmo.int/
 - FOSS Public Alert Server: https://alerts.kde.org/config/
-- SMN / CONAGUA public materials: links in section 7.
+- SMN / CONAGUA public materials and data-use terms: links in section 7.
 
 All current terms, pricing, coverage, and endpoint behaviour must be checked again immediately before implementation or release.
