@@ -9,14 +9,30 @@ object AndroidStorageProbe {
     fun verifyReopen(context: Context): Boolean {
         val name = "meridian-m0-1-probe.db"
         context.deleteDatabase(name)
-        val first = AndroidSqliteDriver(ProbeDatabase.Schema, context, name)
-        ProbeDatabase(first).probeQueries.insertRecord(1, "persisted")
-        first.close()
 
-        val reopened = AndroidSqliteDriver(ProbeDatabase.Schema, context, name)
-        val value = ProbeDatabase(reopened).probeQueries.selectRecord(1).executeAsOne()
-        reopened.close()
-        context.deleteDatabase(name)
-        return value == "persisted"
+        try {
+            val first = AndroidSqliteDriver(ProbeDatabase.Schema, context, name)
+            try {
+                val database = ProbeDatabase(first)
+                database.transaction {
+                    probeQueries.insertRecord(1, "initial")
+                    probeQueries.updateRecord("persisted", 1)
+                }
+            } finally {
+                first.close()
+            }
+
+            val reopened = AndroidSqliteDriver(ProbeDatabase.Schema, context, name)
+            try {
+                return ProbeDatabase(reopened)
+                    .probeQueries
+                    .selectRecord(1)
+                    .executeAsOne() == "persisted"
+            } finally {
+                reopened.close()
+            }
+        } finally {
+            context.deleteDatabase(name)
+        }
     }
 }

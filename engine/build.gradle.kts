@@ -1,5 +1,4 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import org.jetbrains.kotlin.gradle.plugin.mpp.XCFramework
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -14,6 +13,9 @@ kotlin {
         namespace = "io.meridian.engine"
         compileSdk = 36
         minSdk = 26
+
+        // Exercise commonTest on Android's host JVM as well as on device consumers.
+        withHostTest {}
     }
 
     val xcf = XCFramework("MeridianShared")
@@ -47,14 +49,13 @@ kotlin {
             implementation(libs.ktor.client.darwin)
             implementation(libs.sqldelight.native.driver)
         }
-        val desktopMain by getting {
-            dependencies {
+
+        getByName("desktopMain").dependencies {
             implementation(libs.ktor.client.cio)
-                implementation(libs.sqldelight.sqlite.driver)
-            }
+            implementation(libs.sqldelight.sqlite.driver)
         }
-        val desktopTest by getting {
-            dependencies { implementation(kotlin("test")) }
+        getByName("desktopTest").dependencies {
+            implementation(kotlin("test"))
         }
     }
 }

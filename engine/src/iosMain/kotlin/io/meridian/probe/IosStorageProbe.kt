@@ -6,13 +6,26 @@ import io.meridian.probe.db.ProbeDatabase
 object IosStorageProbe {
     fun verifyReopen(): Boolean {
         val name = "meridian-m0-1-probe.db"
+
         val first = NativeSqliteDriver(ProbeDatabase.Schema, name)
-        ProbeDatabase(first).probeQueries.insertRecord(1, "persisted")
-        first.close()
+        try {
+            val database = ProbeDatabase(first)
+            database.transaction {
+                probeQueries.insertRecord(1, "initial")
+                probeQueries.updateRecord("persisted", 1)
+            }
+        } finally {
+            first.close()
+        }
 
         val reopened = NativeSqliteDriver(ProbeDatabase.Schema, name)
-        val value = ProbeDatabase(reopened).probeQueries.selectRecord(1).executeAsOne()
-        reopened.close()
-        return value == "persisted"
+        try {
+            return ProbeDatabase(reopened)
+                .probeQueries
+                .selectRecord(1)
+                .executeAsOne() == "persisted"
+        } finally {
+            reopened.close()
+        }
     }
 }

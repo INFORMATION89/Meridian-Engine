@@ -9,7 +9,15 @@ let package = Package(
     ],
     targets: [
         .binaryTarget(name: "MeridianShared", path: "Frameworks/MeridianShared.xcframework"),
-        .target(name: "MeridianSwiftConsumer", dependencies: ["MeridianShared"]),
-        .testTarget(name: "MeridianSwiftConsumerTests", dependencies: ["MeridianSwiftConsumer", "MeridianShared"])
+        .target(
+            name: "MeridianSwiftConsumer",
+            dependencies: ["MeridianShared"],
+            linkerSettings: [.linkedLibrary("sqlite3")]
+        ),
+        .testTarget(
+            name: "MeridianSwiftConsumerTests",
+            dependencies: ["MeridianSwiftConsumer", "MeridianShared"],
+            linkerSettings: [.linkedLibrary("sqlite3")]
+        )
     ]
 )
