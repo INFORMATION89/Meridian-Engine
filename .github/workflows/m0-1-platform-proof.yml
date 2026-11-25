@@ -227,7 +227,7 @@ jobs:
     # Generate lock state and SHA-256 verification metadata from the complete
     # platform build graph. For this owner-controlled spike branch, commit only
     # generated files, then test that exact commit in the platform jobs below.
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof')
+    if: (github.event_name == 'workflow_dispatch' && github.ref_name == 'spike/m0.1-kmp-platform-proof') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof')
     permissions:
       contents: write
     outputs:
@@ -264,17 +264,23 @@ jobs:
             :android-consumer:assembleDebug
           )
 
-          if [ ! -s gradle/verification-metadata.xml ] || \
-             [ ! -s engine/gradle.lockfile ] || \
-             [ ! -s android-consumer/gradle.lockfile ] || \
-             [ ! -s desktop-consumer/gradle.lockfile ]; then
-            echo "No complete committed dependency metadata found; bootstrapping lock state and SHA-256 checksums."
-            ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 "${tasks[@]}"
+          if [ -s gradle/verification-metadata.xml ] && \
+             [ -s engine/gradle.lockfile ] && \
+             [ -s android-consumer/gradle.lockfile ] && \
+             [ -s desktop-consumer/gradle.lockfile ]; then
+            echo "Committed dependency metadata found; verifying it without rewriting checksums."
+            ./gradlew --no-daemon --no-configuration-cache "\${tasks[@]}"
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+          elif [ ! -e gradle/verification-metadata.xml ] && \
+               [ ! -e engine/gradle.lockfile ] && \
+               [ ! -e android-consumer/gradle.lockfile ] && \
+               [ ! -e desktop-consumer/gradle.lockfile ]; then
+            echo "No dependency metadata exists; bootstrapping lock state and SHA-256 checksums."
+            ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 "\${tasks[@]}"
             echo "generated=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Committed dependency metadata found; verifying it without rewriting checksums."
-            ./gradlew --no-daemon --no-configuration-cache "${tasks[@]}"
-            echo "generated=false" >> "$GITHUB_OUTPUT"
+            echo "Incomplete dependency metadata detected. Refusing to rewrite existing checksums automatically." >&2
+            exit 1
           fi
       - name: Verify generated metadata files
         shell: bash
@@ -291,10 +297,10 @@ jobs:
         id: commit-metadata
         shell: bash
         env:
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
             test "$HEAD_REF" = "spike/m0.1-kmp-platform-proof"
             git config user.name "github-actions[bot]"
