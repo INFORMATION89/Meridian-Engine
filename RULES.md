@@ -9,7 +9,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 ## Adopted project decisions
 
 1. **Repository identity:** the repository is INFORMATION89/Meridian-Engine. The product and library name remains Meridian.
-2. **Storage boundary:** the core must remain independent of concrete databases. The current cross-platform proposal is an optional SQLite-backed implementation behind an internal storage boundary; Room is not a Meridian-wide requirement. Final storage and extension decisions are governed by PLAN.md M0.2.
+2. **Storage boundary:** the core must remain independent of concrete databases. The current cross-platform proposal is an optional SQLDelight/SQLite implementation behind a storage boundary; Room is not a Meridian-wide requirement. Final storage and extension decisions are governed by PLAN.md M0.2.
 3. **Clean-room policy:** CLEAN_ROOM.md is a separate, authoritative policy. This file explains when it applies but does not duplicate its detailed requirements.
 
 ## 1. Read before every session
