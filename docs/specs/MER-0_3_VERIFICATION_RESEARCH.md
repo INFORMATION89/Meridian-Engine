@@ -33,6 +33,17 @@ The public API remains structured and machine-readable because that is good libr
 8. **Contributor AI workflow:** document permitted use of AI for coding and occasional manual data analysis, with data minimization, independent verification, least privilege, and explicit review under `AI_POLICY.md`.
 9. **Optional chat/MCP assessment:** assess whether a local/in-process MCP adapter would be useful with chat clients that support local transports. Explicitly distinguish same-device clients from cloud-hosted clients that cannot reach localhost without a relay or hosted endpoint. Define allowed read-only tools, authentication, user-data exposure, provenance, failure behaviour, deployment, and costs. Do not make MCP a core dependency or assume it must be implemented in this milestone; do not introduce a relay or hosted endpoint under the no-hosting default.
 
+## 3A. Forecast archive choices and access constraints
+
+Forecast archives are not interchangeable, and a source must be selected for the evaluation question:
+
+- **Previous Runs API** exposes fixed lead-time offsets (previous day 0 through day 7). It is suitable for aggregate skill analysis by lead bucket, not for reconstructing every complete model run. Most models have coverage from January 2024, while model-specific exceptions and shorter regional horizons apply.
+- **Single Runs API** exposes a complete individual forecast run by its initialization time. Current published coverage starts in March 2024 for ECMWF IFS HRES and on 2026-04-02 for most other models. Verify coverage for the exact model/region/time range before building a dataset.
+- **Historical Forecast API** stitches forecast runs into a continuous time series and is not equivalent to the Previous Runs or Single Runs APIs. Current Open-Meteo pricing says Historical Forecast access requires the Professional plan or higher.
+- **Usage terms are separate from data licensing.** The free Open-Meteo API is restricted to non-commercial use; commercial use requires an applicable commercial plan. The data itself is CC BY 4.0 and still requires attribution. Confirm access tier, usage rights, call weights, and likely cost before selecting an archive.
+
+Do not build verification plans that silently assume historical data is free or universally available. The experiment record must include the actual endpoint, model coverage, access tier/licence, download date, dataset version, and expected retrieval cost. If the needed archive is inaccessible or too expensive, choose another legally accessible dataset or narrow the evaluation scope; do not replace historical forecasts with reanalysis and claim that it measures issued forecast skill.
+
 ## 4. Scientific and statistical safeguards
 
 - Evaluate forecasts only against observations that were unavailable at the forecast's issue time.
