@@ -7,11 +7,19 @@
 
 This file records what is still open after reviewing the MER-0.1 spike and the architecture/weather research. It is a checklist, not a new implementation authorization.
 
+## Owner decision — CI-only validation for now (2026-11-25)
+
+The owner accepts a passing supported CI matrix as sufficient platform validation for the current MER-0.1 stage. **Physical-device testing is deferred** because not all target platforms/devices are currently available. No manual device runs are required from the owner, and the absence of physical Android/iOS hardware is not an MER-0.1 blocker.
+
+Keep the evidence precise: the current run covers Android x86_64 emulator, iOS ARM64 simulator/Swift consumer, and JVM desktop on Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED**; this decision accepts those limitations for now and does not claim those paths were proven. Revisit device coverage when hardware is available or when a concrete release/consumer requirement makes it necessary.
+
+Any additional transport/integration checks (including real Ktor platform-engine requests) are CI work and must use deterministic local fixtures, not live provider access or a device supplied by the owner.
+
 ## 1. Current PR status
 
 | Pull request | Purpose | State at review | What remains |
 |---|---|---|---|
-| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Reconcile stale run records; close platform/HTTP/dependency evidence; obtain owner decision |
+| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Complete any required CI-level HTTP coverage and dependency/licence review; physical-device testing is deferred by owner decision |
 | [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Open, Draft, mergeable at last check | Review remaining research findings and decide whether to accept the proposals |
 
 Do not merge either PR merely because the workflows are green. They have different purposes and separate owner gates.
@@ -39,7 +47,7 @@ Run #152 completed six jobs successfully on the inspected workflow: dependency m
 
 These are test-run measurements, not release-package size guarantees.
 
-### P0 — real Ktor behaviour before production stack approval
+### P0 — Ktor behaviour exercised in CI before production stack approval
 
 - [ ] Send deterministic fixture requests through the actual Android, Darwin, and JVM/CIO engines. A common MockEngine test does not exercise those engines.
 - [ ] Assert connect/request/socket timeout behaviour where supported and document differences.
@@ -48,20 +56,19 @@ These are test-run measurements, not release-package size guarantees.
 - [ ] Confirm that client close/disposal releases platform resources and define behaviour for in-flight work.
 - [ ] Re-check Ktor 3.6.2 as a candidate only after the real-engine tests can run; do not claim it is validated until they pass.
 
-The formal M0.1 specification asks for a minimal Ktor path. The PR's owner gate also calls for real request, timeout, transport-error, and platform-boundary cancellation evidence before full Ktor parity is claimed. The owner should confirm which of these are required to close M0.1 and which can be a narrowly scoped follow-up before MER-1.
+The formal M0.1 specification asks for a minimal Ktor path. Any additional real-engine request, timeout, transport-error, and platform-boundary cancellation checks should run in CI against deterministic local fixtures; they do not require the owner to have physical devices or to provide live provider access. Keep the claims scoped to the engine/targets actually exercised, and do not claim full parity until those CI checks pass.
 
-### P0 — Android ARM64 and platform support claims
+### Accepted platform coverage and explicit limits
 
-- [ ] Android runtime evidence currently covers x86_64 emulator only. Android ARM64 remains **NOT TESTED**.
-- [ ] Obtain a physical ARM64 device run or a reproducible, provenance-reviewed ARM64 environment.
-- [ ] If ARM64 cannot be tested before the first release, obtain an explicit owner decision to accept that limitation and document the support boundary. Do not relabel x86_64 evidence as ARM64 support.
+- [x] Owner accepts the passing supported CI matrix as sufficient for current MER-0.1 validation; physical-device testing is deferred and is not a milestone blocker.
+- [ ] Android runtime evidence currently covers x86_64 emulator only. Android ARM64 remains **NOT TESTED**; preserve that limitation and do not infer ARM64 runtime support from x86_64.
+- [ ] Physical iOS-device execution remains **NOT TESTED**; the current evidence is iOS ARM64 Simulator + Swift consumer tests. No physical iOS run is required for MER-0.1 under the current owner decision.
 - [ ] Keep Windows/macOS/Linux desktop claims scoped to JVM artifacts. No native .dll, .dylib, or .so library is proven.
-- [ ] Keep physical iOS-device testing as a release/readiness check unless the owner explicitly makes it a milestone requirement. The current spike spec asks for it only where available; iOS Simulator + Swift consumer tests have passed.
+- Device coverage may be revisited when hardware is available or a concrete release/consumer requirement calls for it; it is not part of the current CI acceptance gate.
 
-### P1 — CI resilience and supply-chain documentation
+### P1 — optional CI resilience and supply-chain documentation
 
-- [ ] Test TCG/software fallback only on a runner where KVM is confirmed unavailable. Run #152 used KVM successfully, so fallback remains unverified.
-- [ ] Decide whether no-KVM TCG is a CI resilience expectation or a required acceptance criterion. It is not proof of Android ARM64.
+- [x] Defer the no-KVM TCG/software-emulation fallback for now. Run #152 used KVM successfully, so the fallback remains unverified; this is not a current MER-0.1 blocker and is not proof of Android ARM64.
 - [ ] Complete the direct and transitive dependency licence/notice inventory.
 - [ ] Confirm the correct copyright holder and whether a project NOTICE file is needed before creating it.
 - [ ] Record exact supported runtime/JDK requirements and tested Linux distributions.
@@ -139,7 +146,7 @@ Before PR #4 is accepted:
 The following decisions materially determine the next stage:
 
 1. Accept the five-OS route as **Android + iOS native framework + Windows/macOS/Linux JVM**, not native desktop libraries, for the first release.
-2. Accept or defer Android ARM64 validation for the first release; if deferred, approve an explicit support limitation.
+2. **Testing scope — decided:** accept the passing supported CI matrix for current MER-0.1 validation. Physical Android/iOS device testing and Android ARM64 runtime validation are deferred; keep them marked NOT TESTED and revisit only when hardware or a concrete requirement makes them necessary.
 3. Approve the batch-first public API with per-feature results and cancellation semantics.
 4. Approve optional persistence and decide whether custom host storage is part of v1 or a later extension.
 5. Keep history retention configurable and bounded; choose no fixed 30-day default until evidence supports one.
@@ -150,8 +157,8 @@ The following decisions materially determine the next stage:
 
 ## 8. Recommended next sequence
 
-1. Close the real-engine Ktor tests and determine the Android ARM64 disposition.
-2. Complete dependency licence/NOTICE review and get owner acceptance of the M0.1 platform recommendation.
+1. Complete any remaining deterministic real-engine Ktor, timeout, error-mapping, and cancellation checks in CI; no owner-supplied physical devices are required.
+2. Complete dependency licence/NOTICE review and get owner acceptance of the M0.1 language/target and packaging recommendation; the CI-only testing scope and physical-device deferral are already accepted.
 3. Review and approve the MER-0.2 decision register; then build the independent fixture-backed contract consumer.
 4. Review and approve MER-0.3 archive, matching, metrics, privacy, and human-approval decisions.
 5. Only then authorize MER-1's first production forecast adapter.
