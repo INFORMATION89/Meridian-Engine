@@ -7,10 +7,13 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.headersOf
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class MeridianProbeTest {
     @Test
@@ -25,6 +28,13 @@ class MeridianProbeTest {
     @Test
     fun asynchronousOperationCompletes() = runBlocking {
         assertEquals("fixture:3", MeridianProbe().transformAsync("Fixture", 3))
+    }
+
+    @Test
+    fun cancellationStopsSuspendedOperation() = runBlocking {
+        val job = launch { MeridianProbe().awaitCancellation() }
+        job.cancelAndJoin()
+        assertTrue(job.isCancelled)
     }
 
     @Test
