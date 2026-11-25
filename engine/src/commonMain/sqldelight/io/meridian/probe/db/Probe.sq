@@ -1,0 +1,13 @@
+CREATE TABLE probe_record (
+    id INTEGER NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+insertRecord:
+INSERT OR REPLACE INTO probe_record(id, value)
+VALUES (?, ?);
+
+selectRecord:
+SELECT value
+FROM probe_record
+WHERE id = ?;
