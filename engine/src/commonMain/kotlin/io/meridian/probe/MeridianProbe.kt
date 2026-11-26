@@ -29,6 +29,10 @@ class MeridianProbe {
 
 enum class ProbeErrorCode {
     EMPTY_INPUT,
+    HTTP_STATUS,
+    TRANSPORT,
+    MALFORMED_RESPONSE,
+    TIMEOUT,
 }
 
-class ProbeFailure(val code: ProbeErrorCode) : Exception("Probe failed: $code")
+class ProbeFailure(val code: ProbeErrorCode, detail: String? = null) : Exception(detail ?: "Probe failed: $code")
