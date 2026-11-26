@@ -48,6 +48,10 @@ def load_lockfile_index(paths: list[Path]) -> dict[tuple[str, str, str], set[str
             if not line or line.startswith("#") or "=" not in line:
                 continue
             coordinate, configuration_text = line.split("=", 1)
+            # Gradle emits `empty=` for configurations with no dependencies;
+            # it is a sentinel, not a Maven module coordinate.
+            if coordinate == "empty":
+                continue
             parts = coordinate.rsplit(":", 2)
             if len(parts) != 3:
                 raise ValueError(f"Malformed lock entry at {path}:{line_number}: {line}")
