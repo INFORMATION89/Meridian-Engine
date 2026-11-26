@@ -44,7 +44,7 @@ Follow the authority model in PLAN.md and AI_IMPLEMENTATION_PLAN.md. These rules
 
 ## 4. Architecture and dependency boundaries
 
-1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected through the M0.1 gate in PLAN.md. Kotlin Multiplatform and Rust remain candidates; do not treat either as the approved production stack before the gate is complete.
+1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the owner-approved Kotlin Multiplatform shared core (ADR-0003). Do not reopen the language decision without a concrete blocker and evidence.
 2. Keep provider-specific request and response details inside that provider's adapter. Provider DTOs must not leak into the public domain model.
 3. Put platform-specific implementations behind narrow interfaces or in the appropriate platform source sets. Do not add platform dependencies to common code for convenience.
 4. Access storage, HTTP, time, and other external capabilities through explicit interfaces or injected dependencies. Core logic must be testable without a real network, database, device, or wall clock.
@@ -119,7 +119,7 @@ Before adding or changing a source:
 3. A consuming application may use Meridian's supported storage implementation or provide an adapter only through an extension mechanism proven and documented in M0.2. The choice must not change the meaning of the core API.
 4. Document what is stored, why it is needed, where it is stored, how long it is retained, and how it is deleted.
 5. Do not store saved-place history or introduce location tracking into Meridian. Persist only the minimum data required by explicitly approved engine functions.
-6. Apply the approved retention period to forecasts, observations, statistics, and cached responses. Do not extend retention silently.
+6. Apply only a separately approved, purpose-specific retention policy to forecasts, observations, statistics, and cached responses. M0.2 does not approve an unlimited history or a specific verification-retention window; do not persist data by default or extend retention silently.
 7. Cache according to each provider's cadence, expiry, and terms. A cache must never cause stale data to appear fresh.
 8. Do not transmit location history, raw coordinates, forecast logs, or diagnostics to a server by default.
 9. Any optional sharing of forecast errors or other data is off by default and requires a separate, explicit opt-in. Before consent, disclose the exact data fields, purpose, destination, recipients, and retention; provide an inspectable payload example, withdrawal controls, and deletion of eligible local data. Declining must not reduce ordinary weather functionality. A hosted collection service additionally requires an approved server design and legal review before implementation.
