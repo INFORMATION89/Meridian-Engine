@@ -67,6 +67,9 @@ Choose the least costly model that can reliably complete the task. Model names a
 
 #### ChatGPT-specific rules
 
+- ChatGPT/Codex can be the primary agent for advanced work and should not be blocked while waiting for another model. When the task would materially benefit from a stronger independent pass, label the handoff **“Opus review recommended”** and schedule it at a useful checkpoint or before merge.
+- This is a recommendation, not a mandatory dependency or a guarantee that Opus must be used. If Opus is unavailable or would require unapproved paid usage, continue with ChatGPT/Codex and proportionate evidence-based review; record that the recommended pass was deferred or not performed.
+
 - Distinguish ChatGPT web conversations, ChatGPT Work/Codex subscription usage, and OpenAI API-key billing. They have separate usage limits, credits, and pricing; API token rates must not be used to estimate subscription task allowances.
 - Use Work/Codex when repository-aware, terminal, or multi-step execution materially reduces handoffs. Do not start an autonomous workflow for a trivial deterministic edit.
 - Select reasoning effort proportionally. High effort is not the default for formatting, mechanical edits, or straightforward lookups.
