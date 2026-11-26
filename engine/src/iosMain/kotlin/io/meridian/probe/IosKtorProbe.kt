@@ -22,6 +22,18 @@ object IosKtorProbe {
         }
     }
 
+    suspend fun verifyHttpStatusFailure(url: String): Boolean =
+        verifyFixtureFailure(url, ProbeErrorCode.HTTP_STATUS)
+
+    suspend fun verifyMalformedResponseFailure(url: String): Boolean =
+        verifyFixtureFailure(url, ProbeErrorCode.MALFORMED_RESPONSE)
+
+    suspend fun verifyTimeoutFailure(url: String): Boolean =
+        verifyFixtureFailure(url, ProbeErrorCode.TIMEOUT, 50)
+
+    suspend fun verifyTransportFailure(url: String): Boolean =
+        verifyFixtureFailure(url, ProbeErrorCode.TRANSPORT)
+
     fun verifyClientLifecycle(): Boolean {
         val client = HttpClient(Darwin)
         try { return true } finally { client.close() }
