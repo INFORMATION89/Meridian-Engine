@@ -81,8 +81,8 @@ Every value carries:
 - whether it's a fallback because a better source failed.
 
 Results also carry a summary per feature: which sources were used, which were skipped and why
-(out of coverage, off, no key, failed, stale). The transparency graphic and the sources sheets read
-only this.
+(out of coverage, disabled, missing configuration, failed, or stale). Consuming applications may use
+this structured provenance to create their own transparency and source views; Meridian supplies no UI.
 
 ## 6. Choosing sources (on every refresh)
 
