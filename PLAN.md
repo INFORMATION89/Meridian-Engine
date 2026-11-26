@@ -199,7 +199,7 @@ Do not build a Rust comparator by default. If evidence exposes a concrete intero
 
 ### M0.2 current execution status
 
-M0.2 is authorized for contract design and deterministic independent-consumer validation. The initial design documents are `docs/specs/M0_2_CONTRACT_DESIGN.md` and `docs/specs/M0_2_PUBLIC_API.md`; lifecycle/networking, storage/cache, and compatibility/versioning contracts are maintained as separate specifications. The evidence ledger is `docs/evidence/MER-0.2-contract-validation.md`.
+M0.2 is authorized for contract design and deterministic independent-consumer validation. The design documents are `docs/specs/M0_2_CONTRACT_DESIGN.md`, `docs/specs/M0_2_PUBLIC_API.md`, and the separate lifecycle/networking, storage/cache, and compatibility/versioning specifications. The evidence ledger is `docs/evidence/MER-0.2-contract-validation.md`; the static reuse review is `docs/evidence/MER-0.2-m0.1-implementation-reuse-audit.md`.
 
 M0.2 is not production weather implementation. It must not add live provider integrations, forecast algorithms, background scheduling, automatic location, telemetry, accounts, hosted services, or consumer recommendations. Completion requires contract tests and independent consumer evidence, followed by owner review before M1.
 
@@ -587,7 +587,7 @@ The responsible agent should research these, recommend a bounded solution, recor
 1. Preserve CI #222 as inherited M0.1 platform evidence for code commit `91996fb7c190f80899261eb2ff21630b5e564209`; do not treat it as validation of M0.2 contracts or as a newer run.
 2. Keep Android ARM64 runtime, physical Android/iOS devices, and native desktop ABIs explicitly **NOT TESTED**. Mobile release-package notice staging/inspection remains required before public distribution.
 3. Keep PR #15 open until its exact head, CI, evidence, and owner review are checked. This is a merge/review gate, not a reason to block the already approved M0.2 design work. Do not merge it without explicit owner approval.
-4. Complete and reconcile the M0.2 public API, lifecycle/networking, storage/cache, and compatibility/versioning specifications. Keep retention and persistent-data policy unresolved until the relevant reviewed decision; do not silently adopt a 30-day window.
+4. Complete and reconcile the M0.2 public API, lifecycle/networking, storage/cache, and compatibility/versioning specifications. The static M0.1 reuse audit is recorded; use it to keep probe-only code out of the production API. Keep retention and persistent-data policy unresolved until the relevant reviewed decision; do not silently adopt a 30-day window.
 5. Build the smallest independent Kotlin, Swift, and Desktop JVM consumer proof using deterministic local fixtures. Verify lifecycle, cancellation, normalized errors, partial results, storage-disabled operation, optional storage semantics, and version separation. Update the M0.2 evidence ledger with exact commits and results.
 6. Submit the complete M0.2 package for owner review. Do not begin M1 weather-provider or forecast implementation until the M0.2 acceptance gate is passed.
 
