@@ -33,6 +33,15 @@ The five coordinates with multiple declared license entries are:
 
 The report classifies the JNA and FastInfoset entries under Android lint / unified test-platform tooling configurations, not the non-test runtime category. The KXML entry is also confined to lint / unified test-platform tooling. The JGraphT coordinate is a transitive dependency of SQLDelight's Gradle plugin graph, not a match in a product runtime lockfile.
 
+### Upstream license verification for the five multi-license coordinates
+
+- **JNA 5.6.0 (`jna`, `jna-platform`)** declares two alternative licenses: LGPL 2.1-or-later **or** Apache-2.0. The project license file explicitly permits choosing either; this is not a requirement to comply with both simultaneously. These coordinates are in Android lint / unified test-platform tooling configurations, not the current product runtime configuration. If a future shipped artifact includes JNA, record the chosen Apache-2.0 option only after confirming the corresponding artifact's bundled license files and distribution terms.
+- **FastInfoset 1.2.16** declares Apache-2.0 and Eclipse Distribution License 1.0. The published project metadata includes both; the EDL attribution/notice should be reviewed if this exact artifact is ever shipped. Its current path is Android lint / unified test-platform tooling, not product runtime.
+- **kxml2 2.3.0** declares BSD-style terms for classes under `org.kxml2` and Public Domain for the XmlPull API classes under `org.xmlpull.v1`. Its current path is Android lint / unified test-platform tooling. If packaged in future, inspect the actual class/package contents and preserve the relevant license text/attribution.
+- **JGraphT 1.5.3** is dual-licensed under LGPL-2.1-or-later or EPL-2.0. It is a transitive SQLDelight Gradle-plugin dependency, not a product runtime lockfile match; it is not currently expected in Meridian runtime artifacts.
+
+References checked: JNA 5.6.0 Maven metadata and project license; FastInfoset 1.2.16 Maven metadata; kxml2 2.3.0 Maven metadata; JGraphT project licensing and 1.5.3 Maven metadata. The references establish declared options, not a legal opinion or proof of final package contents.
+
 A follow-up graph trace found parent paths for **all 58** SBOM-only coordinates: they descend from the Android Gradle Plugin, Kotlin Gradle Plugin, or SQLDelight Gradle Plugin/buildscript dependency graphs. No unmatched coordinate was left without a parent path. This resolves the inventory-tracing question for this SBOM; it does not replace checking final packaged artifacts.
 
 ## Remaining review before calling licensing complete
