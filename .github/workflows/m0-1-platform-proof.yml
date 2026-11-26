@@ -208,12 +208,14 @@ jobs:
           accept-android-sdk-licenses: true
           # Avoid setup-android's deprecated default "tools" package.
           packages: platform-tools
-      - name: Install only missing Android SDK packages
+      - name: Install only missing Android compile SDK packages
         shell: bash
         run: |
           sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           : "${sdk_root:?Android SDK path is not configured}"
 
+          # android-emulator-runner installs the emulator, its selected API level,
+          # and matching system image itself. Only prepare the separate compile SDK.
           missing_packages=()
           ensure_sdk_package() {
             local package="$1"
@@ -223,17 +225,14 @@ jobs:
             fi
           }
 
-          ensure_sdk_package "emulator" "emulator/emulator"
-          ensure_sdk_package "platforms;android-35" "platforms/android-35"
           ensure_sdk_package "platforms;android-36" "platforms/android-36"
           ensure_sdk_package "build-tools;36.0.0" "build-tools/36.0.0"
-          ensure_sdk_package "system-images;android-35;google_apis;x86_64" "system-images/android-35/google_apis/x86_64"
 
           if (( ${#missing_packages[@]} > 0 )); then
-            printf 'Installing missing Android SDK packages: %s\n' "${missing_packages[*]}"
+            printf 'Installing missing Android compile SDK packages: %s\n' "${missing_packages[*]}"
             sdkmanager "${missing_packages[@]}"
           else
-            echo "All required Android SDK packages are already present on the runner."
+            echo "All required Android compile SDK packages are already present on the runner."
           fi
       - name: Configure KVM access when possible
         run: |
