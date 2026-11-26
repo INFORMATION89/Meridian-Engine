@@ -1,0 +1,479 @@
+name: MER-0.1 platform proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A PR update can arrive through both push and pull_request events. Keep one
+# canonical PR run and cancel superseded runs for the same PR.
+concurrency:
+  group: mer-0-1-${{ github.event.pull_request.number || github.ref }}
+  # Keep every platform result for the same PR; do not cancel an active matrix
+  # when a documentation or follow-up commit arrives. New runs wait in queue.
+  cancel-in-progress: false
+
+jobs:
+  desktop-linux:
+    needs: dependency-metadata-linux
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: Start local HTTP fixture server
+        run: |
+          python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
+          for attempt in {1..10}; do
+            if curl -fsS http://127.0.0.1:8765/probe.json; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/meridian-fixture.log
+          exit 1
+      - name: Verify committed Gradle Wrapper
+        run: ./gradlew --version
+      - name: Build, test and execute packaged JVM consumer
+        run: |
+          ./gradlew --warning-mode=all --stacktrace :engine:desktopTest :desktop-consumer:installDist
+          ./desktop-consumer/build/install/desktop-consumer/bin/desktop-consumer
+      - name: Package and launch self-contained desktop app image
+        run: |
+          input_dir="desktop-consumer/build/install/desktop-consumer/lib"
+          main_jar="$(basename "$input_dir"/desktop-consumer*.jar)"
+          dest_dir="desktop-consumer/build/jpackage"
+          jpackage --type app-image --name MeridianProbe --input "$input_dir" --main-jar "$main_jar" --main-class io.meridian.consumer.MainKt --dest "$dest_dir"
+          empty_path="$(mktemp -d)"
+          env -u JAVA_HOME -u JAVA_HOME_21_X64 PATH="$empty_path" "$PWD/$dest_dir/MeridianProbe/bin/MeridianProbe"
+          du -sh "$dest_dir/MeridianProbe"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: mer-0-1-linux-desktop
+          path: |
+            desktop-consumer/build/install/
+            desktop-consumer/build/jpackage/
+
+  desktop-windows:
+    needs: dependency-metadata-linux
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          # Gradle lock files can remain busy during setup-java's post-job
+          # cache save on Windows. Skip only this cache; keep build/test intact.
+      - name: Start local HTTP fixture server
+        shell: pwsh
+        run: |
+          Start-Process -FilePath python -ArgumentList @('-m','http.server','8765','--directory','ci/fixtures','--bind','0.0.0.0') -WindowStyle Hidden
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 10; $attempt++) {
+            try {
+              Invoke-WebRequest -Uri 'http://127.0.0.1:8765/probe.json' -UseBasicParsing | Out-Null
+              $ready = $true
+              break
+            } catch { Start-Sleep -Seconds 1 }
+          }
+          if (-not $ready) { throw 'Local HTTP fixture server did not start.' }
+      - name: Verify committed Gradle Wrapper
+        run: .\gradlew.bat --version
+      - name: Build, test and execute packaged JVM consumer
+        shell: pwsh
+        run: |
+          .\gradlew.bat --warning-mode=all --stacktrace :engine:desktopTest :desktop-consumer:installDist
+          .\desktop-consumer\build\install\desktop-consumer\bin\desktop-consumer.bat
+      - name: Package and launch self-contained desktop app image
+        shell: pwsh
+        run: |
+          $inputDir = (Resolve-Path ".\desktop-consumer\build\install\desktop-consumer\lib").Path
+          $mainJar = (Get-ChildItem $inputDir -Filter "desktop-consumer*.jar" | Select-Object -First 1).Name
+          $destDir = ".\desktop-consumer\build\jpackage"
+          jpackage --type app-image --name MeridianProbe --input $inputDir --main-jar $mainJar --main-class io.meridian.consumer.MainKt --dest $destDir
+          Remove-Item Env:JAVA_HOME -ErrorAction SilentlyContinue
+          Remove-Item Env:JAVA_HOME_21_X64 -ErrorAction SilentlyContinue
+          $env:PATH = "$env:SystemRoot\System32"
+          & ".\desktop-consumer\build\jpackage\MeridianProbe\MeridianProbe.exe"
+          $size = (Get-ChildItem ".\desktop-consumer\build\jpackage\MeridianProbe" -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host ("Self-contained app image size: {0:N1} MiB" -f ($size / 1MB))
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: mer-0-1-windows-desktop
+          path: |
+            desktop-consumer/build/install/
+            desktop-consumer/build/jpackage/
+
+  apple-and-ios:
+    needs: dependency-metadata-linux
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: Start local HTTP fixture server
+        run: |
+          python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
+          for attempt in {1..10}; do
+            if curl -fsS http://127.0.0.1:8765/probe.json; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/meridian-fixture.log
+          exit 1
+      - name: Verify committed Gradle Wrapper
+        run: ./gradlew --version
+      - name: Build iOS frameworks, execute simulator tests and test macOS JVM consumer
+        run: |
+          ./gradlew --warning-mode=all --stacktrace :engine:assembleMeridianSharedDebugXCFramework :engine:iosSimulatorArm64Test :engine:desktopTest :desktop-consumer:installDist
+          ./desktop-consumer/build/install/desktop-consumer/bin/desktop-consumer
+      - name: Package and launch self-contained desktop app image
+        run: |
+          input_dir="desktop-consumer/build/install/desktop-consumer/lib"
+          main_jar="$(basename "$input_dir"/desktop-consumer*.jar)"
+          dest_dir="desktop-consumer/build/jpackage"
+          jpackage --type app-image --name MeridianProbe --input "$input_dir" --main-jar "$main_jar" --main-class io.meridian.consumer.MainKt --dest "$dest_dir"
+          empty_path="$(mktemp -d)"
+          env -u JAVA_HOME -u JAVA_HOME_21_X64 PATH="$empty_path" "$PWD/$dest_dir/MeridianProbe.app/Contents/MacOS/MeridianProbe"
+          du -sh "$dest_dir/MeridianProbe.app"
+      - name: Prepare Swift package consumer
+        run: |
+          mkdir -p ios-consumer/Frameworks
+          cp -R engine/build/XCFrameworks/debug/MeridianShared.xcframework ios-consumer/Frameworks/
+      - name: Run native Swift consumer tests
+        working-directory: ios-consumer
+        run: xcodebuild -scheme MeridianSwiftConsumer -destination 'platform=iOS Simulator,name=iPhone 17' test
+      - name: Inspect local fixture server requests
+        if: always()
+        run: cat /tmp/meridian-fixture.log || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: mer-0-1-apple-ios
+          path: |
+            engine/build/XCFrameworks/
+            engine/build/test-results/
+            ios-consumer/.build/
+            desktop-consumer/build/install/
+            desktop-consumer/build/jpackage/
+
+  android:
+    needs: dependency-metadata-linux
+    # Prefer KVM for x86_64 Android emulation when the hosted runner exposes it.
+    # Fall back to explicit TCG software emulation if KVM is unavailable.
+    # Android ARM64 runtime remains a separate device/host acceptance gate.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata-linux.outputs.metadata_sha }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: Verify Linux x86_64 runner and committed Gradle Wrapper
+        run: |
+          test "$(uname -m)" = "x86_64"
+          ./gradlew --version
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
+          # Avoid setup-android's deprecated default "tools" package.
+          packages: platform-tools
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools"
+          sdkmanager "emulator"
+          sdkmanager "platforms;android-35"
+          sdkmanager "platforms;android-36"
+          sdkmanager "build-tools;36.0.0"
+          sdkmanager "system-images;android-35;google_apis;x86_64"
+      - name: Configure KVM access when possible
+        run: |
+          # KVM is optional on hosted runners. Try to load the host modules and
+          # grant the current runner access when the device exists. The emulator
+          # action's "auto" mode checks read/write access and selects software
+          # acceleration when KVM is missing or inaccessible.
+          sudo modprobe kvm || true
+          vendor="$(awk -F: '/vendor_id/ {print $2; exit}' /proc/cpuinfo | xargs)"
+          case "$vendor" in
+            GenuineIntel) sudo modprobe kvm_intel || true ;;
+            AuthenticAMD) sudo modprobe kvm_amd || true ;;
+            *) echo "::notice::Unknown CPU vendor for KVM: $vendor" ;;
+          esac
+
+          if [ -c /dev/kvm ]; then
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules || true
+            sudo udevadm trigger --name-match=kvm || true
+            sudo chmod a+rw /dev/kvm || true
+          fi
+
+          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+            echo "KVM is available to the Android emulator."
+            ls -l /dev/kvm
+          else
+            echo "::notice::KVM is missing or inaccessible. Emulator action auto mode will use software acceleration."
+            lsmod | grep -E '^kvm' || true
+            ls -la /dev/kvm || true
+          fi
+      - name: Start local HTTP fixture server
+        run: |
+          python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
+          for attempt in {1..10}; do
+            if curl -fsS http://127.0.0.1:8765/probe.json; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/meridian-fixture.log
+          exit 1
+      - name: Run Android host-side common tests
+        run: ./gradlew --warning-mode=all --stacktrace :engine:testAndroidHostTest
+      - name: Run Android x86_64 emulator instrumentation tests
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        timeout-minutes: 45
+        with:
+          disable-animations: true
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-linux-hw-accel: auto
+          emulator-boot-timeout: 900
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          profile: pixel_6
+          script: ./gradlew --warning-mode=all --stacktrace :android-consumer:connectedDebugAndroidTest
+        env:
+          # Android Emulator refuses -accel off without this explicit opt-in.
+          ANDROID_I_WANT_MY_TCG: "yes"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: mer-0-1-android-x86_64
+          path: |
+            android-consumer/build/reports/
+            android-consumer/build/outputs/androidTest-results/
+            engine/build/reports/tests/testAndroidHostTest/
+
+  dependency-metadata:
+    # Generate lock state and SHA-256 verification metadata from the complete
+    # platform build graph. For this owner-controlled spike branch, commit only
+    # generated files, then test that exact commit in the platform jobs below.
+    if: (github.event_name == 'workflow_dispatch' && github.ref_name == 'spike/m0.1-kmp-platform-proof') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof')
+    permissions:
+      contents: write
+    outputs:
+      metadata_sha: ${{ steps.commit-metadata.outputs.sha }}
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
+          packages: platform-tools
+      - name: Install Android compile SDK packages
+        run: |
+          sdkmanager "platforms;android-35"
+          sdkmanager "platforms;android-36"
+          sdkmanager "build-tools;36.0.0"
+      - name: Resolve platform dependency graphs
+        id: resolve-dependencies
+        shell: bash
+        run: |
+          tasks=(
+            :engine:assembleMeridianSharedDebugXCFramework
+            :engine:iosSimulatorArm64Test
+            :engine:testAndroidHostTest
+            :desktop-consumer:installDist
+            :android-consumer:assembleDebugAndroidTest
+            :android-consumer:assembleDebug
+          )
+
+          if [ -s gradle/verification-metadata.xml ] && \
+             [ -s engine/gradle.lockfile ] && \
+             [ -s android-consumer/gradle.lockfile ] && \
+             [ -s desktop-consumer/gradle.lockfile ]; then
+            echo "Committed dependency metadata found; verifying it without rewriting checksums."
+            ./gradlew --no-daemon --no-configuration-cache "${tasks[@]}"
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+          elif [ ! -e gradle/verification-metadata.xml ] && \
+               [ ! -e engine/gradle.lockfile ] && \
+               [ ! -e android-consumer/gradle.lockfile ] && \
+               [ ! -e desktop-consumer/gradle.lockfile ]; then
+            echo "No dependency metadata exists; bootstrapping lock state and SHA-256 checksums."
+            ./gradlew --no-daemon --no-configuration-cache --write-locks --write-verification-metadata sha256 "${tasks[@]}"
+            echo "generated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Incomplete dependency metadata detected. Refusing to rewrite existing checksums automatically." >&2
+            exit 1
+          fi
+      - name: Verify generated metadata files
+        shell: bash
+        run: |
+          test -s gradle/verification-metadata.xml
+          test -s engine/gradle.lockfile
+          test -s android-consumer/gradle.lockfile
+          test -s desktop-consumer/gradle.lockfile
+          echo "Generated lockfiles:"
+          find . -name gradle.lockfile -not -path './.gradle/*' -print
+          echo "Verification metadata entries:"
+          grep -c '<component ' gradle/verification-metadata.xml || true
+      - name: Commit generated dependency metadata to the spike branch
+        id: commit-metadata
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
+            test "$HEAD_REF" = "spike/m0.1-kmp-platform-proof"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -- gradle/verification-metadata.xml engine/gradle.lockfile android-consumer/gradle.lockfile desktop-consumer/gradle.lockfile
+            if ! git diff --cached --quiet; then
+              git commit -m "build: lock resolved dependencies and verify checksums"
+              git push origin "HEAD:refs/heads/$HEAD_REF"
+            else
+              echo "Dependency metadata is already current."
+            fi
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Verify generated metadata in normal Gradle mode
+        if: steps.resolve-dependencies.outputs.generated == 'true'
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \
+            :engine:assembleMeridianSharedDebugXCFramework \
+            :engine:iosSimulatorArm64Test \
+            :engine:desktopTest \
+            :engine:testAndroidHostTest \
+            :desktop-consumer:installDist \
+            :android-consumer:assembleDebugAndroidTest \
+            :android-consumer:assembleDebug
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: meridian-gradle-dependency-metadata
+          path: |
+            **/gradle.lockfile
+            gradle/verification-metadata.xml
+
+  dependency-metadata-linux:
+    # Android Gradle Plugin resolves a host-specific AAPT2 binary. The first
+    # metadata pass runs on Apple Silicon and cannot see the Linux classifier.
+    # Add the Linux artifact checksum incrementally, preserving all existing
+    # macOS and common dependency verification entries.
+    needs: dependency-metadata
+    if: (github.event_name == 'workflow_dispatch' && github.ref_name == 'spike/m0.1-kmp-platform-proof') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'spike/m0.1-kmp-platform-proof')
+    permissions:
+      contents: write
+    outputs:
+      metadata_sha: ${{ steps.commit-linux-metadata.outputs.sha }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.dependency-metadata.outputs.metadata_sha }}
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
+          packages: platform-tools
+      - name: Install Android SDK compile packages
+        run: |
+          sdkmanager "platforms;android-35"
+          sdkmanager "platforms;android-36"
+          sdkmanager "build-tools;36.0.0"
+      - name: Add Linux-specific Android tool checksums
+        shell: bash
+        run: |
+          if ! grep -Fq 'aapt2-9.3.1-15703166-linux.jar' gradle/verification-metadata.xml || \
+             ! grep -Fq 'kotlin-native-prebuilt-2.4.21-linux-x86_64.tar.gz' gradle/verification-metadata.xml; then
+            echo "Adding all Linux-specific Android/Kotlin tool checksums while preserving existing macOS entries."
+            ./gradlew --no-daemon --no-configuration-cache --write-verification-metadata sha256 \
+              :android-consumer:assembleDebugAndroidTest \
+              :android-consumer:assembleDebug
+          else
+            echo "Linux-specific Android and Kotlin tool checksums are already present."
+          fi
+          grep -Fq 'aapt2-9.3.1-15703166-linux.jar' gradle/verification-metadata.xml
+          grep -Fq 'aapt2-9.3.1-15703166-osx.jar' gradle/verification-metadata.xml
+          grep -Fq 'kotlin-native-prebuilt-2.4.21-linux-x86_64.tar.gz' gradle/verification-metadata.xml
+          grep -Fq 'kotlin-native-prebuilt-2.4.21-macos-aarch64.tar.gz' gradle/verification-metadata.xml
+      - name: Verify Android build with committed checksums
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \
+            :android-consumer:assembleDebugAndroidTest \
+            :android-consumer:assembleDebug
+      - name: Commit Linux-specific verification metadata
+        id: commit-linux-metadata
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
+            test "$HEAD_REF" = "spike/m0.1-kmp-platform-proof"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -- gradle/verification-metadata.xml
+            if ! git diff --cached --quiet; then
+              git commit -m "build: verify Linux Android tool artifacts"
+              pushed=false
+              for attempt in 1 2 3; do
+                # A docs or metadata commit may land while this job is running.
+                # Rebase our narrow metadata commit on the latest branch head;
+                # never force-push or overwrite concurrent work.
+                git fetch origin "$HEAD_REF"
+                git rebase "origin/$HEAD_REF"
+                if git push origin "HEAD:refs/heads/$HEAD_REF"; then
+                  pushed=true
+                  break
+                fi
+                echo "Branch advanced during push; retrying after a fresh fetch/rebase ($attempt/3)." >&2
+              done
+              test "$pushed" = true
+            else
+              echo "Linux verification metadata is already current."
+            fi
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: meridian-gradle-linux-verification-metadata
+          path: gradle/verification-metadata.xml
+
