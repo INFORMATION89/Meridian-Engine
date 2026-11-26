@@ -20,10 +20,10 @@ import kotlinx.coroutines.withTimeout
  */
 object FixtureHttpProbe {
     private val fixturePattern = Regex(
-        """^\s*\{\s*"status"\s*:\s*"ok"\s*,\s*"source"\s*:\s*"local-fixture"\s*}\s*$"""
+        """^\s*\{\s*"status"\s*:\s*"ok"\s*,\s*"source"\s*:\s*"local-fixture"\s*\}\s*$"""
     )
     private val partialPattern = Regex(
-        """^\s*\{\s*(?:"status"\s*:\s*"ok"|"source"\s*:\s*"local-fixture")\s*}\s*$"""
+        """^\s*\{\s*(?:"status"\s*:\s*"ok"|"source"\s*:\s*"local-fixture")\s*\}\s*$"""
     )
 
     suspend fun fetch(
