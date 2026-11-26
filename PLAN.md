@@ -478,7 +478,9 @@ Maintain one source of truth per topic.
 | RULES.md | Project-wide working, testing, security, and contribution rules; must be reconciled with the approved technical-autonomy model |
 | AGENTS.md | Operational instructions for coding agents; must point to the master plan and current milestone |
 | AI_POLICY.md | Contributor AI use and the prohibition on runtime AI requirements |
-| AI_COST_POLICY.md | Cost-aware use of AI models, context, tools, CI, providers, datasets, and compute without weakening required verification |
+| AI_COST_POLICY.md | Approved policy for cost-aware AI, tools, CI, providers, datasets, and compute without weakening verification |
+| AI_IMPLEMENTATION_PLAN.md | Detailed, task-oriented execution guide for coding agents; subordinate to this master plan and its approved milestone gates |
+| PROJECT_OVERVIEW.md | Concise human-readable explanation of Meridian's purpose, scope, roadmap, and status; derived from this master plan, not an independent authority |
 | CLEAN_ROOM.md | Independent research and implementation policy |
 | docs/specs/M* | Scoped milestone specifications; proposals until their approval gate is met |
 | docs/research/* | Evidence, alternatives, and technical/scientific analysis; not independent implementation authority |
