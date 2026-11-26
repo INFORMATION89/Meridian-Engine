@@ -21,9 +21,9 @@ Owner-approved direction carried into this milestone:
 |---|---|---|---|
 | Public API | Kotlin consumer compiles and exercises public API only | SOURCE ADDED — NOT RUN | Experimental API and Desktop JVM consumer source added; no stable API claim |
 | Swift interop | Swift consumer constructs, queries, cancels, and closes | SOURCE ADDED — NOT RUN | Swift wrapper and test added; generated signatures/cancellation mapping unverified |
-| Lifecycle | close idempotence; post-close rejection; in-flight cancellation | PARTIAL SOURCE — NOT RUN | Idempotent close/post-close rejection tests added; in-flight cancellation not implemented in no-source prototype |
+| Lifecycle | close idempotence; post-close rejection; in-flight cancellation | PARTIAL SOURCE — NOT RUN | Idempotent close/post-close rejection and caller cancellation through a fake executor are covered in source; engine-close cancellation of active work is not implemented |
 | Networking | timeout, TLS configuration, transport/protocol/parse errors | NOT RUN | Local fixture only; no live providers |
-| Partial results | independent successful component survives another component failure | MODEL SOURCE — NOT RUN | Domain model construction test added; aggregation behaviour not implemented |
+| Partial results | independent successful component survives another component failure | TEST SOURCE — NOT RUN | Internal deterministic executor seam and pass-through test added; production source aggregation not implemented |
 | Storage disabled | construction/query works without opening storage | NOT RUN | Must be default path |
 | Storage enabled | explicit adapter, cache round-trip, stale metadata preservation | NOT RUN | Temporary/in-memory adapter |
 | Deletion | scoped clear/delete and ownership semantics | NOT RUN | No production retention policy selected |
@@ -35,7 +35,9 @@ Owner-approved direction carried into this milestone:
 
 - `engine/src/commonMain/kotlin/io/meridian/api/WeatherContracts.kt` — experimental query, value, provenance, freshness, quality, partial-result, and issue models.
 - `engine/src/commonMain/kotlin/io/meridian/api/MeridianEngine.kt` — explicit factory, no-source unavailable result, idempotent close, and typed post-close exception.
-- `engine/src/commonTest/kotlin/io/meridian/api/MeridianEngineContractTest.kt` — deterministic contract tests for validation, unavailable results, partial model construction, and close.
+- `engine/src/commonTest/kotlin/io/meridian/api/MeridianEngineContractTest.kt` — deterministic test sources for validation, unavailable results, partial-result pass-through, caller cancellation, defensive collection copying, result invariants, and close.
+
+`MeridianEngine.createForTesting` is internal and exists only to inject deterministic test execution; it is not visible to independent consumers and must not become a public provider SPI by accident.
 - `desktop-consumer/src/main/kotlin/io/meridian/consumer/PublicApiContractUse.kt` — independent Desktop JVM source importing only `io.meridian.api`.
 - `ios-consumer/Sources/MeridianSwiftConsumer/PublicApiUse.swift` and `ios-consumer/Tests/MeridianSwiftConsumerTests/ProbeUseTests.swift` — Swift consumer source and test.
 
