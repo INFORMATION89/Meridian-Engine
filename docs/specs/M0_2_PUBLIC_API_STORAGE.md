@@ -32,7 +32,7 @@ Design and document a minimal API around these concepts:
 5. **Cancellation:** cancellation must stop work where practical, propagate predictably across Kotlin/JVM/Swift boundaries, and never leave partially written cache records marked complete.
 6. **Versioning:** public types and serialized persistence records need explicit compatibility/versioning rules. Provider response schemas must remain internal to adapters.
 
-Prefer a batch-oriented request/response API for the first release. Do not commit to streaming partial updates, Kotlin Flow, callback APIs, or Swift-specific wrappers until the M0.1 interop proof demonstrates an ergonomic and reliable approach.
+Recommend a batch-oriented suspend request/response API for the first release. M0.1 demonstrated that a native Swift consumer can import and call the generated framework, but it did not prove the ergonomics of the final asynchronous weather API or cancellation semantics. M0.2 must prototype a narrow Swift-friendly facade and verify cancellation across Kotlin and Swift. Do not add streaming, Flow, callback, or multiple overlapping API styles unless a concrete consumer requirement justifies them.
 
 Errors should be typed and distinguish invalid input, unsupported feature, no eligible source, provider failure, rate limiting, storage failure, cancellation, and stale/unavailable data. Do not collapse a partial feature failure into a total request failure when other requested features succeeded. Never fabricate missing weather values.
 
@@ -70,7 +70,7 @@ The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths
 
 ## 7. Consumer and compatibility proof
 
-Before approval, demonstrate the contract with a tiny independent sample consumer that does not check out, import, build, or test Solstice.
+Before M0.2 approval, demonstrate the contract with a tiny independent sample consumer that does not check out, import, build, or test Solstice.
 
 The sample should:
 - instantiate Meridian with fake/in-memory dependencies;
