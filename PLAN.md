@@ -38,7 +38,7 @@ Normal Meridian operation must not require the project owner or a consumer to op
 - Forecast cache, local verification, learning statistics, settings supplied to the engine, and optional historical records remain local by default.
 - Apps own permissions, lifecycle, refresh scheduling, saved places, credential storage, presentation, and notification policy.
 - Offline operation can use suitable cached data and local calculations, but must disclose age, freshness, coverage, and limitations. Old data must never be presented as current.
-- Optional external contribution or sharing is separate from normal operation, off by default, explicitly consented to, inspectable, and revocable where technically possible. It does not authorize creating a Meridian-hosted server. Any hosted collection service would require a separate strategic decision and privacy/legal review.
+- Optional external contribution or sharing is separate from normal operation and off by default. Before a separate, explicit opt-in, explain exactly what data is collected, why it is needed, where it is sent, who receives it, and how long it is retained; provide an inspectable payload example and controls to withdraw consent and delete eligible local data. Declining must not reduce ordinary weather functionality. Sharing does not authorize creating a Meridian-hosted server. Any hosted collection service would require a separate strategic decision and privacy/legal review.
 
 This does not promise that weather information is available without the Internet or that every provider permits direct requests from distributed apps. Provider eligibility and credential handling must be checked before integration. Private developer credentials must never be embedded in distributed artifacts.
 
@@ -240,7 +240,7 @@ Meridian must distinguish different kinds of stored data instead of applying one
 - Stale data retains its original timestamps and freshness state.
 - Retention is configurable per data category, with bounded defaults, explicit deletion, export/restore where appropriate, atomic writes, schema versioning, and recovery.
 - Historical data redistribution is prohibited unless its licence permits it.
-- Optional user contributions require separate explicit consent, clear purpose, minimal data, inspectable payload examples, local controls, and revocation where feasible. Declining must not reduce ordinary weather functionality.
+- Optional user contributions require separate explicit consent and minimal data. Before consent, disclose the data fields, purpose, destination, recipients, and retention; provide inspectable payload examples, local controls, withdrawal, and eligible deletion. Declining must not reduce ordinary weather functionality.
 
 ## 8. Normalized data and public API contract
 
@@ -478,7 +478,9 @@ Maintain one source of truth per topic.
 | RULES.md | Project-wide working, testing, security, and contribution rules; must be reconciled with the approved technical-autonomy model |
 | AGENTS.md | Operational instructions for coding agents; must point to the master plan and current milestone |
 | AI_POLICY.md | Contributor AI use and the prohibition on runtime AI requirements |
-| AI_COST_POLICY.md | Cost-aware use of AI models, context, tools, CI, providers, datasets, and compute without weakening required verification |
+| AI_COST_POLICY.md | Approved policy for cost-aware AI, tools, CI, providers, datasets, and compute without weakening verification |
+| AI_IMPLEMENTATION_PLAN.md | Detailed, task-oriented execution guide for coding agents; subordinate to this master plan and its approved milestone gates |
+| PROJECT_OVERVIEW.md | Concise human-readable explanation of Meridian's purpose, scope, roadmap, and status; derived from this master plan, not an independent authority |
 | CLEAN_ROOM.md | Independent research and implementation policy |
 | docs/specs/M* | Scoped milestone specifications; proposals until their approval gate is met |
 | docs/research/* | Evidence, alternatives, and technical/scientific analysis; not independent implementation authority |
