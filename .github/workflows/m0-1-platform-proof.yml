@@ -29,6 +29,15 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
+      - name: Start local HTTP fixture server
+        run: |
+          python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
+          for attempt in {1..10}; do
+            if curl -fsS http://127.0.0.1:8765/probe.json; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/meridian-fixture.log
+          exit 1
       - name: Verify committed Gradle Wrapper
         run: ./gradlew --version
       - name: Build, test and execute packaged JVM consumer
@@ -65,6 +74,19 @@ jobs:
           java-version: "21"
           # Gradle lock files can remain busy during setup-java's post-job
           # cache save on Windows. Skip only this cache; keep build/test intact.
+      - name: Start local HTTP fixture server
+        shell: pwsh
+        run: |
+          Start-Process -FilePath python -ArgumentList @('-m','http.server','8765','--directory','ci/fixtures','--bind','0.0.0.0') -WindowStyle Hidden
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 10; $attempt++) {
+            try {
+              Invoke-WebRequest -Uri 'http://127.0.0.1:8765/probe.json' -UseBasicParsing | Out-Null
+              $ready = $true
+              break
+            } catch { Start-Sleep -Seconds 1 }
+          }
+          if (-not $ready) { throw 'Local HTTP fixture server did not start.' }
       - name: Verify committed Gradle Wrapper
         run: .\gradlew.bat --version
       - name: Build, test and execute packaged JVM consumer
@@ -105,6 +127,15 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
+      - name: Start local HTTP fixture server
+        run: |
+          python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
+          for attempt in {1..10}; do
+            if curl -fsS http://127.0.0.1:8765/probe.json; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/meridian-fixture.log
+          exit 1
       - name: Verify committed Gradle Wrapper
         run: ./gradlew --version
       - name: Build iOS frameworks, execute simulator tests and test macOS JVM consumer
@@ -201,6 +232,15 @@ jobs:
             lsmod | grep -E '^kvm' || true
             ls -la /dev/kvm || true
           fi
+      - name: Start local HTTP fixture server
+        run: |
+          python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
+          for attempt in {1..10}; do
+            if curl -fsS http://127.0.0.1:8765/probe.json; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/meridian-fixture.log
+          exit 1
       - name: Run Android host-side common tests
         run: ./gradlew --warning-mode=all --stacktrace :engine:testAndroidHostTest
       - name: Run Android x86_64 emulator instrumentation tests

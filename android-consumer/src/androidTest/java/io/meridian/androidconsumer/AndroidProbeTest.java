@@ -33,6 +33,13 @@ public class AndroidProbeTest {
     }
 
     @Test
+    public void requestsLocalFixtureThroughAndroidEngine() {
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureRequest(
+            "http://10.0.2.2:8765/probe.json"
+        ));
+    }
+
+    @Test
     public void persistsSqliteDataAcrossDriverReopen() {
         assertTrue(AndroidStorageProbe.verifyReopen(
             InstrumentationRegistry.getInstrumentation().getTargetContext()

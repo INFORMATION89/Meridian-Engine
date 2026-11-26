@@ -26,6 +26,16 @@ final class ProbeUseTests: XCTestCase {
         XCTAssertTrue(IosKtorProbe.shared.verifyClientLifecycle())
     }
 
+    func testDarwinEngineRequestsLocalFixture() {
+        let finished = expectation(description: "Darwin Ktor engine receives local fixture")
+        IosKtorProbe.shared.fetchFixture(url: "http://127.0.0.1:8765/probe.json") { body, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(body, #"{"status":"ok","source":"local-fixture"}"#)
+            finished.fulfill()
+        }
+        wait(for: [finished], timeout: 10)
+    }
+
     func testSqliteDriverCanReopenDatabase() {
         XCTAssertTrue(IosStorageProbe.shared.verifyReopen())
     }

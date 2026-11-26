@@ -1,3 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:label="Meridian MER-0.1 consumer" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application android:label="Meridian MER-0.1 consumer" android:usesCleartextTraffic="true" />
 </manifest>
