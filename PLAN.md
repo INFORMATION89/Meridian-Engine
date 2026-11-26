@@ -425,6 +425,7 @@ Do not copy the Solstice UI plan into Meridian. Solstice keeps its own consumer-
 - Meridian does not own saved-place lists or refresh scheduling.
 - Data provenance and source attribution are mandatory.
 - Clean-room policy is maintained separately in `CLEAN_ROOM.md`.
+- Cost-aware engineering and verification (adopted 2026-11-25): batch coherent changes before expensive CI, use the smallest relevant checks while iterating, reuse passing results, retry only failing jobs where possible, and stop repeated infrastructure attempts after one materially different retry. This decision was added after repeated CI runs consumed time and compute without resolving the Android host limitation; details are in `RULES.md` section 12.
 
 ### Recommendations awaiting owner approval
 

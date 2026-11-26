@@ -142,6 +142,10 @@ Contributor use of AI for engineering and occasional manual data analysis is gov
 7. Ordinary unit tests and the normal build must not require network access.
 8. Test every supported target to the level promised by the project. A single successful compile is not sufficient to advertise platform support.
 9. Report scientific verification separately from compilation and unit-test results. A passing build does not prove meteorological correctness.
+10. Plan verification before running it. Define the acceptance criteria, the smallest relevant checks, and any expensive checks (full CI matrices, emulator/device runs, Apple-hosted builds, or repeated integration runs). Reuse valid results and do not rerun checks that the change cannot affect.
+11. Batch a coherent set of implementation and documentation changes before triggering expensive CI. Use focused local checks while iterating, then run the full required matrix once when the batch is ready. If only one job fails, inspect its logs and retry only that job when possible; do not rerun successful jobs without a technical reason.
+12. For environment or infrastructure failures, diagnose the evidence and try at most one materially different setup after the first failure. If the second setup fails for the same requirement, stop repeated attempts, mark that requirement BLOCKED, and report the evidence and the host/tool access needed. Never relabel an untested acceptance criterion as passed to save time.
+13. Before substantially expanding the agreed verification scope or spending another full CI matrix after a failed run, summarize the proposed check and why it is needed to the project owner. Continue only after the owner agrees when the new check exceeds the task's agreed verification plan.
 
 ## 13. Documentation and decisions
 

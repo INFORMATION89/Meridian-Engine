@@ -98,7 +98,7 @@ All AI coding agents must:
 5. Never expose, print, commit, upload, or transmit secrets, tokens, signing credentials, environment files, or private user data.
 6. Never search unrelated personal files or inspect secrets without a specific, authorized need.
 7. Understand and validate commands before executing them. Do not blindly run remote scripts, `curl | sh`, destructive commands, or unreviewed dependency installation.
-8. Keep changes small, scoped, tested, and reviewable; explain uncertainty instead of inventing APIs or results.
+8. Keep changes small, scoped, tested, and reviewable; explain uncertainty instead of inventing APIs or results. Follow the cost-aware verification plan in `RULES.md` section 12; do not repeat a full test matrix when a focused retry is sufficient.
 9. Report exact commands and results. Never claim a build, test, or platform check passed unless it was actually run and inspected.
 10. Never merge, release, publish packages, change repository protections, alter secrets, delete data, or contact external parties without explicit owner approval.
 
