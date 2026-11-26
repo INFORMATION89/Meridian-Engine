@@ -10,7 +10,7 @@ M0.2 is contract design and deterministic consumer validation. The repository's 
 
 Owner-approved direction carried into this milestone:
 - Kotlin Multiplatform shared core.
-- Ktor as the networking implementation candidate behind an engine-owned abstraction.
+- Ktor as the approved initial networking implementation behind an engine-owned abstraction.
 - SQLDelight/SQLite as an optional persistence candidate, not a core requirement.
 - Desktop JVM distribution on Windows, macOS, and Linux; no native desktop ABI promise.
 - Independent consumers; no Solstice dependency.
