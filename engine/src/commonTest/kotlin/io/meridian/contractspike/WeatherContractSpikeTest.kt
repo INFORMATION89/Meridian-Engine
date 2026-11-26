@@ -59,6 +59,48 @@ class WeatherContractSpikeTest {
     }
 
     @Test
+    fun partialFeatureResultIsNotCachedAsAvailable() = runBlocking {
+        val store = InMemoryWeatherStore()
+        val request = WeatherContractDemo.sampleRequest(CachePolicy.PREFER_FRESH)
+            .copy(features = setOf(WeatherFeature.CURRENT_CONDITIONS))
+        val partialData = WeatherFeatureData(
+            feature = WeatherFeature.CURRENT_CONDITIONS,
+            values = listOf(
+                WeatherValue(WeatherVariable.AIR_TEMPERATURE, 18.0, WeatherUnit.CELSIUS),
+            ),
+            provenance = SourceProvenance("fixture-local", "partial-cache-test"),
+            issuedAtEpochMillis = null,
+            observedAtEpochMillis = 1_450,
+            fetchedAtEpochMillis = 1_500,
+            validAtEpochMillis = 1_450,
+            expiresAtEpochMillis = 2_000,
+        )
+        var sourceCalls = 0
+        val engine = WeatherContractEngine(
+            source = object : WeatherSource {
+                override suspend fun fetchFeature(request: WeatherRequest, feature: WeatherFeature): FeatureOutcome {
+                    sourceCalls += 1
+                    return FeatureOutcome.Partial(
+                        partialData,
+                        listOf(WeatherProblem(WeatherProblemCode.SOURCE_FAILURE, "One source was unavailable.")),
+                    )
+                }
+            },
+            clock = object : WeatherClock {
+                override fun nowEpochMillis(): Long = 1_600
+            },
+            store = store,
+        )
+
+        repeat(2) {
+            val outcome = engine.fetch(request).outcomes[WeatherFeature.CURRENT_CONDITIONS]
+            val partial = assertIs<FeatureOutcome.Partial>(outcome)
+            assertTrue(partial.problems.any { it.code == WeatherProblemCode.SOURCE_FAILURE })
+        }
+        assertEquals(2, sourceCalls)
+    }
+
+    @Test
     fun staleDataIsExplicitAndOnlyUsedWhenAllowed() = runBlocking {
         val store = InMemoryWeatherStore()
         val request = WeatherContractDemo.sampleRequest(
