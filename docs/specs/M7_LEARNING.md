@@ -39,8 +39,7 @@ Kept per the privacy-safe spatial key approved in M0.2, model, variable, lead bu
   days (both from configuration).
 - Never pushes a value outside what the models span by more than the bias itself (a guard against a
   bad station).
-- Shown in provenance (M2's `correction`) and in the sources sheet: "Adjusted −0.8° from 30 days of
-  Mexico City airport reports". A switch in Settings › Data and sources turns it off.
+- Expose the correction method, amount, supporting sample/window, and algorithm/configuration version in result provenance. The consuming app decides how to present the explanation and provide a supported opt-out control.
 
 ## Optional historical initialization (research candidate, not an automatic background task)
 
