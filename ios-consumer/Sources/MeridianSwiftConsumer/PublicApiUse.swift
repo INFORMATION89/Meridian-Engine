@@ -4,11 +4,9 @@ import MeridianShared
 public enum PublicApiUse {
     public static func run(completion: @escaping (String?, Error?) -> Void) {
         let engine = MeridianEngine.companion.create()
-        let location = GeoLocation(latitude: 19.4326, longitude: -99.1332)
-        let query = WeatherQuery(
-            location: location,
-            variables: [WeatherVariable.airTemperature],
-            forecastHours: 24
+        let query = WeatherQuery.companion.airTemperatureAt(
+            latitude: 19.4326,
+            longitude: -99.1332
         )
 
         engine.query(query: query) { result, error in
