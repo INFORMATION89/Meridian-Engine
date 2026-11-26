@@ -17,8 +17,7 @@ class FixtureHandler(BaseHTTPRequestHandler):
         elif self.path == "/partial.json":
             self.send_payload(200, b'{"status":"ok"}')
         elif self.path == "/slow":
-            time.sleep(0.35)
-            self.send_payload(200, b'{"status":"ok","source":"local-fixture"}')
+            self.send_delayed_payload(200, b'{"status":"ok","source":"local-fixture"}', 0.35)
         else:
             self.send_payload(404, b'{"error":"not found"}')
 
@@ -27,6 +26,21 @@ class FixtureHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
+        try:
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            # Expected when the client correctly cancels/times out the slow fixture.
+            pass
+
+    def send_delayed_payload(self, status, body, delay_seconds):
+        # Deliver headers first so cancellation tests can synchronize on an
+        # established HTTP response while the body is still in flight.
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.flush()
+        time.sleep(delay_seconds)
         try:
             self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError):

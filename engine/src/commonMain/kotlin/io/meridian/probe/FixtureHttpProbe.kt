@@ -5,10 +5,10 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
@@ -64,8 +64,15 @@ object FixtureHttpProbe {
     }
 
     suspend fun verifyCancellation(client: HttpClient, url: String): Boolean = coroutineScope {
-        val request = launch { fetch(client, url) }
-        delay(25)
+        val responseReceived = CompletableDeferred<Unit>()
+        val request = launch {
+            val response = client.get(url)
+            // Wait until the real engine has received response headers. The fixture
+            // deliberately withholds its body so cancellation happens in-flight.
+            responseReceived.complete(Unit)
+            response.bodyAsText()
+        }
+        withTimeout(2_000) { responseReceived.await() }
         request.cancelAndJoin()
         request.isCancelled
     }
