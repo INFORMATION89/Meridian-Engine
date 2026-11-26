@@ -2,7 +2,7 @@
 
 - **Status:** Design proposal for M0.2 review; no public API or persisted schema is declared stable.
 - **Baseline:** Kotlin Multiplatform shared core; Android and iOS/Swift consumers; Desktop JVM on Windows, macOS, and Linux.
-- **Authority:** `PLAN.md`, ADR-0001, ADR-0002, M0.2 contract-design specification, and platform evidence.
+- **Authority:** `PLAN.md`, ADR-0001, ADR-0002, ADR-0003, M0.2 contract-design specification, and platform evidence.
 
 ## 1. Purpose
 
