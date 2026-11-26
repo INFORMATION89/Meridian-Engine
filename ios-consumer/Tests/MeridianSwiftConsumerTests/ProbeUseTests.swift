@@ -38,43 +38,43 @@ final class ProbeUseTests: XCTestCase {
         let status = try await IosKtorProbe.shared.verifyHttpStatusFailure(
             url: "http://localhost:8765/status/503"
         )
-        XCTAssertTrue(status)
+        XCTAssertTrue(status.boolValue)
 
         let malformed = try await IosKtorProbe.shared.verifyMalformedResponseFailure(
             url: "http://localhost:8765/malformed.json"
         )
-        XCTAssertTrue(malformed)
+        XCTAssertTrue(malformed.boolValue)
     }
 
     func testDarwinEngineMapsTimeoutAndTransportFailures() async throws {
         let timeout = try await IosKtorProbe.shared.verifyTimeoutFailure(
             url: "http://localhost:8765/slow"
         )
-        XCTAssertTrue(timeout)
+        XCTAssertTrue(timeout.boolValue)
 
         let transport = try await IosKtorProbe.shared.verifyTransportFailure(
             url: "http://127.0.0.1:8766/offline"
         )
-        XCTAssertTrue(transport)
+        XCTAssertTrue(transport.boolValue)
     }
 
     func testDarwinEngineMapsEmptyAndPartialResponses() async throws {
         let empty = try await IosKtorProbe.shared.verifyEmptyResponseFailure(
             url: "http://localhost:8765/empty.json"
         )
-        XCTAssertTrue(empty)
+        XCTAssertTrue(empty.boolValue)
 
         let partial = try await IosKtorProbe.shared.verifyPartialResponseFailure(
             url: "http://localhost:8765/partial.json"
         )
-        XCTAssertTrue(partial)
+        XCTAssertTrue(partial.boolValue)
     }
 
     func testDarwinEnginePropagatesRequestCancellation() async throws {
         let cancelled = try await IosKtorProbe.shared.verifyFixtureCancellation(
             url: "http://localhost:8765/slow"
         )
-        XCTAssertTrue(cancelled)
+        XCTAssertTrue(cancelled.boolValue)
     }
 
     func testSqliteDriverCanReopenDatabase() {
