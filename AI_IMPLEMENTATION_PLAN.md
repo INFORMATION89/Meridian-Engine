@@ -376,8 +376,8 @@ At the latest recorded review on 2026-11-26:
 
 - The revised master plan is merged into main and is authoritative.
 - AI_COST_POLICY.md is merged and approved.
-- PR #2 was closed unmerged while still Draft on 2026-11-26 to clear unfinished open PRs; its source branch `spike/m0.1-kmp-platform-proof` is preserved at head bd395b5fd3a8eb03c96528eb429b183125eaf007. Six CI jobs passed for that exact head in run 45736878709, but the proof is not complete and none of its remaining gates were waived.
-- PR #2 carries a root Apache License 2.0 LICENSE and README.md on its branch; these are not yet on main. Reconcile the README's KMP/JVM proposal with the unresolved stack decision before merging.
+- PR #15 merged the completed MER-0.1 proof into main; CI #224 passed all five jobs. Its limitations remain explicit in PLAN.md and ADR-0003.
+- The root Apache-2.0 LICENSE and README are present on main. The approved technology baseline is recorded in ADR-0003; PR #19 reconciles the decision across project guidance.
 - No production weather provider, production forecast pipeline, stable public API, or production storage contract is authorized merely by the current platform proof.
 - Root LICENSE/README bootstrap and complete direct/transitive licensing/NOTICE decisions remain part of M0.
 
@@ -388,9 +388,9 @@ Continue the preserved MER-0.1 source branch and open/recreate its PR when the e
 1. Confirm latest checks still match the exact head SHA.
 2. Exercise actual Android, Darwin, and JVM Ktor engines using deterministic fixtures.
 3. Verify timeout, transport/parse errors, cancellation, cleanup, and consumer-boundary behaviour.
-4. Verify SQLDelight/platform storage candidates only to the extent required by the architecture comparison.
+4. Verify the approved SQLDelight/SQLite implementation boundary only as needed to design the M0.2 contract; do not build the production schema during M0.2.
 5. Complete direct/transitive licence inventory and NOTICE decision.
 6. Record package/runtime implications and the exact compatibility matrix.
-7. Produce the KMP-versus-Rust recommendation and request owner review only for the production stack decision.
+7. Record the approved KMP baseline and defer Rust/UniFFI unless concrete consumer evidence exposes a KMP/JVM blocker.
 
-Do not begin M1 production weather providers or forecast algorithms until M0.1, M0.2, and M0.3 gates have been completed and the production direction has been approved.
+Do not begin M1 production weather providers or forecast algorithms until M0.2 and M0.3 gates have been completed and approved; M0.1 and the production technology decision are complete.
