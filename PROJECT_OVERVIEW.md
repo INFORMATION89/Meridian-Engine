@@ -83,13 +83,15 @@ Meridian must not copy Solstice's UI or application-specific behaviour into the 
 
 ## Current project status
 
-**Meridian is still experimental and is not ready for production use.**
+**Meridian is experimental and is not ready for production use.**
 
-The current work has established a cross-platform compatibility proof, not a complete weather engine. The canonical platform-proof PR #2 has six successful CI jobs on its recorded head, covering an Android x86_64 emulator, an iOS simulator/Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux.
+M0.1 platform proof is complete for the approved CI-only acceptance, and the production technology baseline has been approved. The five-job CI run #224 passed, covering an Android x86_64 emulator, an iOS ARM64 simulator with a native Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux, plus dependency/license auditing.
 
-That evidence does not finish the platform decision. Actual platform-specific network behaviour, timeout and cancellation handling, packaging implications, and the complete dependency licence review still need to be completed. Android ARM64 runtime and physical Android/iOS device execution were not part of the accepted CI-only M0.1 proof.
+The approved baseline is Kotlin Multiplatform + Ktor + optional SQLDelight/SQLite, with JVM-first desktop distribution and a Swift-friendly iOS framework facade. Rust/UniFFI and native desktop ABIs are deferred unless concrete consumer requirements justify reconsideration. See [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md).
 
-There is not yet an authorized production weather-provider pipeline, stable public API, or production storage contract. The Apache-2.0 LICENSE and draft README are currently present on the PR #2 branch but have not yet been merged into main.
+Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion remain explicitly unverified. Mobile notice inclusion must be staged and verified before public mobile distribution.
+
+There is not yet an authorized production weather-provider pipeline, final public API, or production storage schema. **M0.2 public API and storage contract design is now the active milestone.** The engine remains independent of Solstice and must prove its public contract with a standalone consumer.
 
 ## What happens next?
 
