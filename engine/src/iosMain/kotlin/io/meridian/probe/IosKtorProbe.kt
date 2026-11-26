@@ -45,17 +45,6 @@ object IosKtorProbe {
     suspend fun verifyTransportFailure(url: String): Boolean =
         verifyFixtureFailure(url, ProbeErrorCode.TRANSPORT)
 
-    suspend fun verifyEmptyResponseFailure(url: String): Boolean =
-        verifyFixtureFailure(url, ProbeErrorCode.EMPTY_RESPONSE)
-
-    suspend fun verifyPartialResponseFailure(url: String): Boolean =
-        verifyFixtureFailure(url, ProbeErrorCode.PARTIAL_RESPONSE)
-
-    suspend fun verifyFixtureCancellation(url: String): Boolean {
-        val client = HttpClient(Darwin)
-        try { return FixtureHttpProbe.verifyCancellation(client, url) } finally { client.close() }
-    }
-
     fun verifyClientLifecycle(): Boolean {
         val client = HttpClient(Darwin)
         try { return true } finally { client.close() }
