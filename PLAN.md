@@ -550,6 +550,8 @@ The responsible agent should research these, recommend a bounded solution, recor
 - The probe app-image sizes (Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB) are not release-size guarantees.
 - [PR #17](https://github.com/INFORMATION89/Meridian-Engine/pull/17) remains a separate draft concerning AI model-routing guidance. It has not received its optional advanced review and is not a blocker for M0.2.
 - [PR #18](https://github.com/INFORMATION89/Meridian-Engine/pull/18) concerns the versioned GitHub Wiki publisher and its one-time WIKI_TOKEN setup; it is separate from the engine architecture decision.
+- [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) proposes the M0.2 public API and optional storage contract; all API/storage details in it remain subject to owner review.
+- [PR #21](https://github.com/INFORMATION89/Meridian-Engine/pull/21) adds a focused Swift async/coroutine-cancellation proof using the existing probe. CI run #226 is in progress; do not accept the proof until the Apple/iOS job passes.
 
 ### Active task: M0.2 public API and storage contracts
 
