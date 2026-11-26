@@ -53,9 +53,11 @@ Results:
 - Packaged Windows consumer: PASS; prints `m0.1: JVM consumer PASS`.
 - Android library and smoke app: PASS compile/package. Instrumented test sources: PASS compile. The local Windows AVD is x86_64, and emulator startup reported that hardware acceleration is required but no emulator hypervisor driver is installed; device tests did not run. The first hosted CI attempt used an x64 Linux runner with an ARM64 image; the emulator did not appear in ADB and timed out. A second attempt on `ubuntu-24.04-arm` could not find the Android emulator package for that host architecture. CI now uses an x86_64 emulator on Ubuntu as a supplemental Android runtime check; it does not satisfy the required ARM64 runtime check.
 - iOS simulator Kotlin source and test source: PASS cross-compilation. No Apple framework was linked and no Swift code was run on this Windows host.
-- Hosted CI (first complete matrix except Android): macOS 15.8.2 Apple Silicon with Temurin 21.0.13.1+2 linked `iosArm64` and `iosSimulatorArm64`, passed `iosSimulatorArm64Test` including the Native SQLite test, built the Swift consumer using Xcode 16.4 / iOS Simulator SDK 18.5, launched it on an iPhone 16 Pro simulator, and observed the `PASS` result marker. Exact workflow run: `45721774111`.
-- Hosted CI Desktop JVM: Windows Server 2025 x64, macOS 15.8.2 Apple Silicon, and Ubuntu 24.04.5 x64 each passed `:probe:jvmTest`, `:desktop-smoke:run`, and `:desktop-smoke:installDist`; the packaged consumer printed `m0.1: JVM consumer PASS` on all three. CI used Temurin JDK 21.0.13.1+2 (runner builds identify it as 21.0.13). Run: `45721774111`.
-- Android CI on Ubuntu x64 failed before Gradle tests because the ARM64 emulator never appeared in ADB and timed out during boot. The CI job now uses the hosted ARM64 Linux runner so its host architecture matches the required Android ARM64 image; this retry is pending.
+- Hosted CI (all jobs except Android): macOS 15.8.2 Apple Silicon with Temurin 21.0.13.1+2 linked `iosArm64` and `iosSimulatorArm64`, passed `iosSimulatorArm64Test` including the Native SQLite test, built the Swift consumer using Xcode 16.4 / iOS Simulator SDK 18.5, launched it on an iPhone 16 Pro simulator, and observed the `PASS` result marker. Exact workflow run: `45724007519`.
+- Hosted CI Desktop JVM: Windows Server 2025 x64, macOS 15.8.2 Apple Silicon, and Ubuntu 24.04.5 x64 each passed `:probe:jvmTest`, `:desktop-smoke:run`, and `:desktop-smoke:installDist`; the packaged consumer printed `m0.1: JVM consumer PASS` on all three. CI used Temurin JDK 21.0.13.1+2 (runner builds identify it as 21.0.13). Run: `45724007519`.
+- The first Android CI attempt on Ubuntu x64 failed because the ARM64 emulator never appeared in ADB. A second attempt on `ubuntu-24.04-arm` failed before Gradle because the emulator package is unavailable for that host architecture. An x86_64 emulator on Ubuntu x64 also failed to boot because the runner lacks a hardware accelerator and the current Android emulator requires explicit TCG opt-in when hardware acceleration is disabled. CI now enables `ANDROID_I_WANT_MY_TCG=yes` and allows 20 minutes for boot; that supplemental retry is pending. It cannot satisfy the required ARM64 runtime check.
+- With corrected task ordering, CI measured the JVM library at 27,237 bytes and the Desktop `installDist` runtime jars at 24,328,424 bytes across 38 files on all three desktop runners. Warm job durations were 1m 7s on Ubuntu, 1m 21s on macOS, and 1m 45s on Windows; these include setup and are not isolated Gradle task timings.
+- iOS CI linked the ARM64 device debug framework (65,486,938 bytes) and simulator debug framework (65,437,765 bytes). The simulator job ran the Kotlin/Native test suite and Swift consumer successfully on an iPhone 16 Pro, using Xcode 16.4 and iOS Simulator SDK 18.5. The framework-and-test job took 4m 20s. Run: `45724007519`.
 - A JDK 21 Gradle invocation without `--no-build-cache` first hit an unreadable Kotlin incremental cache file. Re-running with `--no-build-cache` succeeded. This is recorded as an environment issue, not a source failure.
 - One early AndroidX coordinate `androidx.test:core:1.6.2` did not resolve; it was corrected to the stable `1.7.0` release documented by Android.
 - Warm local task times were about 24 seconds for the first successful JVM test build, 27 seconds for the desktop consumer/distribution, 35 seconds for the Android debug APK, and 17–18 seconds to compile Android instrumented and iOS simulator test sources. These are single Windows host measurements, not cross-OS benchmarks. Setup and implementation elapsed time was not tracked.
@@ -70,18 +72,18 @@ Measured on the Windows host after building:
 | `desktop-smoke.jar` | 4,456 bytes | JVM; app runtime dependencies are separate jars |
 | Desktop `installDist` runtime jars | 24,328,424 bytes total across 38 jars | JRE 11+ is the current candidate floor; tested with JDK 21 |
 | Android debug APK | 3,846,437 bytes | Android; debug APK, not a release package |
-| iOS device and simulator frameworks | Not produced | Requires macOS/Xcode and iOS SDKs |
+| iOS ARM64 device debug framework | 65,486,938 bytes (hosted CI) | iOS device; framework must be embedded by a native app |
+| iOS ARM64 simulator debug framework | 65,437,765 bytes (hosted CI) | iOS simulator; Swift smoke app successfully embedded and ran it |
 
 The Desktop `installDist` directory contains launch scripts and runtime dependency jars, but does not bundle a JRE. No desktop application packaging or JRE bundling strategy has been selected.
 
 ## Outstanding platform checks
 
-- Android x86_64 emulator: load the APK and run instrumented checks as supplemental Android runtime evidence.
+- Android x86_64 emulator: load the APK and run instrumented checks as supplemental Android runtime evidence. The TCG retry is pending.
 - Android ARM64 emulator/device: still required by the target matrix; obtain a compatible ARM64 Android-capable host and run deterministic, typed-error, Android/CIO engine, and Android SQLite persistence checks.
-- Record the linked iOS framework and Desktop installDist sizes from CI. The size task previously ran before independent build tasks; task ordering is now explicit for the next workflow run.
-- Collect Android runtime and artifact size results after the ARM64 runner retry.
+- Collect Android runtime and APK size results from the supplemental x86_64 CI run; ARM64 Android remains required.
 - Exercise Ktor fixture serialization through each selected real engine with a local fixture server. Current offline JSON coverage uses Ktor MockEngine; target engines have been compiled, and some have been constructed, but have not made a fixture request.
-- Obtain CI logs and record measured execution time and sizes per OS before recommending the language/driver/package combination.
+- Record the supplemental Android CI outcome and continue pursuing the required Android ARM64 runtime check before recommending the language/driver/package combination.
 
 ## Dependencies and licences
 
