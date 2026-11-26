@@ -393,7 +393,9 @@ jobs:
         run: |
           for dir in android-consumer/build/outputs/apk engine/build/outputs/aar; do
             if [ -d "$dir" ]; then
-              find "$dir" -type f \\( -name '*.apk' -o -name '*.aab' -o -name '*.aar' \\) -printf '%p %s bytes\\n' | sort
+              for pattern in '*.apk' '*.aab' '*.aar'; do
+                find "$dir" -type f -name "$pattern" -print0 | xargs -0 -r du -b
+              done
             fi
           done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
