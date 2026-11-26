@@ -89,6 +89,33 @@ class MeridianProbeTest {
     }
 
     @Test
+    fun fixtureProbeDistinguishesEmptyAndPartialResponses() = runBlocking {
+        val emptyClient = HttpClient(MockEngine) {
+            engine { addHandler { respond("") } }
+        }
+        try {
+            val failure = assertFailsWith<ProbeFailure> {
+                FixtureHttpProbe.fetch(emptyClient, "https://fixture.invalid/empty")
+            }
+            assertEquals(ProbeErrorCode.EMPTY_RESPONSE, failure.code)
+        } finally {
+            emptyClient.close()
+        }
+
+        val partialClient = HttpClient(MockEngine) {
+            engine { addHandler { respond("""{"status":"ok"}""") } }
+        }
+        try {
+            val failure = assertFailsWith<ProbeFailure> {
+                FixtureHttpProbe.fetch(partialClient, "https://fixture.invalid/partial")
+            }
+            assertEquals(ProbeErrorCode.PARTIAL_RESPONSE, failure.code)
+        } finally {
+            partialClient.close()
+        }
+    }
+
+    @Test
     fun fixtureProbeMapsTransportFailure() = runBlocking {
         val client = HttpClient(MockEngine) {
             engine { addHandler { throw IllegalStateException("fixture offline") } }
@@ -129,12 +156,9 @@ class MeridianProbeTest {
             engine { addHandler { awaitCancellation() } }
         }
         try {
-            val job = launch {
-                FixtureHttpProbe.fetch(client, "https://fixture.invalid/cancel")
-            }
-            delay(25)
-            job.cancelAndJoin()
-            assertTrue(job.isCancelled)
+            assertTrue(
+                FixtureHttpProbe.verifyCancellation(client, "https://fixture.invalid/cancel")
+            )
         } finally {
             client.close()
         }
