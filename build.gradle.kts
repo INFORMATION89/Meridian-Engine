@@ -6,9 +6,9 @@ plugins {
     alias(libs.plugins.sqldelight) apply false
 }
 
-// Lock every resolvable configuration once it is used by a real build/test task.
-// The CI metadata-generation job runs each platform's dependency-consuming tasks
-// with --write-locks so Gradle captures the configurations it actually resolves.
+// Lock every resolvable configuration so platform CI consumes the committed lockfiles.
+// Dependency locks and artifact checksums are refreshed only through an explicit
+// maintenance change; pull-request CI never mutates the branch it is validating.
 allprojects {
     dependencyLocking {
         lockAllConfigurations()
