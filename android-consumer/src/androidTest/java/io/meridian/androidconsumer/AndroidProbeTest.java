@@ -56,6 +56,20 @@ public class AndroidProbeTest {
     }
 
     @Test
+    public void mapsEmptyAndPartialFixtureResponses() {
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
+            "http://10.0.2.2:8765/empty.json", ProbeErrorCode.EMPTY_RESPONSE));
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
+            "http://10.0.2.2:8765/partial.json", ProbeErrorCode.PARTIAL_RESPONSE));
+    }
+
+    @Test
+    public void propagatesRequestCancellationThroughAndroidEngine() {
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureCancellation(
+            "http://10.0.2.2:8765/slow"));
+    }
+
+    @Test
     public void persistsSqliteDataAcrossDriverReopen() {
         assertTrue(AndroidStorageProbe.verifyReopen(
             InstrumentationRegistry.getInstrumentation().getTargetContext()
