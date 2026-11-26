@@ -85,7 +85,7 @@ AI is a tool for contributors, not a runtime requirement. The shipped engine mus
 - Separate historical meteorological and climatological context, including statistical references, anomalies, and regional trend analysis where datasets support them.
 - Radar/satellite integration and progressive nowcasting research, with honest geographic coverage and confidence.
 - Structured API/SDK results for native and managed applications, plus local developer diagnostics and CLI tools.
-- Structured meteorological and practical recommendations adapted to place, time, conditions, evidence, and uncertainty; consumers decide how to present or notify them.
+- Structured meteorological outputs and derived weather-event data (for example, precipitation onset, severe-wind periods, and heat/cold events), with supporting variables, timing, source provenance, quality, probability, and uncertainty. Meridian does not generate user-facing lifestyle advice or application-specific recommendations.
 - Global design and provider assessment, with early quality validation prioritized in Mexico and then expanded across different meteorological regions.
 
 ### Product non-goals
@@ -273,11 +273,20 @@ Every meaningful result should expose, where available:
 
 The API returns structured explanations and diagnostics. It does not render graphs, maps, cards, panels, or visualizations. Developers can inspect information through the CLI or structured API/SDK; each application chooses its own presentation.
 
-### Recommendations and consumer policy
+### Consumer-owned recommendations and policies
 
-Meridian may return both structured recommendation data and optional ready-to-use explanatory content. A recommendation identifies the relevant condition, place/time context, expected period, supporting variables and sources, reason, uncertainty, and confidence/limitations where available. It must not become UI, a notification, or a user preference system. Each consuming application decides what to show, when to show it, which channels to use, and which supported profiles or thresholds to enable.
+Meridian returns **meteorological facts and engine-derived weather events**, not application advice. Its contract may expose observations, forecast values, indices, official alerts, event detections, probabilities, timing, supporting variables, provenance, quality, uncertainty, and neutral explanations of how a meteorological result was derived.
 
-Thresholds and event definitions are configurable consumer-facing policies unless a meteorological standard or source contract requires a specific definition. Do not hardcode a particular app's alert policy as a universal engine rule. For the initial Solstice integration, preserve its existing precipitation rule without silently changing semantics: hourly precipitation uses at least 40% probability and 0.2 mm; finer minute-step data uses at least 0.1 mm/h for two consecutive steps; snow counts as precipitation; and the same event is limited to one alert per three hours. Solstice retains authority over notification timing and presentation. Meridian supplies the relevant event data and evidence through its API.
+Meridian must not generate or own user-facing lifestyle recommendations such as what to wear, whether to carry an umbrella, sunscreen/shade advice, packing lists, activity suggestions, or personalized daily planning. It must not own consumer profiles, preferences, notification schedules, alert wording, UI, or application-specific defaults. These require context and product choices that belong to the consuming application.
+
+Each consumer owns the policy that maps meteorological evidence to user action:
+- recommendation content and presentation, including clothing, umbrella, sunscreen, shade, and activity advice;
+- user preferences, profiles, schedules, notification channels, wording, and cooldowns;
+- app-specific alert thresholds and rules.
+
+Meridian may detect and describe meteorological events using validated, consumer-neutral methods. Where a consumer needs a configurable event threshold, the consumer supplies that policy; Meridian must not silently apply Solstice-specific defaults. Official alerts remain source-authored records with their authority and lifecycle preserved; consumers decide how to present or notify them.
+
+**Solstice ownership:** Solstice's “what to wear” experience, UV action guidance, precipitation alert thresholds, notification timing, and cooldown rules remain Solstice features. Meridian supplies the underlying weather values, event evidence, and uncertainty only. The authoritative application behavior belongs in Solstice's own plan and implementation, not in Meridian's API or core.
 
 ### Probability and confidence
 
@@ -397,7 +406,7 @@ Every milestone follows the same cycle: **research → written specification →
 |---|---|---|
 | M0 — Repository foundation | Governance, Apache-2.0 licence and notices, README, CI, coding-agent instructions, documentation hierarchy | Repository identity, licence file, rules, and CI baseline are consistent and verifiable |
 | M0.1 — Platform proof | KMP five-OS proof, Ktor engines, SQLDelight drivers, consumer interoperability and packaging evidence | Complete evidence and remaining gaps reviewed; owner approves or rejects the production stack |
-| M0.2 — Public API and storage | Consumer-neutral API, storage boundary, caching, history, offline states, partial results, errors, cancellation, versioning | Independent consumer contract tests pass; API/storage decisions approved before weather-feature implementation |
+| M0.2 — Public API and storage | Consumer-neutral API for meteorological facts/events only (no application recommendations), storage boundary, caching, history, offline states, partial results, errors, cancellation, versioning | Independent consumer contract tests pass; API/storage decisions approved before weather-feature implementation |
 | M0.3 — Verification foundation | Forecast/observation records, matching, data quality, archived datasets, metrics, leakage controls, reproducible reports and human-reviewed improvement workflow | A forecast evaluation can be reproduced from versioned data/code; AI is not required |
 | M1 — First forecast path | Normalized current, hourly, and daily forecast from one eligible provider; 10-day default where supported | CLI and independent consumer return correct units, time semantics, source, freshness, and typed problems |
 | M2 — Provenance and source resilience | Source catalog, eligibility, provider limits, request planning, cache/fallback, per-value provenance | Failure, stale data, rate limits, partial success, and source-selection reasons are correctly exposed |
@@ -552,7 +561,7 @@ The responsible agent should research these, recommend a bounded solution, recor
 - [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) merged the architecture and weather research documents as reference material. Their recommendations remain proposals unless adopted here or in an approved milestone.
 - [PR #6](https://github.com/INFORMATION89/Meridian-Engine/pull/6) merged the approved `AI_COST_POLICY.md` into `main`; its requirements apply to all subsequent AI-assisted work and verification.
 - Earlier proof PRs were closed/superseded during reconstruction; their closure did not waive M0.1 acceptance criteria.
-- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) is the active canonical MER-0.1 PR. Its current working branch is `work/m0.1-platform-proof-refresh`; branch head at this revision is `e089126f09416529774c2e7b6b268c24d0e9ca72`. Do not merge it until the current-head CI and all evidence/review gates are complete.
+- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) is the active canonical MER-0.1 PR. Its current working branch is `work/m0.1-platform-proof-refresh`; the branch head must be checked against GitHub before any evidence is accepted. Do not merge it until the current-head CI and all evidence/review gates are complete.
 - A completed platform matrix on [run 45777929849](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45777929849), commit `aa5e86ec1cab1d302b9f2165327deddf299f48dc`, passed Linux, Windows, macOS/iOS, and Android. It records an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and the same desktop JVM consumer on Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED**; CI-only validation is accepted for this M0.1 stage and those cells must stay explicit.
 - The optimized CI removed two serial dependency-metadata jobs, added the pinned open-source Gradle cache path, and avoided duplicate Android emulator downloads. The measured baseline was 21m15s and the first completed optimized run was 12m38s (40.5% lower wall-clock time); this comparison predates the final SBOM and Android SDK cleanup changes and is not a performance guarantee.
 - A preliminary CycloneDX audit completed successfully on [run 45779632538](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45779632538), commit `faaeb43fd08fa0d9f1865b1d8c8a800e484b95d6`. The initial SBOM had zero unresolved module metadata, four project records without license metadata, and 13 distinct license labels; the report still needs Gradle configuration classification and upstream review. A later run on that commit had Linux/Android Gradle plugin-resolution failures; do not treat that run as a green platform matrix.
