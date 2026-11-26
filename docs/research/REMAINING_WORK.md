@@ -19,8 +19,9 @@ Any additional transport/integration checks (including real Ktor platform-engine
 
 | Pull request | Purpose | State at review | What remains |
 |---|---|---|---|
-| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Complete any required CI-level HTTP coverage and dependency/licence review; physical-device testing is deferred by owner decision |
-| [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Open, Draft, mergeable at last check | Review remaining research findings and decide whether to accept the proposals |
+| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Run #152 is the last complete passing matrix. Run #157 failed during Linux KGP resolution; retry pending. Real-engine Ktor tests and full dependency/licence inventory remain open. |
+| [PR #3](https://github.com/INFORMATION89/Meridian-Engine/pull/3) | Duplicate MER-0.1 platform spike | Closed, not merged | Superseded by PR #2; no unique production functionality lost. |
+| [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Open, Draft, mergeable at last check | Documentation review is complete; proposals remain explicitly non-binding until owner decisions are adopted. |
 
 Do not merge either PR merely because the workflows are green. They have different purposes and separate owner gates.
 
@@ -34,7 +35,7 @@ Do not merge either PR merely because the workflows are green. They have differe
 - [x] Record that Run #152 tested commit 28817f6a09c0099ac340ff4df55ea5377ec5ed0a; documentation-only commits then advanced the PR head to 3575f51752b15fecff76c4405610b44fdafeea2c.
 - [x] Keep all platform cells explicit: PASS, FAIL, BLOCKED, or NOT TESTED.
 
-The evidence-record synchronization is complete. Re-run the relevant workflows and update these records whenever implementation or workflow code changes.
+The evidence-record synchronization for Run #152 is complete. A later documentation-only PR update triggered Run #157; its Linux dependency-metadata job failed at Gradle plugin resolution (`org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`) before any platform job ran. The version is a published Kotlin release; the precise resolution cause is not yet established. A retry of that failed job is in progress. Do not overwrite the Run #152 evidence or call the current head fully green until the retry and, where needed, a fresh full matrix establish it.
 
 Run #152 completed six jobs successfully on the inspected workflow: dependency metadata, Linux dependency metadata, Apple/iOS, Linux desktop, Windows desktop, and Android. Its logs show:
 
