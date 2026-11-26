@@ -20,24 +20,24 @@ Meridian is an independent library. Solstice is only its first reference consume
 
 ## Current assignment
 
-The currently authorized implementation milestone is **M0.1: platform and production-stack proof**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`. The existing KMP spike is evidence for one candidate, not approval of the final production stack. Kotlin Multiplatform and Rust remain candidates until the M0.1 evidence gate and owner review are complete.
+The owner-approved technology direction is recorded in `docs/decisions/ADR-0003-approved-production-technology-direction.md`: Kotlin Multiplatform shared core, Ktor behind an engine-owned networking boundary, optional persistence with SQLDelight/SQLite as the preferred candidate, and JVM-first desktop as defined by ADR-0001.
 
-Do not implement the production weather engine until the project owner has approved the M0.1 recommendation and the resulting toolchain decision.
+The active milestone is **M0.2: public API and storage contract design plus deterministic independent-consumer validation**, as described in `PLAN.md` and specified by the documents under `docs/specs/M0_2_*`. M0.1 remains the inherited platform/dependency evidence baseline; its known limitations must remain explicit. Do not reopen the language choice absent a concrete blocker.
 
-M0.1 is a bounded technical validation, not the start of production weather implementation. The current proof exercises the KMP candidate on Android and iOS, and through a Desktop JVM artifact on Windows, macOS, and Linux. It must establish actual consumer and runtime behaviour, target limitations, packaging implications, and dependency evidence; a successful compile alone does not select the production stack. Follow the M0.1 specification and the acceptance gate in PLAN.md exactly.
+M0.2 does not authorize production weather-provider integrations, live weather requests, production forecast algorithms, source blending, adaptive learning, telemetry, hosted services, or user-facing recommendations. Do not begin M1 weather-feature implementation until M0.2's evidence and owner approval gate are complete.
 
 ## Scope discipline
 
-During M0.1, do not implement:
+During M0.2, focus on:
+- consumer-neutral public API and domain contracts;
+- lifecycle, ownership, concurrency, cancellation, timeouts, networking abstraction, and normalized failures;
+- optional storage, cache/stale/offline semantics, deletion, migration, and retention boundaries;
+- library/API/schema/algorithm versioning and truthful platform support labels;
+- independent Kotlin, Swift, and relevant Android consumer proof using deterministic local fixtures.
 
-- weather-provider adapters or live API calls;
-- production weather domain models or forecast algorithms;
-- source blending, alert processing, observations, local learning, or radar;
-- production storage/cache;
-- app UI, user settings, or Solstice feature integration;
-- a complete production workspace or all planned modules.
+Do not add live weather providers, production forecast logic, app UI, Solstice dependencies, automatic location, background scheduling, telemetry, analytics, accounts, hosted services, AI runtime, or unapproved data sharing. Keep storage disabled by default. Retention windows and any persistent collection policy remain subject to the relevant owner-reviewed specification; do not invent unlimited history or silently adopt a proposed duration.
 
-Validate only the networking and storage candidate paths listed in the M0.1 specification. Do not choose a production stack or final public API merely because it makes the proof easier. Record alternatives and trade-offs. Make routine technical choices independently within the approved proof scope and document them. If a task crosses a product, privacy, legal, licensing, paid-cost, public-contract, or strategic architecture boundary, stop and request owner review through the pull request.
+Resolve routine API and implementation details through prototypes and evidence. Escalate only when a choice changes product scope, privacy/consent, legal/licensing obligations, paid/recurring cost, major compatibility promises, public breaking contracts, persistent-data retention, or distribution commitments.
 
 ## Platform validation
 
