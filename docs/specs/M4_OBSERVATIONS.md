@@ -74,8 +74,7 @@ night, not sunny) follow the place's sun times.
 - Fixture for MMMX (and one with `VRB`, gusts, missing temperature, a special report, `CAVOK`).
 - Unit changes against hand-worked values.
 - Rule: a 2-hour-old report isn't used; a station 40 km away isn't; mixed per variable works.
-- Station picker: a place between two airports picks the nearer; one at 2,240 m skips a station at
-  sea level.
+- Station picker: choose among eligible candidates using quality and variable-specific representativeness, not distance alone; material elevation or exposure differences must be reflected in the selection/rejection rationale.
 
 ## Done when
 
