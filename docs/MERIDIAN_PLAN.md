@@ -6,7 +6,7 @@ Clean-room research (CLEAN_ROOM.md): the original research was written from publ
 
 ## 1. In one paragraph
 
-Meridian is an independent cross-platform weather engine (`INFORMATION89/Meridian-Engine`, Apache 2.0). The old Kotlin/Gradle module and Room proposals below are not binding. The listed providers and algorithms are research candidates, not approvals. Meridian must preserve provenance, combine sources only after the relevant gate, and add local learning only after reproducible verification. An earlier idea to consume Meridian in Solstice as a Git submodule was an integration convenience proposal, not the official distribution strategy. The current milestone order is defined by root `PLAN.md`; the historical sequence below is superseded.
+Meridian is an independent cross-platform weather engine (`INFORMATION89/Meridian-Engine`, Apache 2.0). The old Kotlin/Gradle module and Room proposals below are not binding. The listed providers and algorithms are research candidates, not approvals. Meridian must preserve provenance, combine sources only after the relevant gate, and add local learning only after reproducible verification. An earlier idea to consume Meridian through a Git submodule was an integration convenience proposal, not the official distribution strategy. The current milestone order is defined by root `PLAN.md`; the historical sequence below is superseded.
 
 ## 2. Earlier dependency candidates (not adopted without M0.1/M0.2 validation)
 
@@ -39,7 +39,7 @@ Meridian-Engine/
   cli/                  JVM tool: print a place's result; run the verification against archives
 ```
 
-- **Historical Solstice integration idea:** a Git submodule plus Gradle composite build was considered for local development. Root `PLAN.md` says this may remain a developer convenience, not the official distribution requirement.
+- **Historical consumer integration idea:** a Git submodule plus Gradle composite build was considered as a local development convenience. It is not the official distribution requirement; each consumer owns its own dependency and release integration.
 - **Historical publishing ideas:** Maven Central and GitHub Packages were considered; artifact and release strategy are governed by root `PLAN.md` and remain subject to M0.1 evidence.
 - **CI:** JVM and Android tests on Linux for every pull request; a macOS build once that target
   starts; the verification job runs by hand (it needs open internet, see Saturday step 3).
@@ -67,8 +67,8 @@ class MeridianResult(
 )
 ```
 
-Solstice converts these to its UI models in one place (a small bridge in the app), so the UI never
-depends on Meridian's types directly.
+A consuming application adapts Meridian's public results to its own presentation models. The engine
+must not define or own that application's UI, migration sequence, or feature rollout.
 
 ## 5. Sources (historical research snapshot; terms must be rechecked)
 
@@ -79,8 +79,9 @@ All provider limits, prices, coverage, endpoint details, licences, and access co
   ensemble mean API (mean and standard deviation from ensemble members; stored since about March
   2026), the air quality API (CAMS), and the historical forecast API for seeding and verification.
 - **Terms:** free for non-commercial use, under 10,000 calls a day, 5,000 an hour and 600 a minute;
-  data under CC BY 4.0, so the credit is required. No uptime guarantee. Solstice is free and open
-  source, so it qualifies; a paid or commercial app would need Open-Meteo's paid plan.
+  data under CC BY 4.0, so the credit is required. No uptime guarantee. Each consumer must confirm
+  that its own deployment qualifies for the applicable plan; paid or commercial use may require a
+  different Open-Meteo plan.
 - **Budget:** limits count per caller, and one request with several models or long ranges counts as
   more than one call (the ensemble docs show an example at 4.0). Meridian counts its own "call
   weight" per refresh and stays within a share of the limits set in configuration.
@@ -152,21 +153,17 @@ The old proposal to retain all forecast, observation, statistics, and cache data
 
 Do not interpret the historical schema below as an approved storage contract. M0.2 defines the consumer-neutral storage boundary and deletion behaviour.
 
-## 8. Historical Solstice integration sketch (not binding)
+## 8. Consumer application boundary
 
-Solstice is one consumer, not an architectural authority or required dependency. Root `PLAN.md` and the current Solstice integration plan govern any migration sequence. This old proposal does not authorize feature migration or make a Git submodule the official distribution path.
-
-1. Solstice switches to Meridian **feature by feature**, with no side-by-side comparison step: alerts
-   first (where Meridian adds the most), then current conditions, then the forecast. Each switch is
-   checked on the phone and against the archives before the next.
-2. Breezy's own source code stays in the app as adapters implementing Meridian's source interface,
-   rewritten clean over time (PLAN.md, Weather engine).
+Meridian owns neutral meteorological data and reasoning. Each consuming application owns its UI,
+navigation, saved places, personal preferences, notifications, practical recommendations, and the
+order in which it adopts engine features. Meridian does not define or schedule a consumer's
+feature-by-feature migration. Use the current root `PLAN.md` for Meridian's public contracts and
+milestones; record each consumer's implementation plan only in that consumer's repository.
 
 ## 9. Milestones
 
-Specs written so far: M1 `docs/specs/M1_FORECAST.md`, M2 `M2_PROVENANCE.md`, M3 `M3_ALERTS.md`
-(complete, including the FOSS Public Alert Server), M4 `M4_OBSERVATIONS.md`, M5 `M5_BLEND.md`, M6
-`M6_ALERTS_IN_SOLSTICE.md`, M7 `M7_LEARNING.md`; M0's checklist `M0_REPO.md`. M8 has none yet.
+Historical research specifications once listed M1–M7. Treat their presence as research only; the current root `PLAN.md` and approved milestone specifications define what may be implemented. Consumer-specific adoption proposals are not Meridian specifications.
 
 Each substantive capability needs an independently written specification, relevant public sources, and acceptance criteria before implementation. Agents may decide routine technical details within an approved milestone and specification; owner review is required for product scope, privacy, legal/licensing, paid costs, public contracts, strategic compatibility, or changes to the approved scientific method. Follow `PLAN.md` and `RULES.md`.
 
@@ -178,7 +175,7 @@ Each substantive capability needs an independently written specification, releva
 | M3 | Alerts: CAP parsing, WMO and FPAS, merging duplicates | Recorded real alerts (Mexico, US, Germany) merge correctly |
 | M4 | Observations: nearest airport, current conditions rule | Current conditions in CDMX come from MMMX when fresh |
 | M5 | Blend and spread: several models, ensemble spread | Blend beats or matches best match on the archive check |
-| M6 | Solstice reads alerts from Meridian (first feature switched) | Alerts on the phone come from Meridian, checked against recorded real alerts |
+| M6 | Consumer integration compatibility (only if retained by the current master plan) | A separate consumer fixture verifies the approved public contract; adoption sequence and product behavior remain consumer-owned |
 | M7 | Learning on the phone: log, decaying-average correction, skill weights | Error drops on the archive check; shown in the sources sheet |
 | M8 | macOS framework build (for the menu bar app) | A Swift sample prints a forecast |
 
@@ -196,7 +193,7 @@ Each substantive capability needs an independently written specification, releva
 
 ## Historical decisions (superseded where they conflict with the master plan)
 
-The 2026-11-23 preference for Room is not an adopted storage decision. M0.2 leaves concrete storage optional and subject to target/consumer proof. The old feature-by-feature Solstice migration sequence and original M0 start date are historical notes, not current instructions.
+The 2026-11-23 preference for Room is not an adopted storage decision. M0.2 leaves concrete storage optional and subject to target/consumer proof. The old consumer feature-by-feature migration sequence and original M0 start date are historical notes, not current instructions.
 
 ## Consulted
 
