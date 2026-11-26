@@ -5,11 +5,23 @@ import MeridianShared
 final class ProbeUseTests: XCTestCase {
 
     func testSwiftConsumesM02WeatherContractWithoutSolstice() async throws {
-        let summary = try await WeatherContractDemo.shared.verifySampleRequest()
-        XCTAssertEqual(
-            summary,
-            "current=available;hourly=unavailable;air=18.0C;apparent=21.0C"
-        )
+        let finished = expectation(description: "M0.2 Kotlin suspend contract returns to Swift")
+        let operation = Task {
+            do {
+                let summary = try await WeatherContractDemo.shared.verifySampleRequest()
+                XCTAssertEqual(
+                    summary,
+                    "current=available;hourly=unavailable;air=18.0C;apparent=21.0C"
+                )
+                finished.fulfill()
+            } catch {
+                XCTFail("M0.2 suspend contract failed: \(error)")
+                finished.fulfill()
+            }
+        }
+
+        await fulfillment(of: [finished], timeout: 5)
+        operation.cancel()
     }
 
     func testSwiftCanCallSharedKotlinFramework() {
