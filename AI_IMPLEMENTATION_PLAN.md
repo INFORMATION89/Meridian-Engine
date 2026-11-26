@@ -395,14 +395,14 @@ At the latest recorded review on 2026-11-26:
 
 - The revised master plan is merged into main and is authoritative.
 - AI_COST_POLICY.md is merged and approved.
-- PR #2 remains the open Draft MER-0.1 platform proof. Six CI jobs passed on head bd395b5fd3a8eb03c96528eb429b183125eaf007, but the proof is not yet complete.
+- PR #2 was closed unmerged while still Draft on 2026-11-26 to clear unfinished open PRs; its source branch `spike/m0.1-kmp-platform-proof` is preserved at head bd395b5fd3a8eb03c96528eb429b183125eaf007. Six CI jobs passed for that exact head in run 45736878709, but the proof is not complete and none of its remaining gates were waived.
 - PR #2 carries a root Apache License 2.0 LICENSE and README.md on its branch; these are not yet on main. Reconcile the README's KMP/JVM proposal with the unresolved stack decision before merging.
 - No production weather provider, production forecast pipeline, stable public API, or production storage contract is authorized merely by the current platform proof.
 - Root LICENSE/README bootstrap and complete direct/transitive licensing/NOTICE decisions remain part of M0.
 
 ### Next bounded task
 
-Finish the outstanding MER-0.1 evidence on the current PR #2 head:
+Continue the preserved MER-0.1 source branch and open/recreate its PR when the evidence and review package are ready. Finish the outstanding evidence on the exact current branch head:
 
 1. Confirm latest checks still match the exact head SHA.
 2. Exercise actual Android, Darwin, and JVM Ktor engines using deterministic fixtures.
