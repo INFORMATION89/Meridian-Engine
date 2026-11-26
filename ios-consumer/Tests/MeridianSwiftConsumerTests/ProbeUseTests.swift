@@ -3,6 +3,15 @@ import MeridianShared
 @testable import MeridianSwiftConsumer
 
 final class ProbeUseTests: XCTestCase {
+
+    func testSwiftConsumesM02WeatherContractWithoutSolstice() async throws {
+        let summary = try await WeatherContractDemo.shared.verifySampleRequest()
+        XCTAssertEqual(
+            summary,
+            "current=available;hourly=unavailable;air=18.0C;apparent=21.0C"
+        )
+    }
+
     func testSwiftCanCallSharedKotlinFramework() {
         XCTAssertEqual(ProbeUse.run(), "meridian:13")
         XCTAssertEqual(MeridianProbe().version, "0.1.0")
