@@ -1,0 +1,62 @@
+name: Publish native GitHub Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "wiki/**"
+      - ".github/workflows/publish-wiki.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-meridian-wiki
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Sync Markdown pages to GitHub Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate Wiki publishing secret
+        env:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
+        run: |
+          if [ -z "$WIKI_TOKEN" ]; then
+            echo "::error::Repository secret WIKI_TOKEN is missing. See wiki/README.md."
+            exit 1
+          fi
+
+      - name: Clone native Wiki repository
+        env:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
+        run: |
+          AUTH="$(printf 'x-access-token:%s' "$WIKI_TOKEN" | base64 | tr -d '\n')"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH" clone \
+            "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-repo
+
+      - name: Copy managed pages without replacing Home
+        run: |
+          # Home.md and README.md are intentionally not managed by this publisher.
+          find wiki -maxdepth 1 -type f ! -name 'README.md' -exec cp {} wiki-repo/ \;
+
+      - name: Commit and publish changes
+        working-directory: wiki-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- .
+          if git diff --cached --quiet; then
+            echo "Wiki is already up to date."
+            exit 0
+          fi
+          git commit -m "docs(wiki): sync pages from main repository"
+          git push origin HEAD
