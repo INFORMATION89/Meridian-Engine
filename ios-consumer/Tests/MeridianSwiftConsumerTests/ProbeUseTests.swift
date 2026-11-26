@@ -36,6 +36,40 @@ final class ProbeUseTests: XCTestCase {
         wait(for: [finished], timeout: 10)
     }
 
+    func testDarwinEngineMapsHttpAndMalformedResponses() {
+        let status = expectation(description: "Darwin maps HTTP status")
+        IosKtorProbe.shared.verifyHttpStatusFailure(url: "http://localhost:8765/status/503") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            status.fulfill()
+        }
+
+        let malformed = expectation(description: "Darwin maps malformed payload")
+        IosKtorProbe.shared.verifyMalformedResponseFailure(url: "http://localhost:8765/malformed.json") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            malformed.fulfill()
+        }
+        wait(for: [status, malformed], timeout: 10)
+    }
+
+    func testDarwinEngineMapsTimeoutAndTransportFailures() {
+        let timeout = expectation(description: "Darwin maps request timeout")
+        IosKtorProbe.shared.verifyTimeoutFailure(url: "http://localhost:8765/slow") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            timeout.fulfill()
+        }
+
+        let transport = expectation(description: "Darwin maps connection failure")
+        IosKtorProbe.shared.verifyTransportFailure(url: "http://127.0.0.1:8766/offline") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            transport.fulfill()
+        }
+        wait(for: [timeout, transport], timeout: 10)
+    }
+
     func testSqliteDriverCanReopenDatabase() {
         XCTAssertTrue(IosStorageProbe.shared.verifyReopen())
     }
