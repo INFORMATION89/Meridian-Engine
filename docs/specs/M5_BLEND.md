@@ -15,9 +15,7 @@ Equal weights first; skill weights come once M7's statistics exist (the switch i
 - Each variable comes back per model (suffixed by model id). A model without a variable, or past its
   range, is simply absent for those hours; the blend uses whoever is there.
 - Call weight grows with models × variables × days (M2 counts it). One request for all models.
-- Spread from Open-Meteo's ensemble API (`ensemble-api.open-meteo.com/v1/ensemble`) for temperature
-  and precipitation, one ensemble from configuration: its members' standard deviation and the share
-  of members with rain.
+- Ensemble spread may be obtained from a provider's documented ensemble product when available. Preserve the ensemble product, member population, event threshold/window, and method. A member fraction may be a source-defined event probability, but its reliability/calibration must not be assumed; keep it distinct from deterministic-model agreement and report calibration status.
 
 ## Blending
 
@@ -44,9 +42,7 @@ Daily values are made from the blended hours (max, min, sums), never blended sep
 
 - **Model spread:** the range (min to max) and standard deviation across models, per hour.
 - **Ensemble spread:** as above, when available.
-- `spread` in `MeridianResult` holds the larger of the two standard deviations per hour, and the
-  range. Confidence in words (SOURCES.md, confidence dots) from thresholds in configuration, e.g.
-  temperature spread under 1.5 °C high, over 4 °C low.
+- `spread` may retain appropriate dispersion and range statistics with clear provenance. Do not turn spread alone into a verbal confidence label. Any consumer-facing confidence category needs a documented definition, variable/lead-specific evidence, validated thresholds, and uncertainty limitations; thresholds in this draft are research candidates only.
 
 ## Tests
 
