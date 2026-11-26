@@ -38,7 +38,7 @@ The design target includes:
 - Android
 - iOS
 
-The goal is a consistent weather API and shared meteorological behaviour across those platforms. The exact technology and packaging strategy is still being evaluated. Kotlin Multiplatform and Rust are both candidates; neither is approved as the final production stack yet.
+The goal is a consistent weather API and shared meteorological behaviour across those platforms. The approved initial technology is Kotlin Multiplatform for the shared core, Ktor for HTTP, and optional SQLDelight/SQLite behind a storage contract. Desktop uses JVM-first distribution on Windows, macOS, and Linux; iOS is consumed through a Swift-friendly framework facade. Rust/UniFFI and native desktop libraries are deferred unless real consumer requirements justify them.
 
 A platform is not considered supported just because the code compiles. Its actual library or framework must be loaded and exercised by the kind of application expected to use it.
 
