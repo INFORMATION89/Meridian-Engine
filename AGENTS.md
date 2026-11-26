@@ -65,7 +65,7 @@ Follow `CLEAN_ROOM.md`. Use public technical documentation, standards, papers, a
 3. Make the smallest coherent change that satisfies the active task.
 4. Keep generated bindings reproducible; do not hand-edit generated output.
 5. Keep tests deterministic and offline unless the specification explicitly requires a live integration check.
-6. Run the checks relevant to the change. Report exact commands and distinguish checks that were not run.
+6. Follow the cost-aware verification plan in `RULES.md` section 12: batch coherent changes before expensive CI, use the smallest relevant checks while iterating, reuse valid results, retry only failing jobs where possible, and stop repeated infrastructure attempts after one materially different retry. Run the checks relevant to the change; report exact commands and distinguish checks that were not run.
 7. Update the relevant spec, plan, decision record, and continuation notes when their truth changes.
 8. Open a pull request with scope, rationale, sources consulted, files changed, checks performed, results by platform, and known gaps.
 9. Do not merge the pull request, change protected branch settings, publish packages, or make irreversible releases without explicit owner approval.

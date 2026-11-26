@@ -32,7 +32,7 @@ Use the same observable behaviour on all five operating systems.
 
 | OS | Build target | Required runtime check |
 |---|---|---|
-| Android | Android/Kotlin target; ARM64 remains a required production ABI | CI instrumentation on an x86_64 Android 35 emulator with KVM; ARM64 runtime is a separate device/host check |
+| Android | Android/Kotlin target; ARM64 remains a required production ABI | CI instrumentation on an x86_64 Android 35 emulator. Android ARM64 runtime and physical-device execution are deferred and are not MER-0.1 blockers under the owner's CI-only decision |
 | iOS | `iosArm64` and `iosSimulatorArm64` | Build framework; call from Swift in an ARM64 simulator; device check where available |
 | Windows | Desktop `jvm()` | Run the same JVM artifact on Windows x64 with the chosen JDK |
 | macOS | Desktop `jvm()` | Run the same JVM artifact on Apple Silicon macOS; Intel macOS if available |
@@ -59,7 +59,7 @@ Build a small isolated test that:
 - uses a JVM engine (for example CIO) for desktop;
 - serializes/deserializes a local fixture without requiring live network access.
 
-Do not make a live provider request. Record the exact client engine and dependency version for each target.
+Do not make a live provider request. Record the exact client engine and dependency version for each target. For MER-0.1, one deterministic HTTP request to a local fixture through each selected platform engine is the required transport smoke test. Timeout policy, detailed transport-error mapping, and consumer-boundary cancellation belong to the MER-0.2 API/error/cancellation contract unless a concrete MER-0.1 blocker is found and the owner approves expanding scope.
 
 ### Storage candidate — SQLDelight/SQLite
 
@@ -113,7 +113,7 @@ Use a results table in the pull request. Distinguish measured facts from estimat
 
 MER-0.1 is complete only when:
 
-1. The same shared probe is called successfully on Android, iOS, Windows, macOS, and Linux.
+1. The same shared probe is called successfully on Android (Android 35 x86_64 CI emulator), iOS (ARM64 Simulator/Swift consumer), Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS execution remain **NOT TESTED** and are accepted deferred limitations for this milestone.
 2. The iOS framework works through a Swift consumer in an iOS simulator.
 3. The JVM desktop artifact works on Windows, macOS, and Linux with the documented runtime.
 4. Ktor client engine candidates compile for Android, iOS, and JVM desktop.
@@ -152,7 +152,7 @@ Use one common Ktor request/response implementation and inject the engine at the
 - iOS: Darwin engine, backed by Apple's URL loading stack.
 - JVM desktop: CIO as the initial lightweight candidate; compare Java engine only if a concrete requirement justifies it.
 
-Ktor also documents CIO on JVM, Android, and Native targets. Do not make an engine choice from documentation alone: exercise fixture requests, cancellation, timeout, TLS defaults, and error mapping on the real targets. Keep live provider calls out of MER-0.1.
+Ktor also documents CIO on JVM, Android, and Native targets. Do not make an engine choice from documentation alone: exercise one local-fixture request through each selected engine on its real target. Timeout policy, detailed transport-error mapping, and consumer-boundary cancellation are addressed with the MER-0.2 public error/cancellation contract; do not expand MER-0.1 into a larger transport suite without a concrete blocker and owner approval. Keep live provider calls out of MER-0.1.
 
 Official reference: [Ktor client engines](https://ktor.io/docs/client-engines.html).
 
@@ -173,7 +173,7 @@ Use separate jobs on real OS runners:
 - `ubuntu-24.04`: Linux JVM artifact and shared/JVM tests.
 - `windows-2025`: Windows JVM artifact and persistence tests.
 - `macos-15` (Apple Silicon runner where available): iOS framework, Swift simulator consumer, and macOS JVM artifact.
-- Android emulator tests should run on an Android-capable Linux runner with KVM enabled; record emulator image and ABI. The current CI uses x86_64 for repeatable hardware-accelerated instrumentation. ARM64 remains a required production ABI and must be marked NOT TESTED until exercised on a physical ARM64 device or a hosted environment with working ARM64 virtualization.
+- Android emulator tests should run on an Android-capable Linux runner; prefer KVM and record emulator image and ABI. The current CI uses x86_64 for repeatable instrumentation. ARM64 remains a required production ABI but runtime validation is deferred and explicitly **NOT TESTED** for MER-0.1 under the owner's CI-only decision.
 
 GitHub's runner catalogue currently lists public-repository standard runners for Linux, Windows, and macOS, including Apple Silicon macOS runners. Pin runner labels rather than relying indefinitely on `-latest`. Hosted runner availability, Xcode image contents, and included minutes are operational constraints to record. A successful cross-compile is not a substitute for executing the artifact on the target OS.
 

@@ -3,6 +3,9 @@ name: MER-0.1 platform proof
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:

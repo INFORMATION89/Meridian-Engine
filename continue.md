@@ -76,13 +76,13 @@ The experimental README and Apache-2.0 LICENSE are present; MER-0.2 API/storage 
 
 Relevant commits: `6e89b913c4939759dd4ed4701e461558345e8885` (experimental README), `f747843485e25d9f189735de5906a40c673db113` (Apache-2.0 license), `3edd52db038535ec8246958e26a4efa1ff4972c8` (MER-0.2 proposal), `a83518ada3f65e40894da4a0c3c27616631163d3` (MER-0.3 proposal).
 
-## Ktor, timeout, and cancellation
+## Ktor transport smoke test
 
-- Current tested spike candidate remains **Ktor 3.6.1**. Ktor **3.6.2 has not been adopted or validated**; reconsider it after CI metadata and platform matrix stabilize.
-- Common fixture coverage uses `MockEngine`; platform lifecycle probes create/close Android, Darwin, and CIO clients. They do not yet prove real HTTP requests through each platform engine.
-- Explicit real-engine timeout, transport-error mapping, and consumer/platform-boundary cancellation tests remain pending. Common coroutine cancellation coverage is not equivalent to platform-boundary cancellation coverage.
-- Run #142 reached Android instrumentation after KVM emulator boot but failed during APK resource compilation: dependency verification lacked the Linux AAPT2 checksum. It did not validate TCG fallback.
-- The workflow now explicitly requests TCG fallback (`ANDROID_I_WANT_MY_TCG=yes`) with a 900-second boot timeout. Fallback remains **UNVERIFIED** until instrumentation completes successfully with KVM unavailable. A KVM-enabled success cannot establish fallback behavior.
+- Current tested spike candidate remains **Ktor 3.6.1**. Ktor **3.6.2 has not been adopted or validated**; reconsider it only after the current dependency metadata and platform matrix stabilize.
+- MER-0.1 requires one deterministic local-fixture HTTP request through each selected real engine: Android, Darwin, and JVM/CIO. The CI implementation now adds those smoke tests; their status must be read from the exact final workflow SHA.
+- The common `MockEngine` fixture test remains useful for shared request/response logic, but it does not replace the platform-engine smoke tests.
+- Timeout policy, detailed transport-error mapping, and consumer-boundary cancellation are not additional MER-0.1 acceptance gates. Define and test those behaviours with the MER-0.2 public API/error/cancellation contract. Do not add a larger transport test suite without a concrete blocker and owner approval.
+- No-KVM TCG fallback is optional CI-resilience work and remains deferred. A KVM-enabled success does not establish TCG fallback behavior.
 
 ## Android ARM64 and physical-device coverage
 
@@ -91,7 +91,7 @@ Relevant commits: `6e89b913c4939759dd4ed4701e461558345e8885` (experimental READM
 ## Gates before MER-1
 
 1. Keep the CI evidence tied to the exact tested commit and review the M0.1 language/target, driver matrix, and packaging recommendation. The owner has accepted CI-only validation and the deferral of physical-device/Android ARM64 testing; those paths remain NOT TESTED, not blockers for the current milestone.
-2. Add deterministic real-engine Ktor request tests for Android, Darwin, and JVM/CIO in CI, plus timeout, transport-error mapping, resource close, and consumer-boundary cancellation coverage. Do not claim full engine parity before these CI checks pass.
+2. Verify the single deterministic local-fixture request through Android, Darwin, and JVM/CIO engines in CI. Keep timeout policy, transport-error mapping, and consumer-boundary cancellation for the MER-0.2 contract unless a concrete blocker justifies additional MER-0.1 scope.
 3. Re-check the branch head and workflow after every material change; keep one exact SHA tied to the final evidence matrix.
 4. Keep no-KVM TCG fallback deferred for now. Run #152 used KVM; fallback remains unverified and is an optional CI-resilience question, not Android ARM64 evidence.
 5. Complete the direct/transitive dependency licence inventory and confirm whether a NOTICE is required; do not create one before confirming copyright/notice obligations.

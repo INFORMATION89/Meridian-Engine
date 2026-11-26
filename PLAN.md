@@ -168,7 +168,7 @@ Do not use a vague "cross-platform" badge without publishing this matrix.
 Build a small, non-weather proof of concept before full engine implementation:
 
 1. Create a KMP library with one shared deterministic function, one typed error, and one asynchronous operation.
-2. Build the Android target and run a smoke test on an ARM64 emulator/device.
+2. Build the Android target and run the required smoke test on an Android 35 x86_64 CI emulator. Android ARM64 runtime and physical Android/iOS execution remain **NOT TESTED** and are deferred under the owner's CI-only acceptance for MER-0.1; never infer them from x86_64 emulator or iOS Simulator results.
 3. Build an iOS framework and run a Swift consumer in an ARM64 simulator; test on a device where available.
 4. Build the Desktop JVM artifact and run the same probe on Windows, macOS, and Linux with a supported JDK.
 5. Validate a minimal Ktor request/serialization slice for Android, iOS, and JVM desktop.
@@ -337,7 +337,7 @@ Provider rules:
 
 ## 11. Milestones and acceptance criteria
 
-Each milestone follows the same cycle: **research → specification → owner approval → implementation in a separate coding task → deterministic tests → platform check → documentation update.**
+Each milestone follows the same cycle: **research → specification → owner approval → implementation in a separate coding task → deterministic tests → platform check → documentation update.** Verification must follow the cost-aware plan in `RULES.md` section 12: batch coherent changes, reuse valid results, prefer focused checks during iteration, and avoid repeating full matrices without a technical reason.
 
 | Milestone | Scope | Acceptance criteria |
 |---|---|---|
