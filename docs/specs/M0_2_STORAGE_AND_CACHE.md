@@ -2,7 +2,7 @@
 
 - **Status:** Design proposal for M0.2 review; no persistent schema or retention policy is approved by this document.
 - **Baseline:** storage-optional engine; SQLDelight/SQLite is a candidate implementation behind an engine-owned boundary.
-- **Authority:** `PLAN.md`, `RULES.md`, `M0_2_CONTRACT_DESIGN.md`, and the owner-approved privacy/product decisions.
+- **Authority:** `PLAN.md`, `RULES.md`, ADR-0003, `M0_2_CONTRACT_DESIGN.md`, and the owner-approved privacy/product decisions.
 
 ## 1. Goals and non-goals
 
