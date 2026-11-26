@@ -150,6 +150,7 @@ Establish credible platform, consumer, networking-candidate, storage-driver, pac
 - Canonical PR: [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15), branch `work/m0.1-platform-proof-refresh`.
 - Current recorded complete matrix: [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), code commit `91996fb7c190f80899261eb2ff21630b5e564209`.
 - Run #222 passed five jobs: Android x86_64 emulator, iOS ARM64 simulator with Swift consumer, macOS/Linux/Windows Desktop JVM, and dependency/license audit.
+- The current M0.1 PR head `009e5979ce63f8b169c542d24c654fa64b59c363` passed all five jobs again in [CI run #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103). This is not M0.2 validation.
 - Recorded tests: Android instrumentation 8/8; iOS common simulator 9/9; native Swift consumer 10/10; macOS common/storage 11/11. Linux and Windows JVM consumers launched successfully.
 - Dependency audit: 402 unique third-party Maven coordinates, no missing license metadata, 54 runtime dependencies (53 Apache-2.0 and one MIT), with multi-license declarations reviewed as recorded in the M0.1 evidence.
 - Desktop app-images include project and third-party notices and retain bundled JDK legal directories.
