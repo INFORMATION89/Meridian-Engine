@@ -19,11 +19,11 @@ Any additional transport/integration checks (including real Ktor platform-engine
 
 | Pull request | Purpose | State at review | What remains |
 |---|---|---|---|
-| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Run #152 is the last complete passing matrix. Run #157 failed during Linux KGP resolution; retry pending. Real-engine Ktor tests and full dependency/licence inventory remain open. |
+| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Run #152 is the last complete passing matrix. Run #157's initial Linux KGP resolution failure was cleared by rerunning the failed job; dependent platform jobs are now executing. Commit `53de58d` adds the missing Desktop CIO lifecycle assertion; its new full run is queued. Real-engine HTTP requests/timeouts/error mapping and the complete dependency/licence inventory remain open. |
 | [PR #3](https://github.com/INFORMATION89/Meridian-Engine/pull/3) | Duplicate MER-0.1 platform spike | Closed, not merged | Superseded by PR #2; no unique production functionality lost. |
-| [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Open, Draft, mergeable at last check | Documentation review is complete; proposals remain explicitly non-binding until owner decisions are adopted. |
+| [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Merged (documentation-only) | Research is now in `main`; recommendations remain non-binding until explicit owner decisions are adopted. |
 
-Do not merge either PR merely because the workflows are green. They have different purposes and separate owner gates.
+PR #2 remains separate from the research baseline and must not be merged until its implementation evidence, dependency/licence review, and owner approval gates are satisfied. PR #3 is closed as superseded. PR #4 was merged solely to preserve the research/reference baseline; this does not approve its proposed architecture or authorize MER-1.
 
 ## 2. MER-0.1 — outstanding engineering/evidence
 
@@ -133,14 +133,16 @@ A minimum independent sample consumer should prove the approved contract without
 
 ## 6. Research-document review
 
-Before PR #4 is accepted:
+PR #4 was reviewed and merged as a documentation-only research baseline.
 
-- [ ] Review the five documents as proposals, not approved implementation requirements.
-- [ ] Check the authority map and relative links.
-- [ ] Check each current provider claim against the linked official documentation and the recorded review date.
-- [ ] Decide whether the architecture recommendations should be incorporated into PLAN.md and the MER-0.2/MER-0.3 specs after approval.
-- [ ] Resolve legacy documentation conflicts only in the authoritative files, not by creating competing sources of truth.
-- [ ] Keep the research branch and PR #2 independent.
+- [x] Review all six documents as proposals, not approved implementation requirements.
+- [x] Check the research index and its five relative document links.
+- [x] Keep the research branch and PR #2 independent.
+- [ ] Complete provider-specific legal/terms review against the exact datasets and deployment model before any provider integration.
+- [ ] Transfer only explicitly approved recommendations into PLAN.md and the MER-0.2/MER-0.3 specifications.
+- [ ] Resolve legacy documentation conflicts only in authoritative files, not by creating competing sources of truth.
+
+Merging research documents does not approve their recommendations, establish provider rights, or authorize production weather implementation.
 
 ## 7. Owner decisions — concise review set
 
