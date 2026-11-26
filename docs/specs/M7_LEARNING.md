@@ -1,14 +1,10 @@
-# Meridian M7: learning on the phone
+# Meridian M7: local verification and evidence-based learning
 
-Status: **spec, clean room step 1** (2026-11-24), from the published methods in MERIDIAN_PLAN.md
-section 6 (NCEP's decaying-average bias correction, inverse-RMSE weights) and ENGINE_SPEC.md section 8.
-No other engine's code read.
+**Status:** historical method proposal (2026-11-24), not an approved learning algorithm or automatic adaptation policy. Root `PLAN.md` defines the M7 Level 2 regional-intelligence gate. The methods below are candidates for evaluation only; no correction or adaptive weight is activated merely because data has accumulated.
 
 ## Scope
 
-For each saved place: log what each model forecast and what the nearest airport later measured, learn
-each model's bias and error, correct the next hours with the bias, and feed the errors to M5's skill
-weights. Everything stays on the phone (RULES.md section 10); kept 30 days.
+Use verified forecast/observation pairs from explicit consumer requests to calculate local skill statistics where the source, station quality, and spatial/temporal matching are adequate. The consumer owns the saved-place list and refresh schedule; Meridian must not track places in the background. Store only the minimum spatial context needed for verification. Keep the initial recent learning/verification window bounded and configurable at 30 days; this does not set retention for cache, historical archives, or climatological records. All data remains local by default.
 
 ## What gets logged
 
@@ -16,20 +12,17 @@ weights. Everything stays on the phone (RULES.md section 10); kept 30 days.
   buckets that will be verified (configuration; default the hours at +1, +3, +6, +12, +24, +48, +72
   and then daily to +7 days), with issue time. Not every hour of every refresh: one row per model,
   variable, valid hour and lead bucket, the latest issue winning.
-- **Observations:** from M4, for the place's chosen station.
+- **Observations:** from M4's quality-controlled, variable-specific representative observation selection; nearest airport is not automatically acceptable.
 - **Variables at first:** temperature and dew point (corrected); rain (verified only, Brier score,
   never corrected at first).
 
 ## Matching
 
-A forecast for hour H is verified by the station's report closest to H within ±30 minutes
-(configuration). No report: no error for that hour (never filled in). The station must still pass
-M4's distance and elevation rule; if the place's station changes, its statistics start again.
+A forecast for hour H is verified only against an observation that meets the approved quality, measurement-time, spatial representativeness, elevation, and matching-tolerance criteria for that variable. The ±30-minute tolerance in this draft is a candidate to validate, not a universal default. Missing or rejected observations produce no error sample; they are never filled or treated as zero.
 
 ## Statistics
 
-Kept per place, model, variable, lead bucket (0–24 h, 24–72 h, 3–7 days) and hour-of-day bucket
-(configuration, default 3-hour blocks: errors change through the day):
+Kept per the privacy-safe spatial key approved in M0.2, model, variable, lead bucket and any justified temporal bucket. The precise spatial resolution and keying strategy remain an M0.2 contract decision; do not create a saved-place history.
 
 - `bias`: decaying average of error (forecast − observation):
   `bias ← (1 − w) · bias + w · error`, with `w = max(w_min, 1 / n)` so the first values are a plain
@@ -49,13 +42,9 @@ Kept per place, model, variable, lead bucket (0–24 h, 24–72 h, 3–7 days) a
 - Shown in provenance (M2's `correction`) and in the sources sheet: "Adjusted −0.8° from 30 days of
   Mexico City airport reports". A switch in Settings › Data and sources turns it off.
 
-## Seeding from public data (so it works from day one)
+## Optional historical initialization (research candidate, not an automatic background task)
 
-When a place is added and its station is known, one background job fetches 30 days of past forecasts
-from Open-Meteo's **Previous Runs API** (not the Historical Forecast API, which stitches each run's
-first hours; see MODEL_TEST_SPEC.md) and the station's reports (aviationweather.gov's 30-day history),
-and computes the starting statistics. It counts against M2's limits and runs only on Wi-Fi or when
-the person allows it (configuration).
+The earlier proposal to fetch 30 days of archive data automatically when a place is added is not adopted. A future M7 experiment may use a suitable historical forecast archive and matched observations only after verifying access terms, licence, attribution, product/run semantics, regional coverage, request cost, and data quality. The host must explicitly authorize any potentially large download. Do not substitute stitched historical series or reanalysis for archived issued runs without documenting the change in research question and methodology.
 
 ## Skill weights
 
@@ -64,9 +53,7 @@ correction switch on separately, each only after its own archive check.
 
 ## Storage
 
-M2's `StatRow` holds one row per statistic key. Forecast and observation logs older than 30 days are
-deleted (`deleteOlderThan`); statistics keep only what the window needs. Settings › Privacy › Clear
-removes all of it.
+M2's `StatRow` holds one row per statistic key. Recent local learning/verification records older than the configured rolling window (initially 30 days) are deleted or compacted according to the approved M0.2/M7 storage contract. This does not apply to separately licensed historical/climatological datasets. The host must expose appropriate deletion/clear controls and Meridian must not own the privacy/settings UI.
 
 ## Tests
 
@@ -79,7 +66,7 @@ removes all of it.
 
 ## Done when
 
-Error drops on the archive check; shown in the sources sheet (MERIDIAN_PLAN.md section 9).
+Any enabled correction or weighting method demonstrates repeatable improvement on the approved independent regional/variable/lead-time evaluation without unacceptable regressions. Results and correction provenance remain available to consumers; no automatic promotion occurs without the M7 acceptance gate and owner review of the scientific method.
 
 ## Consulted
 
