@@ -22,6 +22,31 @@ final class ProbeUseTests: XCTestCase {
         wait(for: [finished], timeout: 5)
     }
 
+
+    func testSwiftCanAwaitSharedKotlinSuspendFunction() async throws {
+        let result = try await MeridianProbe().transformAsync(input: "Swift async", seed: 24)
+        XCTAssertEqual(result, "swift async:24")
+    }
+
+    func testSwiftTaskCancellationPropagatesToKotlinSuspendFunction() async throws {
+        let operation = Task {
+            try await MeridianProbe().awaitCancellation()
+        }
+
+        // Let the Kotlin coroutine enter its suspension point before cancelling.
+        try await Task.sleep(for: .milliseconds(50))
+        operation.cancel()
+
+        do {
+            _ = try await operation.value
+            XCTFail("Expected Swift task cancellation to cancel the Kotlin coroutine")
+        } catch is CancellationError {
+            // Expected: cancellation crosses the Swift/Kotlin boundary.
+        } catch {
+            XCTFail("Expected CancellationError, received: \(error)")
+        }
+    }
+
     func testDarwinKtorEngineCanBeCreatedAndClosed() {
         XCTAssertTrue(IosKtorProbe.shared.verifyClientLifecycle())
     }
