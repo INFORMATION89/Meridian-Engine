@@ -552,7 +552,7 @@ The responsible agent should research these, recommend a bounded solution, recor
 
 ### Next task: finish MER-0.1 evidence, not weather features
 
-1. Review PR #2's exact current head and its latest CI evidence; do not rely only on an older successful run if the branch has advanced.
+1. Inspect the preserved `spike/m0.1-kmp-platform-proof` branch at its exact current head and verify the latest CI evidence belongs to that SHA. Open or recreate the PR only when the remaining evidence and owner-review package are ready; do not rely on an older successful run if the branch has advanced.
 2. Add deterministic fixture requests through the actual Android, Darwin, and JVM/CIO Ktor engines. A common MockEngine test alone does not prove real engine behaviour.
 3. Test timeout behaviour, transport/parse error mapping, resource close/disposal, and consumer-boundary cancellation on the relevant CI targets.
 4. Complete direct and transitive licence inventory for runtime, test, build, and packaging dependencies; decide whether NOTICE or additional third-party notices are required.
