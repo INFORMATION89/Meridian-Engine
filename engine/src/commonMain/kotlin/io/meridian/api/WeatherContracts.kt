@@ -67,6 +67,8 @@ data class WeatherDatum(
     val value: Double,
     val unit: String,
     val validAtEpochMillis: Long,
+    val issuedAtEpochMillis: Long? = null,
+    val observedAtEpochMillis: Long? = null,
     val dataKind: WeatherDataKind,
     val sourceId: String,
     val method: String,
