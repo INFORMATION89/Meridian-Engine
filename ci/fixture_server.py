@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Deterministic local-only HTTP fixtures for MER-0.1 consumer-boundary tests."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from threading import Event
 import time
+
+
+cancel_started = Event()
 
 
 class FixtureHandler(BaseHTTPRequestHandler):
@@ -18,6 +22,18 @@ class FixtureHandler(BaseHTTPRequestHandler):
             self.send_payload(200, b'{"status":"ok"}')
         elif self.path == "/slow":
             self.send_delayed_payload(200, b'{"status":"ok","source":"local-fixture"}', 0.35)
+        elif self.path == "/cancel":
+            cancel_started.set()
+            time.sleep(3)
+            self.send_payload(200, b'{"status":"ok","source":"local-fixture"}')
+        elif self.path == "/cancel/reset":
+            cancel_started.clear()
+            self.send_payload(200, b'{"status":"reset"}')
+        elif self.path == "/cancel/started":
+            if cancel_started.is_set():
+                self.send_payload(200, b'{"status":"started"}')
+            else:
+                self.send_payload(404, b'{"status":"pending"}')
         else:
             self.send_payload(404, b'{"error":"not found"}')
 

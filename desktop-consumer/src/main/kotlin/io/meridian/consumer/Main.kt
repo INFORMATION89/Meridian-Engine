@@ -17,7 +17,7 @@ suspend fun main() {
     check(DesktopKtorProbe.verifyFixtureFailure("http://127.0.0.1:8765/malformed.json", ProbeErrorCode.MALFORMED_RESPONSE))
     check(DesktopKtorProbe.verifyFixtureFailure("http://127.0.0.1:8765/empty.json", ProbeErrorCode.EMPTY_RESPONSE))
     check(DesktopKtorProbe.verifyFixtureFailure("http://127.0.0.1:8765/partial.json", ProbeErrorCode.PARTIAL_RESPONSE))
-    check(DesktopKtorProbe.verifyFixtureCancellation("http://127.0.0.1:8765/slow"))
+    check(DesktopKtorProbe.verifyFixtureCancellation("http://127.0.0.1:8765/cancel"))
     check(DesktopKtorProbe.verifyFixtureFailure("http://127.0.0.1:8765/slow", ProbeErrorCode.TIMEOUT, 50))
     check(DesktopKtorProbe.verifyFixtureFailure("http://127.0.0.1:8766/offline", ProbeErrorCode.TRANSPORT))
     check(DesktopStorageProbe.verifyReopen())

@@ -48,7 +48,7 @@ final class ProbeUseTests: XCTestCase {
 
     func testDarwinEngineMapsTimeoutAndTransportFailures() async throws {
         let timeout = try await IosKtorProbe.shared.verifyTimeoutFailure(
-            url: "http://localhost:8765/slow"
+            url: "http://127.0.0.1:8765/cancel"
         )
         XCTAssertTrue(timeout.boolValue)
 
