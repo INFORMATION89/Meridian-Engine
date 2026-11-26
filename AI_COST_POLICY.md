@@ -30,7 +30,32 @@ Do not invent a monetary budget or assume a service is free. Record actual usage
 5. When a task approaches a quota, budget, or usage limit, stop optional work, preserve required checks, and report the constraint. Do not silently switch to a paid service.
 6. A change to this policy, an increase in an approved budget, or a new paid capability requires an explicit decision recorded in the project's authoritative documentation.
 
-## 3. Plan before using AI or tools
+## 3. Subscription limits and usage accounting
+
+AI use may consume an included subscription allowance even when no per-token invoice is issued. Treat that allowance as a finite project resource, not as unlimited usage.
+
+- Identify the real access path before estimating use: a subscription/seat allowance, prepaid or extra-usage credits, direct API billing, a third-party cloud-provider account, or local inference. These are different billing and limit systems.
+- For subscription access, do not convert usage into dollars using public API token prices. Monitor the plan's actual usage and reset windows through the provider's own usage screen or supported usage command. Do not claim a precise remaining allowance unless the account exposes it.
+- For direct API or third-party billing, use that account's usage meter and current pricing. Do not assume subscription credits cover API-key use or that API prompt-caching discounts apply to subscription limits.
+- Never enable extra-usage credits, API fallback, auto-reload, paid overages, or a different paid provider to bypass an included-plan limit without explicit owner approval.
+- A provider's model context window is not the same as the plan's usage allowance. A session may fit in the context window and still consume a substantial part of a subscription's rolling or weekly quota.
+- Record actual quota/usage observations only when visible. Otherwise say that exact consumption is unknown; do not infer a percentage from message counts or token estimates.
+
+## 4. Budget the work, not just the prompt
+
+Before a long or multi-step coding task:
+
+1. Confirm the objective, acceptance criteria, and smallest useful deliverable. Separate required work from optional cleanup or research.
+2. Check the current plan/session allowance when the provider exposes it. Avoid repeated usage checks when nothing has changed.
+3. Decide which assistant or tool owns each phase. When a human or another assistant has already researched and planned the task, give the execution agent a concise handoff instead of asking it to repeat the same repository exploration.
+4. Split large work into bounded tasks or PRs. Do not keep one conversation open indefinitely to preserve context; do not start a new conversation for every tiny follow-up either.
+5. Prefer one active agent session for a task. Parallel sessions and subagents multiply model usage and should be used only for genuinely independent work whose benefit justifies that extra allowance.
+6. When the allowance is getting low, prioritize finishing and verifying the current scoped task. Defer optional research, cosmetic refactors, duplicate reviews, and unrelated follow-ups rather than spending the remaining quota on them.
+7. Finish with a concise, durable handoff in the PR or project notes so another session can continue without replaying the whole conversation.
+
+A task is efficient when it is correctly completed and verified with proportionate usage—not when it uses the fewest messages at the expense of rework.
+
+## 5. Plan before using AI or tools
 
 Before a non-trivial task:
 
@@ -42,19 +67,26 @@ Before a non-trivial task:
 
 Stop investigating when the evidence is sufficient to make and verify the requested change. Do not continue searching merely to collect more examples or produce a longer report.
 
-## 4. AI context and token efficiency
+## 6. AI context and token efficiency
 
-- Read the required project instructions, then inspect only the relevant files and line ranges. Do not load the entire repository or repeat large file reads without a reason.
-- Prefer targeted search and relevant excerpts before fetching complete files.
-- Reuse a verified result only when it still refers to the exact relevant commit, file version, toolchain, and environment. Re-check when any of those inputs change.
-- Keep working context focused on the active task. Summarize necessary findings when handing work between sessions or agents; do not carry unrelated discussion, duplicate logs, or large raw outputs forward.
-- Prefer concise prompts, structured findings, and small diffs. Avoid repeatedly restating instructions, regenerating unchanged documents, or producing large outputs that no reviewer needs.
-- Use deterministic scripts, formatters, compiler diagnostics, and local repository tools for mechanical work instead of spending model calls on tasks those tools perform reliably.
-- Use the least costly model/capability that can complete the task safely. Escalate to a more capable or costly model only for a concrete complexity or risk that the current method cannot handle.
-- Do not fan out multiple agents for one task unless the subtasks are genuinely independent and parallel work reduces total cost or risk. Assign non-overlapping scopes and avoid duplicate repository exploration.
+Context management is both a usage-control measure and a correctness measure. More context is not automatically better. A growing session can consume more of a subscription allowance or billable input, occupy more of the model's context window, and make important decisions harder to retrieve. The exact effect depends on the provider, product surface, caching, and account plan.
+
+- Organize work into bounded tasks, normally one issue, one milestone subtask, or one coherent PR at a time. Keep the objective and acceptance criteria visible.
+- Keep always-loaded agent instructions concise. Put detailed procedures in referenced policies, milestone specifications, or optional guides instead of duplicating them across every instruction file.
+- Read mandatory instructions and only the relevant sections of long plans. Use targeted repository search and line ranges before fetching whole files. Do not load the full repository or an entire master plan for routine implementation tasks.
+- Avoid repeatedly pasting or reading the same code, specifications, logs, generated files, build output, or conversation history. Refer to file paths and request focused excerpts.
+- Reuse a verified result only when it refers to the exact relevant commit, file version, toolchain, and environment. Do not repeat repository exploration when nothing relevant has changed.
+- Keep the active conversation focused. When switching to an unrelated task, start a fresh session/conversation when appropriate. When continuing a long task, use the provider's compaction or summary mechanism and verify that essential decisions, commit identifiers, tests, blockers, and next actions survived.
+- At a task boundary, preserve a concise durable handoff: repository and branch, exact commit, objective, approved scope, decisions, files changed, verification, limitations, and next action. Put durable decisions in repository documents or PRs, not only in chat history.
+- Context capacity, subscription allowance, API billing, and caching are separate concepts. Cached input may reduce repeated-input charges or count differently against some plans, but it still occupies context capacity. Never assume an API cache discount applies to subscription usage.
+- Prefer concise prompts, structured findings, small diffs, and proportionate tool output. Avoid repeatedly restating instructions or producing long reports that no reviewer needs.
+- Use deterministic scripts, formatters, compiler diagnostics, and local repository tools for mechanical work instead of asking a model to reason through output a tool can verify.
+- Choose a model and reasoning/effort level appropriate to task risk. A lighter or default model is usually sufficient for routine implementation; reserve heavier reasoning for complexity that warrants it. Model names and effort levels are not directly comparable across providers.
+- Measure efficiency by correctly completed and verified work per unit of available usage, not by token price alone. A cheaper model that needs repeated retries or extensive human repair may cost more overall.
+- Do not fan out agents for a single task unless the subtasks are genuinely independent and the benefit outweighs the separate context and model usage of each agent.
 - Do not ask an AI to regenerate information already available in a trustworthy current source. Do not treat a model's confident answer as evidence.
 
-### 4.1 Provider-aware model selection: ChatGPT and Claude
+### Provider-aware model selection: ChatGPT and Claude
 
 Choose the least costly model that can reliably complete the task. Model names and availability change; the examples below describe the current selection strategy, not permanent version locks. Check the provider's current official model catalogue and pricing before configuring an API workflow.
 
@@ -62,8 +94,8 @@ Choose the least costly model that can reliably complete the task. Model names a
 |---|---|---|
 | Routine, bounded work: formatting, extraction, short summaries, simple documentation or test edits | Use an efficient model such as the currently available Luna-class option | Use Haiku-class models |
 | Standard coding: scoped implementation, ordinary debugging, focused code review | Use a balanced coding model such as the currently available Sol-class option | Use Sonnet-class models |
-| Advanced engineering: cross-module architecture, difficult root-cause analysis, complex concurrency, high-risk refactors, security-sensitive review | Use the strongest suitable reasoning model, such as the current Astra-class option, with effort matched to risk | Use **Claude Opus 5.5** when its stronger reasoning materially reduces risk, uncertainty, or rework |
-| Critical decisions: product architecture, privacy, legal, security, or irreversible changes | Use an advanced model to prepare evidence and alternatives; owner approval remains mandatory | Opus 5.5 may provide a specialist analysis or independent challenge; it does not replace owner approval |
+| Advanced engineering and independent review: cross-module architecture, difficult root-cause analysis, complex concurrency, high-risk refactors, security-sensitive review | Use a suitable advanced reasoning model with effort matched to risk | Use **Claude Opus 5.5** as an optional second reviewer after the primary implementation or analysis, when deeper independent reasoning materially reduces risk |
+| Critical decisions: product architecture, privacy, legal, security, or irreversible changes | Use an advanced model to prepare evidence and alternatives; owner approval remains mandatory | Opus 5.5 may provide an optional independent review after the initial analysis; it does not replace owner approval or authorize additional spend |
 
 #### ChatGPT-specific rules
 
@@ -77,8 +109,9 @@ Choose the least costly model that can reliably complete the task. Model names a
 
 #### Claude-specific rules
 
-- Use Haiku for routine, bounded tasks; Sonnet for ordinary engineering; reserve **Claude Opus 5.5** for complex architecture, long-running coding agents, difficult debugging, large refactors, and independent review of consequential changes.
+- Use Haiku for routine, bounded tasks and Sonnet for ordinary engineering and the initial implementation of most tasks. **Claude Opus 5.5 is recommended for tasks that benefit from an advanced second review, not as a requirement to begin work and not as automatic authorization to spend more.** Use it after an initial implementation or analysis for a focused independent review when the risk justifies the additional included usage.
 - Claude Code is appropriate when repository-aware execution is useful. Give it a bounded task, allowed scope, checkpoints, and a stop condition; do not leave it running indefinitely.
+- Do not block implementation while waiting for Opus. Start with the suitable available model, then request the optional Opus review at a useful checkpoint or before merge when it can change the decision.
 - Use adaptive thinking / effort controls proportionally. Do not request maximum effort by habit.
 - If using the API, verify the current model ID and pricing, including input, output, cache writes/reads, batch pricing, long-context tiers, and any fast-mode multiplier. Do not infer API cost from Claude subscription usage.
 
@@ -103,7 +136,28 @@ Official references:
 - [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Claude plans and pricing](https://claude.com/pricing)
 
-## 5. Tool and request efficiency
+### Optional advanced second review (Opus)
+
+**Opus is recommended for tasks that benefit from an advanced second review, not as a requirement to begin work and not as automatic authorization to spend more.**
+
+Use an Opus-class review selectively after a first implementation or analysis exists, when an independent deeper review can materially reduce risk. Good candidates include security-sensitive changes, architecture or public-contract decisions, concurrency/cancellation, cross-platform interoperability, data migrations, and scientific or forecast-algorithm changes.
+
+For coding work:
+
+1. Start with an appropriate available model and complete the scoped implementation or investigation. Do not wait for Opus before beginning routine work.
+2. When risk justifies it, ask for a second review of the concise specification, changed diff, relevant tests/evidence, and unresolved questions—not the entire conversation or repository by default.
+3. Ask the reviewer to look independently for correctness issues, hidden assumptions, missing boundary tests, security/privacy/licensing problems, compatibility regressions, and disagreements with the first result.
+4. Verify every substantive finding. A second model's opinion is not proof, does not replace required tests, and does not waive owner approval for strategic decisions.
+5. Use this review only within the already available and approved usage allowance. Do not activate paid overages, extra credits, an API fallback, a plan upgrade, or another paid provider to obtain it without explicit owner approval.
+6. Skip the optional second review when the change is routine, low-risk, reversible, or when usage is scarce and the review is unlikely to change the decision. Record why it was or was not used for high-impact work.
+
+The purpose is better assurance per unit of available usage—not more model calls for their own sake.
+
+### Provider- and model-specific guides
+
+Optional guides under `docs/agent-guides/` may describe practical usage meters, model choices, context controls, and billing behaviour for a specific product or coding environment. They must identify the provider, product surface, exact model/version where relevant, date reviewed, and official sources. They supplement this policy; they cannot override it or make one provider/model mandatory for Meridian. Do not put volatile prices, quotas, or model-specific commands in this policy.
+
+## 7. Tool and request efficiency
 
 1. Batch independent, read-only lookups when it reduces overhead and does not obscure dependencies.
 2. Use narrow repository or web searches, then expand only when results are incomplete or contradictory.
@@ -113,7 +167,7 @@ Official references:
 6. Do not download a complete historical archive when a small representative sample is sufficient for development. Use the full authorized dataset for the final scientific evaluation when the change requires it.
 7. Keep tool output proportionate: capture the failure, summary, or evidence needed for the decision rather than copying thousands of unchanged lines into the working context.
 
-## 6. Cost-aware test selection
+## 8. Cost-aware test selection
 
 Test quantity must be justified by distinct behaviours, boundaries, and failure risks—not by a target number of tests. Avoid both under-testing and redundant test volume.
 
@@ -148,7 +202,7 @@ Test quantity must be justified by distinct behaviours, boundaries, and failure 
 - Use CI caching and existing artifacts when valid. Never let a cache conceal stale inputs or replace the release verification gate.
 - Required checks still block merge and release. A cost-aware selection may omit irrelevant checks, but not a required check for the changed risk.
 
-## 7. Weather-provider and dataset usage
+## 9. Weather-provider and dataset usage
 
 - Normal automated tests must use deterministic fixtures and must not depend on live weather providers.
 - Live-provider checks are limited to cases where an adapter's real external behaviour cannot be established through fixtures. Keep them manual or scheduled where appropriate, minimally scoped, and within provider terms and limits.
@@ -157,7 +211,7 @@ Test quantity must be justified by distinct behaviours, boundaries, and failure 
 - Reuse an authorized versioned dataset for repeated experiments. Do not silently expand its retention or redistribute data beyond its licence.
 - Keep provider request cost separate from AI-token cost. A model or tool saving tokens does not justify wasting provider quotas or downloading unnecessary data.
 
-## 8. Bounded iteration and stopping rules
+## 10. Bounded iteration and stopping rules
 
 - Iterate in small steps: inspect, make a focused change, run the relevant checks, review the diff, and stop when acceptance criteria are met.
 - Do not run broad refactors, repeated regeneration, speculative benchmarks, or extra test suites outside the task scope.
@@ -165,7 +219,7 @@ Test quantity must be justified by distinct behaviours, boundaries, and failure 
 - If the remaining uncertainty is non-critical and further verification would be disproportionately costly, state the limitation and propose the narrowest follow-up check. Do not misrepresent the result as verified.
 - If a required high-cost check cannot be run within existing approved capacity, leave the change unmerged or unreleased until an approved verification path is available.
 
-## 9. Owner approval and escalation
+## 11. Owner approval and escalation
 
 Ask the owner before:
 
@@ -179,7 +233,7 @@ Ask the owner before:
 
 Routine choices—such as selecting the focused unit tests, narrowing a search, reusing a valid fixture, or choosing a low-cost local tool—do not require owner approval when they stay within the approved task and project rules.
 
-## 10. Pull-request and task reporting
+## 12. Pull-request and task reporting
 
 For non-trivial work, report:
 
@@ -193,7 +247,7 @@ For non-trivial work, report:
 
 Never claim that an unrun test, platform, live provider, archive evaluation, or licence review passed. Do not report estimated token or monetary usage as measured usage.
 
-## 11. Relationship to other project policies
+## 13. Relationship to other project policies
 
 - `AI_POLICY.md` defines what AI may and may not do during engineering/research and prohibits runtime AI dependencies.
 - `AI_COST_POLICY.md` defines how contributors and agents minimize AI, tool, CI, provider, dataset, and compute costs while preserving necessary verification.

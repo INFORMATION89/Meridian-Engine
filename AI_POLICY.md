@@ -29,7 +29,9 @@ AI may be used deliberately by project contributors during development and resea
 
 Coding agents may help with repository research, implementation, tests, refactoring, documentation, and code review. They must follow `AGENTS.md`, `RULES.md`, and `CLEAN_ROOM.md`.
 
-Agents are assistants, not project owners. Work must remain scoped, reviewable, reproducible, and subject to human approval. The owner retains authority over architecture, public APIs, algorithm changes, dependencies, releases, and destructive or externally visible actions.
+Agents are not product owners, but they are expected to exercise technical autonomy within the approved scope. For an approved milestone and specification, agents should independently choose and document routine implementation details, internal structures, test design, and reasonable supporting dependencies when the choice stays within the approved architecture, has no unapproved recurring cost or legal/privacy impact, and is verified. They should not ask the owner to make routine engineering choices that can be resolved with evidence.
+
+The owner retains authority over product scope and principles, privacy and external data-sharing policy, legal/licensing commitments, new paid or hosted services, major compatibility commitments, breaking public API decisions, persistent-data/retention policy, production-stack selection, releases, and destructive or externally visible actions. Algorithmic work must follow the approved milestone specification and scientific acceptance gates; changing the meteorological meaning, enabling an unapproved capability, or weakening an evaluation gate requires owner review. Follow PLAN.md for the complete approval boundary.
 
 ### Track B — AI-assisted manual analysis and research
 

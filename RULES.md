@@ -2,7 +2,7 @@
 
 **Project:** Meridian (the reusable weather engine)  
 **Repository:** INFORMATION89/Meridian-Engine  
-**Status:** Working rules baseline, 2026-11-25
+**Status:** Working rules baseline, reconciled with PLAN.md on 2026-11-26
 
 These rules govern the design, implementation, testing, and maintenance of Meridian. They take priority over speed and convenience. Changes to these rules require the project owner's approval and a corresponding decision record.
 
@@ -14,11 +14,11 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 1. Read before every session
 
-1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Every coding-agent session must also read AI_POLICY.md and AI_COST_POLICY.md before using AI tools or project data.
-2. Read the current decision, status, roadmap, and history documents when they exist.
+1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Every AI-assisted task must follow AI_POLICY.md and AI_COST_POLICY.md; read the sections relevant to the task rather than repeatedly loading unrelated material.
+2. Read the relevant decision, status, and roadmap sections. For PLAN.md and other long documents, search for the active milestone and read only the sections needed for the current task. Do not load the full master plan unless the task is a plan audit or rewrite.
 3. Read the approved specification for the task. A research note or draft is not automatically an approved implementation requirement.
-4. Inspect the actual repository, code, tests, and build configuration. Never assume a planned feature already exists.
-5. Report contradictions, missing decisions, and outdated documentation before relying on them.
+4. Inspect the actual repository, code, tests, and build configuration. Start with targeted searches and relevant line ranges; expand only when the evidence requires it.
+5. Report contradictions, missing decisions, and outdated documentation before relying on them. Do not repeat repository exploration already completed for the same commit unless something changed.
 
 ## 2. Meridian's purpose and boundaries
 
@@ -30,17 +30,21 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 6. Meridian returns structured, documented data. Each application decides how to present it.
 7. Accounts, analytics, advertising, tracking, social features, AI providers, model downloads, and remote services require explicit approval.
 
-## 3. Changes that require approval
+## 3. Approval boundaries and technical autonomy
 
-1. Do not independently add a weather feature, variable, source, platform, dependency, algorithm, storage capability, public API, or persistent-data format.
-2. Before a material change, explain the problem, proposed change, alternatives, trade-offs, maintenance cost, licensing implications, and affected modules. Wait for approval.
-3. A possible improvement is not permission to implement it. This includes replacing a library, changing model weights, adding a provider, or expanding platform support.
-4. If an agreed approach proves unsuitable, stop and report the evidence. Do not quietly substitute a different design.
-5. Small implementation choices may be made independently only when they do not change approved behaviour, public contracts, data meaning, security, licensing, or project scope.
+Follow the authority model in PLAN.md and AI_IMPLEMENTATION_PLAN.md. These rules do not require owner approval for every routine implementation choice.
+
+1. **Owner review is required** before changing product scope or principles, privacy or consent commitments, legal/licensing obligations, external data-sharing or hosted-service design, paid or recurring costs, the production language/shared-core decision, major platform/consumer compatibility promises, public API compatibility, persistent-data formats/retention, releases, or destructive/external actions.
+2. **Technical autonomy is expected** within an approved milestone and specification. Agents may choose internal structures, routine implementation details, focused tests, and reasonable supporting dependencies when they remain within the approved architecture and public contracts, have no unapproved paid/recurring cost or legal/privacy impact, and are documented and verified.
+3. Agents may implement algorithmic details that satisfy an approved specification and its scientific acceptance criteria. A new meteorological capability, a change in data meaning, a change to the approved scientific method or its assumptions, promotion of adaptive weights/corrections, or any weakening of an evaluation gate requires a reviewed specification and owner approval where it changes the approved product or scientific contract.
+4. A dependency may be selected autonomously only after documenting why it is needed, its supported targets, maintenance and security posture, licence, size, and verification. Escalate if it introduces legal uncertainty, a recurring/paid service, significant platform restrictions, a new trust boundary, or a strategic architecture commitment.
+5. Before owner review, present the problem, evidence, bounded proposal, alternatives, trade-offs, maintenance cost, licensing/privacy implications, and affected modules. Do not merely ask the owner to choose between unexplained technical options.
+6. If an implementation choice proves unsuitable, use evidence to recommend a replacement. Do not silently alter product scope, public semantics, or strategic boundaries.
+7. Do not interrupt the owner for routine technical choices. Ask only when the work crosses one of the owner-review boundaries or cannot proceed safely within the approved scope.
 
 ## 4. Architecture and dependency boundaries
 
-1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected by PLAN.md. Kotlin Multiplatform with Android/iOS targets and Desktop JVM is the current recommendation pending M0.1 approval.
+1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected through the M0.1 gate in PLAN.md. Kotlin Multiplatform and Rust remain candidates; do not treat either as the approved production stack before the gate is complete.
 2. Keep provider-specific request and response details inside that provider's adapter. Provider DTOs must not leak into the public domain model.
 3. Put platform-specific implementations behind narrow interfaces or in the appropriate platform source sets. Do not add platform dependencies to common code for convenience.
 4. Access storage, HTTP, time, and other external capabilities through explicit interfaces or injected dependencies. Core logic must be testable without a real network, database, device, or wall clock.
@@ -105,7 +109,7 @@ Before adding or changing a source:
 2. Do not scatter unexplained numeric constants through adapters or core algorithms.
 3. Each configurable default must state its unit, purpose, and rationale. Validate configuration at the boundary and fail clearly when invalid.
 4. Keep configuration separate from algorithms so applications can configure supported behaviour without forking the engine.
-5. A new threshold or tunable parameter requires approval and tests for boundary behaviour.
+5. Agents may introduce or adjust internal parameters when they are implementation details of an approved specification, remain within its scientific method and public behaviour, and include boundary tests and rationale. A new consumer-configurable threshold, a changed default that materially changes forecast results, or a parameter that changes the approved scientific method, data meaning, or product behaviour requires a reviewed specification and owner approval.
 6. Centralize and lock dependency versions using the package/build system selected in PLAN.md (Gradle version catalog and dependency locking for KMP; Cargo only if a Rust component is later approved). Do not scatter unpinned versions across modules.
 
 ## 10. Storage, caching, privacy, and retention
@@ -118,7 +122,7 @@ Before adding or changing a source:
 6. Apply the approved retention period to forecasts, observations, statistics, and cached responses. Do not extend retention silently.
 7. Cache according to each provider's cadence, expiry, and terms. A cache must never cause stale data to appear fresh.
 8. Do not transmit location history, raw coordinates, forecast logs, or diagnostics to a server by default.
-9. Optional sharing of forecast errors requires explicit opt-in, data minimization, a documented retention policy, an approved server design, and legal review before implementation.
+9. Any optional sharing of forecast errors or other data is off by default and requires a separate, explicit opt-in. Before consent, disclose the exact data fields, purpose, destination, recipients, and retention; provide an inspectable payload example, withdrawal controls, and deletion of eligible local data. Declining must not reduce ordinary weather functionality. A hosted collection service additionally requires an approved server design and legal review before implementation.
 10. Do not build a remote learning or aggregation service as a shortcut for local functionality.
 
 ## 11. Clean-room development and licensing
