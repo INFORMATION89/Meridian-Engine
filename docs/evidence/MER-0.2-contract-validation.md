@@ -43,7 +43,7 @@ The no-source engine intentionally returns `UNAVAILABLE` with a per-variable `NO
 
 ## 4. M0.1 inherited evidence and limitations
 
-The M0.1 PR #15 description records CI run #222 as passing five jobs, including Android x86_64, iOS ARM64 simulator plus Swift consumer, macOS/Linux/Windows Desktop JVM, and dependency/license audit. This is inherited branch documentation, not a new M0.2 run.
+The M0.1 PR #15 head is `009e5979ce63f8b169c542d24c654fa64b59c363`. Its latest full validation is [CI run #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103), which passed all five jobs: dependency/license audit, Linux JVM, Windows JVM, macOS/iOS/Swift, and Android x86_64. Earlier run #222 remains the original platform proof on code commit `91996fb7c190f80899261eb2ff21630b5e564209`. CI #224 validates the M0.1 PR head, not the M0.2 prototype branch.
 
 Do not claim Android ARM64 runtime or physical Android/iOS device validation. Do not claim native desktop ABI. Mobile release-package legal-notice verification remains outstanding before public distribution.
 
@@ -53,7 +53,7 @@ See [M0.1 implementation reuse audit](MER-0.2-m0.1-implementation-reuse-audit.md
 
 ## 6. Commands and results
 
-No M0.2 build, test, or CI command has been executed in this session. The repository workflow is pull-request-triggered and ignores Markdown-only changes; the current branch has not been opened as an M0.2 PR. Before opening a PR, statically review all source and workflow changes, then validate the exact PR head. Record exact commands, toolchain versions, host, artifacts, and test counts here when performed.
+No M0.2 build, test, or CI command has been executed in this session. The M0.2 branch was created from M0.1 documentation commit `c7ad3a9928ecf2bc9ac7b4a26e45f47312d0108e`; its working tree has since been synchronized with the two later M0.1 PR-head file changes, but it is not yet based on the PR's latest commit. PR #15 remains open and must not be merged without owner approval. After M0.1 is merged, rebase/synchronize M0.2 onto the resulting main and validate the exact M0.2 PR head. The repository workflow is pull-request-triggered and ignores Markdown-only changes. Record exact commands, toolchain versions, host, artifacts, and test counts here when performed.
 
 ## 7. Acceptance gate
 
