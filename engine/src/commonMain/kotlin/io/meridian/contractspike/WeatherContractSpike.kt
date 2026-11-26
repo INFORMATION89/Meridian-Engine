@@ -8,32 +8,32 @@ import kotlinx.coroutines.sync.withLock
  * M0.2 design spike only. These types are deliberately isolated from the stable
  * probe package and are not an approved or versioned public API.
  */
-enum class WeatherFeature {
+@ExperimentalWeatherContractSpike\nenum class WeatherFeature {
     CURRENT_CONDITIONS,
     HOURLY_FORECAST,
 }
 
-enum class WeatherVariable {
+@ExperimentalWeatherContractSpike\nenum class WeatherVariable {
     AIR_TEMPERATURE,
     APPARENT_TEMPERATURE,
 }
 
-enum class WeatherUnit {
+@ExperimentalWeatherContractSpike\nenum class WeatherUnit {
     CELSIUS,
 }
 
-enum class DataFreshness {
+@ExperimentalWeatherContractSpike\nenum class DataFreshness {
     FRESH,
     STALE,
 }
 
-enum class CachePolicy {
+@ExperimentalWeatherContractSpike\nenum class CachePolicy {
     NETWORK_ONLY,
     PREFER_FRESH,
     ALLOW_STALE,
 }
 
-enum class WeatherProblemCode {
+@ExperimentalWeatherContractSpike\nenum class WeatherProblemCode {
     SOURCE_UNAVAILABLE,
     SOURCE_FAILURE,
     TRANSPORT_FAILURE,
@@ -43,7 +43,7 @@ enum class WeatherProblemCode {
     STALE_CACHE_USED,
 }
 
-data class GeoCoordinates(
+@ExperimentalWeatherContractSpike\ndata class GeoCoordinates(
     val latitude: Double,
     val longitude: Double,
 ) {
@@ -57,7 +57,7 @@ data class GeoCoordinates(
     }
 }
 
-data class WeatherRequest(
+@ExperimentalWeatherContractSpike\ndata class WeatherRequest(
     val location: GeoCoordinates,
     val features: Set<WeatherFeature>,
     val cachePolicy: CachePolicy = CachePolicy.NETWORK_ONLY,
@@ -72,7 +72,7 @@ data class WeatherRequest(
     }
 }
 
-data class WeatherValue(
+@ExperimentalWeatherContractSpike\ndata class WeatherValue(
     val variable: WeatherVariable,
     val value: Double,
     val unit: WeatherUnit,
@@ -82,35 +82,52 @@ data class WeatherValue(
     }
 }
 
-data class SourceProvenance(
+@ExperimentalWeatherContractSpike\ndata class SourceProvenance(
     val sourceId: String,
     val sourceVersion: String?,
 )
 
-data class WeatherProblem(
+@ExperimentalWeatherContractSpike\ndata class WeatherProblem(
     val code: WeatherProblemCode,
     val detail: String? = null,
 )
 
-data class WeatherFeatureData(
+@ExperimentalWeatherContractSpike\ndata class WeatherFeatureData(
     val feature: WeatherFeature,
     val values: List<WeatherValue>,
     val provenance: SourceProvenance,
     val issuedAtEpochMillis: Long?,
+    val observedAtEpochMillis: Long?,
     val fetchedAtEpochMillis: Long,
     val validAtEpochMillis: Long,
     val expiresAtEpochMillis: Long,
     val freshness: DataFreshness = DataFreshness.FRESH,
 ) {
+    /**
+     * Forecast lead is the interval from issuance to the valid instant.
+     * Observations have no forecast lead and retain their measurement instant separately.
+     */
+    val forecastLeadMillis: Long?
+        get() = issuedAtEpochMillis?.let { validAtEpochMillis - it }
+
     init {
         require(values.isNotEmpty()) { "Feature data must contain at least one value." }
+        require(issuedAtEpochMillis == null || issuedAtEpochMillis <= fetchedAtEpochMillis) {
+            "Forecast issue time cannot be later than fetch time."
+        }
+        require(observedAtEpochMillis == null || observedAtEpochMillis <= fetchedAtEpochMillis) {
+            "Observation time cannot be later than fetch time."
+        }
+        require(issuedAtEpochMillis == null || validAtEpochMillis >= issuedAtEpochMillis) {
+            "Forecast valid time cannot be earlier than issue time."
+        }
         require(expiresAtEpochMillis > fetchedAtEpochMillis) {
             "Cache expiry must be later than fetch time."
         }
     }
 }
 
-sealed interface FeatureOutcome {
+@ExperimentalWeatherContractSpike\nsealed interface FeatureOutcome {
     data class Available(val data: WeatherFeatureData) : FeatureOutcome
     data class Partial(
         val data: WeatherFeatureData,
@@ -120,22 +137,22 @@ sealed interface FeatureOutcome {
     data class Failed(val problem: WeatherProblem) : FeatureOutcome
 }
 
-data class WeatherResult(
+@ExperimentalWeatherContractSpike\ndata class WeatherResult(
     val outcomes: Map<WeatherFeature, FeatureOutcome>,
     val completedAtEpochMillis: Long,
 )
 
-data class FeatureCacheKey(
+@ExperimentalWeatherContractSpike\ndata class FeatureCacheKey(
     val latitude: Double,
     val longitude: Double,
     val feature: WeatherFeature,
 )
 
-interface WeatherClock {
+@ExperimentalWeatherContractSpike\ninterface WeatherClock {
     fun nowEpochMillis(): Long
 }
 
-interface WeatherSource {
+@ExperimentalWeatherContractSpike\ninterface WeatherSource {
     suspend fun fetchFeature(
         request: WeatherRequest,
         feature: WeatherFeature,
@@ -146,13 +163,13 @@ interface WeatherSource {
  * A storage port for the spike. A null store means no persistence at all.
  * The first implementation is intentionally in-memory and test-oriented.
  */
-interface WeatherStore {
+@ExperimentalWeatherContractSpike\ninterface WeatherStore {
     suspend fun read(key: FeatureCacheKey): WeatherFeatureData?
     suspend fun write(key: FeatureCacheKey, data: WeatherFeatureData)
     suspend fun clear()
 }
 
-class InMemoryWeatherStore : WeatherStore {
+@ExperimentalWeatherContractSpike\nclass InMemoryWeatherStore : WeatherStore {
     private val mutex = Mutex()
     private val entries = mutableMapOf<FeatureCacheKey, WeatherFeatureData>()
 
@@ -172,7 +189,7 @@ class InMemoryWeatherStore : WeatherStore {
  * Experimental request orchestrator. It has no provider, network, database,
  * background scheduler, or consumer-application dependency.
  */
-class WeatherContractEngine(
+@ExperimentalWeatherContractSpike\nclass WeatherContractEngine(
     private val source: WeatherSource,
     private val clock: WeatherClock,
     private val store: WeatherStore? = null,
@@ -284,7 +301,7 @@ class WeatherContractEngine(
  * A deterministic fixture used only by the standalone Kotlin, Android and Swift
  * consumers in this design spike. It is not a weather provider.
  */
-object WeatherContractDemo {
+@ExperimentalWeatherContractSpike\nobject WeatherContractDemo {
     private class FixedClock(private val now: Long) : WeatherClock {
         override fun nowEpochMillis(): Long = now
     }
@@ -302,9 +319,10 @@ object WeatherContractDemo {
                         WeatherValue(WeatherVariable.APPARENT_TEMPERATURE, 21.0, WeatherUnit.CELSIUS),
                     ),
                     provenance = SourceProvenance("fixture-local", "m0.2-spike"),
-                    issuedAtEpochMillis = 900,
+                    issuedAtEpochMillis = null,
+                    observedAtEpochMillis = 950,
                     fetchedAtEpochMillis = 1_000,
-                    validAtEpochMillis = 1_400,
+                    validAtEpochMillis = 950,
                     expiresAtEpochMillis = 2_000,
                 ),
             )
@@ -335,6 +353,9 @@ object WeatherContractDemo {
         check(hourly is FeatureOutcome.Unavailable)
         check(current.data.values.any { it.variable == WeatherVariable.AIR_TEMPERATURE && it.value == 18.0 })
         check(current.data.values.any { it.variable == WeatherVariable.APPARENT_TEMPERATURE && it.value == 21.0 })
+        check(current.data.observedAtEpochMillis == 950L)
+        check(current.data.issuedAtEpochMillis == null)
+        check(current.data.forecastLeadMillis == null)
         return "current=available;hourly=unavailable;air=18.0C;apparent=21.0C"
     }
 }

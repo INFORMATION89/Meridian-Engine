@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWeatherContractSpike::class)
+
 package io.meridian.contractspike
 
 import kotlinx.coroutines.CancellationException
@@ -31,6 +33,7 @@ class WeatherContractSpikeTest {
             values = listOf(WeatherValue(WeatherVariable.AIR_TEMPERATURE, 18.0, WeatherUnit.CELSIUS)),
             provenance = SourceProvenance("fixture-local", "cached"),
             issuedAtEpochMillis = 900,
+            observedAtEpochMillis = null,
             fetchedAtEpochMillis = 1_000,
             validAtEpochMillis = 1_400,
             expiresAtEpochMillis = 2_000,
@@ -73,7 +76,8 @@ class WeatherContractSpikeTest {
                 feature = WeatherFeature.CURRENT_CONDITIONS,
                 values = listOf(WeatherValue(WeatherVariable.AIR_TEMPERATURE, 18.0, WeatherUnit.CELSIUS)),
                 provenance = SourceProvenance("fixture-local", "cached"),
-                issuedAtEpochMillis = 900,
+                issuedAtEpochMillis = 400,
+                observedAtEpochMillis = null,
                 fetchedAtEpochMillis = 500,
                 validAtEpochMillis = 800,
                 expiresAtEpochMillis = 1_000,
@@ -93,6 +97,23 @@ class WeatherContractSpikeTest {
         val partial = assertIs<FeatureOutcome.Partial>(result.outcomes[WeatherFeature.CURRENT_CONDITIONS])
         assertEquals(DataFreshness.STALE, partial.data.freshness)
         assertTrue(partial.problems.any { it.code == WeatherProblemCode.STALE_CACHE_USED })
+    }
+
+    @Test
+    fun forecastLeadIsDerivedFromIssueAndValidTimes() = runBlocking {
+        val forecast = WeatherFeatureData(
+            feature = WeatherFeature.HOURLY_FORECAST,
+            values = listOf(
+                WeatherValue(WeatherVariable.AIR_TEMPERATURE, 19.0, WeatherUnit.CELSIUS),
+            ),
+            provenance = SourceProvenance("fixture-local", "forecast-time-test"),
+            issuedAtEpochMillis = 1_000,
+            observedAtEpochMillis = null,
+            fetchedAtEpochMillis = 1_100,
+            validAtEpochMillis = 4_600,
+            expiresAtEpochMillis = 7_200,
+        )
+        assertEquals(3_600L, forecast.forecastLeadMillis)
     }
 
     @Test

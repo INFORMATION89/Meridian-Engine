@@ -111,6 +111,10 @@ Recommend a pre-1.0 public API until semantics have survived independent consume
 
 ## 8. Required proof
 
+An isolated experimental implementation now exists under `io.meridian.contractspike`. All prototype types are guarded by a Kotlin `@RequiresOptIn` marker, and its names/semantics are explicitly not the stable public API. The fixture distinguishes an observation's measurement time from forecast issue time; forecast lead is derived from issue to valid time. The first standalone consumers exercise this proof from desktop JVM, Android instrumentation, and Swift without a Solstice checkout or dependency.
+
+This implementation remains a bounded contract spike: fake source only, optional in-memory store only, no production persistence, providers, algorithms, telemetry, or UI. CI results are tracked in PR #20's description and PLAN.md.
+
 Use fake sources, a fake clock, deterministic fixtures, and in-memory storage. Demonstrate:
 - construction without persistent storage;
 - a multi-feature request with one success and one unavailable/failed outcome;

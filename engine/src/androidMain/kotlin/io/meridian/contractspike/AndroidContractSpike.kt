@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWeatherContractSpike::class)
+
 package io.meridian.contractspike
 
 import kotlinx.coroutines.runBlocking

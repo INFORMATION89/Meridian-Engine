@@ -4,8 +4,10 @@ import io.meridian.probe.DesktopKtorProbe
 import io.meridian.probe.DesktopStorageProbe
 import io.meridian.probe.MeridianProbe
 import io.meridian.probe.ProbeErrorCode
+import io.meridian.contractspike.ExperimentalWeatherContractSpike
 import io.meridian.contractspike.WeatherContractDemo
 
+@OptIn(ExperimentalWeatherContractSpike::class)
 suspend fun main() {
     val contractSummary = WeatherContractDemo.verifySampleRequest()
     check(contractSummary == "current=available;hourly=unavailable;air=18.0C;apparent=21.0C")
