@@ -2,7 +2,7 @@
 
 - **Status:** Draft for design review; no stable API is declared.
 - **Baseline:** Kotlin Multiplatform shared core; Swift-facing iOS consumption; Desktop JVM.
-- **Authority:** PLAN.md, ADR-0001, ADR-0002, and M0.2 contract-design milestone.
+- **Authority:** PLAN.md, ADR-0001, ADR-0002, ADR-0003, and M0.2 contract-design milestone.
 
 ## 1. Goals
 
