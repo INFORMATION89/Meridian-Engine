@@ -61,3 +61,12 @@ A follow-up graph trace found parent paths for **all 58** SBOM-only coordinates:
 - This evidence applies only to the audited commit above. Re-run the audit after dependency or packaging changes.
 
 **Status:** SBOM generation and metadata analysis passed. All 58 unmatched coordinates were traced to plugin/buildscript dependency graphs. The Linux desktop package was inspected and its embedded SLF4J MIT license was preserved in `THIRD-PARTY-NOTICES.md`. Review of the five multiple-license entries and actual Android/iOS/Windows distribution packages remains open. Do not describe the dependency license review as complete until those items are resolved.
+
+
+## Desktop package inspection follow-up (2026-11-26)
+
+The Linux and Windows desktop app-image artifacts from [platform-proof run #45787082365](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45787082365), built from commit 8cf99826c8b81e028e5d2d3f025a658742fa875b, were inspected directly. Both contain the same third-party runtime JAR set, including slf4j-api-2.0.19.jar and sqlite-jdbc-3.53.4.0.jar. The SQLite JDBC JAR contains Apache-2.0 and Zentus BSD-style license texts, plus native SQLite libraries for Linux, macOS, and Windows; the SQLite engine is public domain. Both app images also contain 225 files under the bundled JDK runtime/legal directory.
+
+This inspection identified a distribution-notice gap: the original app-image artifact did not include Meridian's root LICENSE or THIRD-PARTY-NOTICES.md, even though SLF4J's MIT text was already documented in the repository. The build now stages both documents in the Gradle desktop distribution and copies them into each Linux, Windows, and macOS app-image root. The third-party notice inventory now records SQLite JDBC's additional embedded license and the runtime component families observed in the actual packages.
+
+The current package evidence covers Linux and Windows app images. The macOS job is configured to stage the same notices, but its resulting artifact must still be inspected after the updated workflow runs. Android and iOS application package distribution remains outside the artifacts produced by this workflow. This follow-up does not close the full cross-platform license review until those platform packages and the updated artifacts are inspected.
