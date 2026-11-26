@@ -16,8 +16,9 @@ class MeridianEngine private constructor() {
      * Executes an explicit query. With no source adapters configured, the prototype
      * returns a typed unavailable result and performs no network or storage work.
      */
+    @Throws(MeridianEngineClosedException::class)
     suspend fun query(query: WeatherQuery): WeatherQueryResult {
-        check(!closed) { "MeridianEngine is closed" }
+        if (closed) throw MeridianEngineClosedException()
         return WeatherQueryResult(
             status = QueryStatus.UNAVAILABLE,
             values = emptyList(),
@@ -42,3 +43,6 @@ class MeridianEngine private constructor() {
         fun create(): MeridianEngine = MeridianEngine()
     }
 }
+
+/** Raised when a query is submitted after its engine has been closed. */
+class MeridianEngineClosedException : IllegalStateException("MeridianEngine is closed")
