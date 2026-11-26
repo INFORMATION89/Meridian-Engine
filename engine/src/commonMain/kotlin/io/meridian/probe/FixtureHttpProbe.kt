@@ -16,7 +16,7 @@ import kotlinx.coroutines.withTimeout
  */
 object FixtureHttpProbe {
     private val fixturePattern = Regex(
-        """^\\s*\\{\\s*"status"\\s*:\\s*"ok"\\s*,\\s*"source"\\s*:\\s*"local-fixture"\\s*}\\s*$"""
+        """^\s*\{\s*"status"\s*:\s*"ok"\s*,\s*"source"\s*:\s*"local-fixture"\s*}\s*$"""
     )
 
     suspend fun fetch(
@@ -29,7 +29,7 @@ object FixtureHttpProbe {
             return withTimeout(timeoutMillis) {
                 val response = client.get(url)
                 if (!response.status.isSuccess()) {
-                    throw ProbeFailure(ProbeErrorCode.HTTP_STATUS, "HTTP ${response.status.value}")
+                    throw ProbeFailure(ProbeErrorCode.HTTP_STATUS, "HTTP " + response.status.value)
                 }
                 val body = response.bodyAsText()
                 if (!fixturePattern.matches(body)) {
@@ -40,7 +40,7 @@ object FixtureHttpProbe {
         } catch (failure: ProbeFailure) {
             throw failure
         } catch (timeout: TimeoutCancellationException) {
-            throw ProbeFailure(ProbeErrorCode.TIMEOUT, "Fixture request exceeded ${timeoutMillis}ms")
+            throw ProbeFailure(ProbeErrorCode.TIMEOUT, "Fixture request exceeded " + timeoutMillis + "ms")
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (transport: Exception) {
