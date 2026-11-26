@@ -215,7 +215,7 @@ Make weather-improvement claims reproducible before adapting models, weights, or
 7. Report sample counts, exclusions, missing observations, regional breakdowns, uncertainty, and degraded regions. Do not let aggregate scores conceal failures.
 8. Version datasets, matching rules, code, parameters, and reports.
 9. Verify every dataset's licence, attribution, redistribution rights, coverage, resolution, methodology, and retention before use.
-10. Keep the initial 30-day local learning window separate from long-term licensed meteorological and climatological archives.
+10. Keep recent verification/learning records separate from long-term licensed meteorological and climatological archives. No fixed retention duration is approved; propose a bounded period with evidence and owner review before persistent collection.
 11. Make the evaluation runnable without AI and without live provider requests.
 
 ### Acceptance gate
@@ -268,7 +268,7 @@ Test at least one consumer shape independent of Solstice. A consumer must need o
 - Adapt source selection and model weights only with sufficient verified samples and independent evaluation.
 - Correct systematic bias only when observations are representative and quality-controlled.
 - Bound corrections, preserve raw and corrected values, attach method/configuration version and provenance, and provide disable/rollback.
-- Keep recent learning local by default, with the agreed configurable 30-day rolling window. Do not conflate this with the separate long historical archive.
+- Keep recent learning local by default with a bounded, separately approved retention window. A 30-day period has been discussed but is not approved; do not conflate recent verification with the separate long historical archive.
 - Calibrate probabilities only after appropriate reliability evaluation.
 - Compare each improvement against the best individual source and previous Meridian baseline.
 - Never automatically promote weights or algorithms merely because a new observation arrived.
