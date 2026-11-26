@@ -2,7 +2,7 @@
 
 - **Status:** Design proposal for M0.2 review; not a stable public API declaration.
 - **Baseline:** Kotlin Multiplatform shared core; Ktor behind an engine-owned boundary; Android, iOS/Swift, and Desktop JVM consumers.
-- **Authority:** `PLAN.md`, ADR-0001, ADR-0002, `M0_2_CONTRACT_DESIGN.md`, and `M0_2_PUBLIC_API.md`.
+- **Authority:** `PLAN.md`, ADR-0001, ADR-0002, ADR-0003, `M0_2_CONTRACT_DESIGN.md`, and `M0_2_PUBLIC_API.md`.
 
 ## 1. Goals and non-goals
 
