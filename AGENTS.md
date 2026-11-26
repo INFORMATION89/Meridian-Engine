@@ -24,7 +24,7 @@ The project owner has authorized continued work through the prerequisites needed
 
 This authorization is **not** permission to merge PRs, publish packages, or skip the owner approval gates defined by the milestone specifications. Do not implement production weather providers or forecast algorithms until the MER-0.1 platform/runtime recommendation and the MER-0.2 public API, storage boundary, error/cancellation model, and versioning decisions have been explicitly approved.
 
-MER-0.1 remains a technical validation, not the production engine. The Android CI emulator exercises x86_64 only. Android ARM64 runtime validation is deferred until a physical or hosted ARM64 environment is available; it must remain visible as **NOT TESTED** and must never be inferred from x86_64 results. Continue other approved preparation work without describing MER-0.1 as fully accepted while that item remains open.
+MER-0.1 remains a technical validation, not the production engine. The owner has explicitly accepted the supported CI matrix as sufficient for this stage. Android x86_64 emulator and iOS ARM64 Simulator/Swift consumer coverage are the required CI evidence; Android ARM64 runtime and physical Android/iOS execution remain **NOT TESTED** and are deferred, not MER-0.1 blockers. Never infer ARM64 or physical-device results from simulator/emulator coverage. Keep these limitations visible in the results and PR.
 
 ## Scope discipline
 
