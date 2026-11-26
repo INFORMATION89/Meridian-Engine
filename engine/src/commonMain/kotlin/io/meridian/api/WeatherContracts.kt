@@ -126,17 +126,31 @@ data class WeatherQueryResult(
     val unavailableReason: QueryUnavailableReason? = null,
 ) {
     init {
-        require(status != QueryStatus.COMPLETE || (values.isNotEmpty() && issues.isEmpty())) {
-            "A complete result must contain values and no component issues"
-        }
-        require(status != QueryStatus.PARTIAL || (values.isNotEmpty() && issues.isNotEmpty())) {
-            "A partial result must contain both values and component issues"
-        }
-        require(status != QueryStatus.UNAVAILABLE || values.isEmpty()) {
-            "An unavailable result must not contain values"
-        }
-        require(status == QueryStatus.UNAVAILABLE || unavailableReason == null) {
-            "unavailableReason is only valid for unavailable results"
+        when (status) {
+            QueryStatus.COMPLETE -> {
+                require(values.isNotEmpty() && issues.isEmpty()) {
+                    "A complete result must contain values and no component issues"
+                }
+                require(unavailableReason == null) {
+                    "A complete result cannot have an unavailable reason"
+                }
+            }
+            QueryStatus.PARTIAL -> {
+                require(values.isNotEmpty() && issues.isNotEmpty()) {
+                    "A partial result must contain both values and component issues"
+                }
+                require(unavailableReason == null) {
+                    "A partial result cannot have an unavailable reason"
+                }
+            }
+            QueryStatus.UNAVAILABLE -> {
+                require(values.isEmpty() && issues.isNotEmpty()) {
+                    "An unavailable result must have no values and at least one component issue"
+                }
+                require(unavailableReason != null) {
+                    "An unavailable result must identify its reason"
+                }
+            }
         }
     }
 }
