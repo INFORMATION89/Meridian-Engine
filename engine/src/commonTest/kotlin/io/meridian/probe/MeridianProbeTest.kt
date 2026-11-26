@@ -3,11 +3,9 @@ package io.meridian.probe
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
-import java.io.IOException
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
@@ -93,7 +91,7 @@ class MeridianProbeTest {
     @Test
     fun fixtureProbeMapsTransportFailure() = runBlocking {
         val client = HttpClient(MockEngine) {
-            engine { addHandler { throw IOException("fixture offline") } }
+            engine { addHandler { throw IllegalStateException("fixture offline") } }
         }
         try {
             val failure = assertFailsWith<ProbeFailure> {
