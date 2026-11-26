@@ -1,6 +1,6 @@
 # MER-0.2 Contract validation evidence
 
-- **Status:** Experimental public API and independent-consumer source prototypes added; no M0.2 build, test, or CI has been run yet.
+- **Status:** Experimental public API and independent-consumer source prototypes added; static review recorded; no M0.2 build, test, or CI has been run yet.
 - **Branch:** `work/m0.2-contract-design`.
 - **Purpose:** Track proof for the M0.2 public API, lifecycle/networking, storage/cache, and compatibility contracts.
 
@@ -49,14 +49,18 @@ The M0.1 PR #15 head is `009e5979ce63f8b169c542d24c654fa64b59c363`. Its latest f
 
 Do not claim Android ARM64 runtime or physical Android/iOS device validation. Do not claim native desktop ABI. Mobile release-package legal-notice verification remains outstanding before public distribution.
 
-## 5. Related implementation audit
+## 5. Experimental API static review
+
+See [MER-0.2 prototype static review](../reviews/MER-0.2-prototype-static-review.md). The review identified blocking request/result coverage and engine-close lifecycle gaps, plus a mismatch between the documented meteorological event/official-alert contract and the current data-kind enum. The prototype remains experimental; the review is source-only and is not build or runtime evidence.
+
+## 6. Related implementation audit
 
 See [M0.1 implementation reuse audit](MER-0.2-m0.1-implementation-reuse-audit.md) for the static review of existing probe code, transport helpers, storage probes, consumers, and build setup. It is not a runtime validation.
 
-## 6. Commands and results
+## 7. Commands and results
 
 No M0.2 build, test, or CI command has been executed in this session. The M0.2 branch was created from M0.1 documentation commit `c7ad3a9928ecf2bc9ac7b4a26e45f47312d0108e`; its working tree has since been synchronized with the two later M0.1 PR-head file changes, but it is not yet based on the PR's latest commit. PR #15 remains open and must not be merged without owner approval. After M0.1 is merged, rebase/synchronize M0.2 onto the resulting main and validate the exact M0.2 PR head. The repository workflow is pull-request-triggered and ignores Markdown-only changes. Record exact commands, toolchain versions, host, artifacts, and test counts here when performed.
 
-## 7. Acceptance gate
+## 8. Acceptance gate
 
 M0.2 is ready for owner review only when the public API and all three contract documents are internally consistent, independent Kotlin/Swift consumer proof is recorded, deterministic contract tests pass, and unresolved privacy/retention/compatibility decisions are explicitly listed. Owner approval is required before production weather-feature implementation.
