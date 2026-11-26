@@ -12,6 +12,8 @@ This repository is not yet a usable weather engine. It does not contain producti
 
 The last fully completed platform matrix is recorded at commit `aa5e86ec1cab1d302b9f2165327deddf299f48dc` in [CI run 45777929849](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45777929849). PR [#15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) contains follow-up CI, license-audit, and documentation changes; only checks for the current PR head establish its current status.
 
+The owner-approved desktop direction is recorded in [ADR-0001: JVM-first desktop distribution](docs/decisions/ADR-0001-jvm-first-desktop.md). This is a desktop packaging decision, not final approval of the complete production technology stack.
+
 ## Candidate platform strategy
 
 - **Android:** Kotlin Multiplatform Android target; the accepted CI path is an x86_64 emulator.
