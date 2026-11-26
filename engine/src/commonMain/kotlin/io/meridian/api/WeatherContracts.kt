@@ -38,6 +38,15 @@ data class WeatherQuery(
         require(forecastHours in 1..240) { "forecastHours must be between 1 and 240" }
         require(variables.distinct().size == variables.size) { "variables must not contain duplicates" }
     }
+
+    companion object {
+        /** Convenience factory used by the Swift consumer prototype. */
+        fun airTemperatureAt(latitude: Double, longitude: Double): WeatherQuery =
+            WeatherQuery(
+                location = GeoLocation(latitude, longitude),
+                variables = listOf(WeatherVariable.AIR_TEMPERATURE),
+            )
+    }
 }
 
 enum class WeatherDataKind {
