@@ -109,7 +109,7 @@ Choose the least costly model that can reliably complete the task. Model names a
 
 #### Claude-specific rules
 
-- Use Haiku for routine, bounded tasks and Sonnet for ordinary engineering and the initial implementation of most tasks. **Claude Opus 5.5 is recommended for tasks that benefit from an advanced second review, not as a requirement to begin work and not as automatic authorization to spend more.** Use it after an initial implementation or analysis for a focused independent review when the risk justifies the additional included usage.
+- Use Haiku for routine, bounded tasks and Sonnet for ordinary engineering and the initial implementation of most tasks. For high-risk work, use the optional Opus second-review guidance below rather than making Opus the default initial implementation model.
 - Claude Code is appropriate when repository-aware execution is useful. Give it a bounded task, allowed scope, checkpoints, and a stop condition; do not leave it running indefinitely.
 - Do not block implementation while waiting for Opus. Start with the suitable available model, then request the optional Opus review at a useful checkpoint or before merge when it can change the decision.
 - Use adaptive thinking / effort controls proportionally. Do not request maximum effort by habit.
