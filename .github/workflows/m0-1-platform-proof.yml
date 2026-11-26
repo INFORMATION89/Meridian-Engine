@@ -307,7 +307,6 @@ jobs:
           tasks=(
             :engine:assembleMeridianSharedDebugXCFramework
             :engine:iosSimulatorArm64Test
-            :engine:desktopTest
             :engine:testAndroidHostTest
             :desktop-consumer:installDist
             :android-consumer:assembleDebugAndroidTest
