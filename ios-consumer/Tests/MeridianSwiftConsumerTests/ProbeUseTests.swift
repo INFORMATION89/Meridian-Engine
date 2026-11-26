@@ -70,6 +70,33 @@ final class ProbeUseTests: XCTestCase {
         wait(for: [timeout, transport], timeout: 10)
     }
 
+    func testDarwinEngineMapsEmptyAndPartialResponses() {
+        let empty = expectation(description: "Darwin maps empty body")
+        IosKtorProbe.shared.verifyEmptyResponseFailure(url: "http://localhost:8765/empty.json") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            empty.fulfill()
+        }
+
+        let partial = expectation(description: "Darwin maps partial body")
+        IosKtorProbe.shared.verifyPartialResponseFailure(url: "http://localhost:8765/partial.json") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            partial.fulfill()
+        }
+        wait(for: [empty, partial], timeout: 10)
+    }
+
+    func testDarwinEnginePropagatesRequestCancellation() {
+        let cancelled = expectation(description: "Darwin request cancellation propagates")
+        IosKtorProbe.shared.verifyFixtureCancellation(url: "http://localhost:8765/slow") { value, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(value?.boolValue, true)
+            cancelled.fulfill()
+        }
+        wait(for: [cancelled], timeout: 10)
+    }
+
     func testSqliteDriverCanReopenDatabase() {
         XCTAssertTrue(IosStorageProbe.shared.verifyReopen())
     }
