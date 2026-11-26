@@ -242,13 +242,13 @@ Meridian must distinguish different kinds of stored data instead of applying one
 1. **Response cache:** short-lived provider responses or normalized feature data, with source identity, fetch time, expiry, freshness, schema version, and integrity information.
 2. **Issued forecast archive:** snapshots of what a source/model forecast at a particular issue time, retained so later verification does not substitute a stitched historical series or reanalysis for an actual forecast run.
 3. **Observation history:** measured values with station/source identity, measurement and fetch times, quality flags, units, and only the spatial precision needed for matching.
-4. **Local learning history:** recent forecast/observation comparisons and regional statistics used for source evaluation and corrections. The agreed initial rolling window is 30 days; it remains configurable and bounded.
-5. **Long-term meteorological history:** historical weather datasets and climatological references with independent licensing, coverage, versioning, and retention policies. These are not limited automatically to the 30-day learning window.
+4. **Local learning history:** recent forecast/observation comparisons and regional statistics used for source evaluation and corrections. A 30-day rolling window has been discussed but is not an approved retention commitment; a bounded duration must be proposed with evidence and owner review before persistent collection.
+5. **Long-term meteorological history:** historical weather datasets and climatological references with independent licensing, coverage, versioning, and retention policies. These remain separate from any bounded recent learning window.
 6. **Derived summaries:** reproducible statistics, anomalies, calibration summaries, and model skill records that identify their source datasets and calculation versions.
 
 ### Storage rules
 
-- Local storage is the default. No remote database or synchronization is mandatory.
+- Local-first operation is the default, but persistent storage is disabled unless the consumer explicitly enables and configures it. No remote database or synchronization is mandatory.
 - The host owns saved places and application settings; Meridian must not become a location-history tracker.
 - Every dataset records provenance, licence, source, time coverage, geographic coverage, resolution, quality, and restrictions.
 - Cache expiry follows provider cadence, HTTP metadata, terms, and rate limits.
@@ -539,7 +539,7 @@ Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application
 - The product objective is Level 2 intelligence over existing weather models and observations, not a new fundamental numerical weather-prediction model.
 - Initial model weights may be neutral/equal; adaptive selection, weights, calibration, and corrections require evidence and validation.
 - Uncertainty, probabilities, provenance, freshness, and source differences are first-class outputs.
-- Learning history is local-first, with an initial 30-day rolling window for recent verification/learning records, configurable and bounded.
+- Learning/verification history is local-first and must have a bounded, purpose-specific retention policy. A 30-day window is a proposal only until the relevant scientific/storage specification and owner review approve it.
 - Historical climatological records are separate from short rolling learning records.
 - All relevant phenomena may be recognized when sources and methods support them; detections are not official alerts.
 - Radar and nowcasting progress from detection/tracking toward motion and evolution only after regional feasibility and validation.
@@ -553,8 +553,8 @@ Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application
 ### Technical decisions not yet locked
 
 These are evidence gates, not reasons to interrupt the owner with routine programming questions:
-- production language and shared-core strategy;
-- final production language/shared-core strategy and non-JVM consumer bindings; desktop distribution direction is owner-approved as JVM-first with a bundled-runtime option for applications that need self-contained delivery; native desktop libraries remain a future interoperability option, not a M0.1 requirement;
+- non-JVM consumer bindings and any future change to the owner-approved KMP shared-core direction (ADR-0003);
+- non-JVM consumer bindings and future native desktop interoperability; desktop distribution is owner-approved as JVM-first with a bundled-runtime option for applications that need self-contained delivery; native desktop libraries remain a future interoperability option, not a current requirement;
 - platform artifact and packaging matrix;
 - storage implementation and host-provided storage contract;
 - exact public API shape, cancellation, errors, and compatibility rules;
