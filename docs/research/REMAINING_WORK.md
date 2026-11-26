@@ -1,11 +1,12 @@
 # Meridian — remaining work and review checklist
 
-**Status:** consolidated checklist for owner review  
+**Status:** historical MER-0.1/research checklist snapshot; root `PLAN.md` is authoritative  
 **Prepared:** 2026-11-25  
+**Last status reconciliation:** 2026-11-26.  
 **Applies to:** MER-0.1 stabilization, MER-0.2, MER-0.3, and the research-document PR  
 **Authority:** PLAN.md, RULES.md, AGENTS.md, CLEAN_ROOM.md, and approved milestone specifications remain authoritative.
 
-This file records what is still open after reviewing the MER-0.1 spike and the architecture/weather research. It is a checklist, not a new implementation authorization.
+This file preserves the checklist and evidence available when it was prepared. It is not a live status dashboard or a new implementation authorization. Root `PLAN.md`, the current milestone specification, and live GitHub state take precedence.
 
 ## Owner decision — CI-only validation for now (2026-11-25)
 
@@ -19,11 +20,11 @@ Any additional transport/integration checks (including real Ktor platform-engine
 
 | Pull request | Purpose | State at review | What remains |
 |---|---|---|---|
-| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Run #152 remains the last complete passing matrix. Run #157's transient Linux KGP resolution failure was cleared by retry; the later Apple Swift consumer check was still pending when superseded. Run #158 is still in progress on commit `53de58d` (Desktop CIO lifecycle assertion). Run #160 is pending on current head `3a06d40` (includes the confirmed copyright notice and refreshed evidence record). Run #159 was cancelled when the newer commit arrived. Real-engine HTTP requests/timeouts/error mapping and the complete dependency/licence inventory remain open. |
+| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Closed unmerged while still Draft (2026-11-26); source branch preserved | The branch `spike/m0.1-kmp-platform-proof` currently points to `bd395b5fd3a8eb03c96528eb429b183125eaf007`; six jobs passed for that exact SHA in [run 45736878709](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45736878709). This is CI-only evidence: Android x86_64 emulator, iOS ARM64 simulator/Swift consumer, and JVM desktop on Windows/macOS/Linux. Android ARM64 runtime and physical Android/iOS device execution remain NOT TESTED. Actual platform-engine HTTP requests, timeout/error mapping, consumer-boundary cancellation/resource lifecycle, and the complete dependency/licence/NOTICE inventory remain open; owner approval of the production stack is also still required. The closure did not waive any gate. |
 | [PR #3](https://github.com/INFORMATION89/Meridian-Engine/pull/3) | Duplicate MER-0.1 platform spike | Closed, not merged | Superseded by PR #2; no unique production functionality lost. |
 | [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Merged (documentation-only) | Research is now in `main`; recommendations remain non-binding until explicit owner decisions are adopted. |
 
-PR #2 remains separate from the research baseline and must not be merged until its implementation evidence, dependency/licence review, and owner approval gates are satisfied. PR #3 is closed as superseded. PR #4 was merged solely to preserve the research/reference baseline; this does not approve its proposed architecture or authorize MER-1.
+PR #2 is closed but unmerged; its preserved source branch is still the canonical MER-0.1 evidence branch. The branch must not be merged until its remaining implementation evidence, dependency/licence review, and owner approval gates are satisfied. PR #3 is closed as superseded. PR #4 was merged solely to preserve the research/reference baseline; this does not approve its proposed architecture or authorize M1.
 
 ## 2. MER-0.1 — outstanding engineering/evidence
 
@@ -35,7 +36,7 @@ PR #2 remains separate from the research baseline and must not be merged until i
 - [x] Record that Run #152 tested commit 28817f6a09c0099ac340ff4df55ea5377ec5ed0a; documentation-only commits then advanced the PR head to 3575f51752b15fecff76c4405610b44fdafeea2c.
 - [x] Keep all platform cells explicit: PASS, FAIL, BLOCKED, or NOT TESTED.
 
-The evidence-record synchronization for Run #152 is complete. Run #157's Linux dependency-metadata failure at Gradle plugin resolution (`org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`) was cleared by retry; no version downgrade was made. Run #158 remains in progress on the code commit that adds the Desktop CIO lifecycle assertion. The copyright/evidence documentation update then advanced the PR head to `3a06d40`; Run #160 is pending for that exact head. Run #159 was cancelled after the newer push. Do not call the current head fully green until Run #160 (or a later run for the same head) completes successfully.
+The following paragraph is a historical workflow chronology from the 2026-11-25 review and is superseded by the 2026-11-26 status addendum below. The current preserved branch head and exact successful CI run are stated in the PR #2 row above and in root `PLAN.md`.
 
 Run #152 completed six jobs successfully on the inspected workflow: dependency metadata, Linux dependency metadata, Apple/iOS, Linux desktop, Windows desktop, and Android. Its logs show:
 
@@ -150,7 +151,7 @@ Merging research documents does not approve their recommendations, establish pro
 
 The following decisions materially determine the next stage:
 
-1. Accept the five-OS route as **Android + iOS native framework + Windows/macOS/Linux JVM**, not native desktop libraries, for the first release.
+1. **Production stack remains undecided:** the earlier Android + iOS framework + desktop JVM route is a candidate, not an owner-approved production choice. Complete M0.1 evidence and compare against the product's actual consumer/runtime requirements before selection.
 2. **Testing scope — decided:** accept the passing supported CI matrix for current MER-0.1 validation. Physical Android/iOS device testing and Android ARM64 runtime validation are deferred; keep them marked NOT TESTED and revisit only when hardware or a concrete requirement makes them necessary.
 3. Approve the batch-first public API with per-feature results and cancellation semantics.
 4. Approve optional persistence and decide whether custom host storage is part of v1 or a later extension.
