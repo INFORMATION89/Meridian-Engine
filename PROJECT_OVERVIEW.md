@@ -59,8 +59,8 @@ The roadmap is staged so that each capability is supported by evidence before it
 | Stage | What it establishes |
 |---|---|
 | M0 — Foundation | Repository governance, licensing, documentation, and CI |
-| M0.1 — Platform proof | Confirm a viable way to build and integrate Meridian across the target platforms |
-| M0.2 — Public API and storage | Define how applications request weather data and how local cache/history are handled |
+| M0.1 — Platform proof (complete) | Confirmed the KMP/Ktor/SQLDelight candidate path across the CI-tested targets; production baseline approved |
+| M0.2 — Public API and storage (active) | Define how applications request weather data and how optional local cache/history are handled |
 | M0.3 — Verification foundation | Build reliable ways to compare forecasts with later observations |
 | M1 — First forecast | Deliver a narrow forecast path from one eligible provider |
 | M2 — Source resilience | Add source selection, provenance, cache, fallbacks, and clear failure reporting |
@@ -95,9 +95,9 @@ There is not yet an authorized production weather-provider pipeline, final publi
 
 ## What happens next?
 
-The immediate priority is to finish and review the platform proof, choose the production integration strategy using evidence, define the public API and local storage boundaries, and build a reproducible forecast-verification foundation.
+The active priority is M0.2: define and verify Meridian's public API, lifecycle, cancellation, typed errors, partial results, freshness semantics, optional storage boundary, cache/history records, and versioning. A standalone consumer must prove the contracts without Solstice.
 
-Only after those gates are satisfied should production weather providers and forecast intelligence be implemented. This keeps Meridian independent, portable, scientifically honest, and privacy-preserving as it grows.
+After M0.2, M0.3 will establish reproducible forecast/observation verification and scientific safeguards. Production weather providers and forecast algorithms remain gated until both milestones are completed and approved.
 
 ## Project documents
 
