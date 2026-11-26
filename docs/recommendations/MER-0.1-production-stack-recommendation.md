@@ -1,9 +1,9 @@
 # MER-0.1 production-stack recommendation
 
-**Status:** Proposed — awaiting owner approval  
+**Status:** Historical recommendation — subsequent owner decision recorded in [ADR-0003](../decisions/ADR-0003-approved-production-technology-direction.md)  
 **Prepared:** 2026-11-26  
-**Evidence baseline:** [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), code commit `91996fb7c190f80899261eb2ff21630b5e564209`  
-**Authority:** Recommendation only. This document does not authorize production implementation or change the owner-approved JVM-first desktop direction.
+**Evidence baseline:** [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), code commit `91996fb7c190f80899261eb2ff21630b5e564209`; latest M0.1 PR-head validation: [CI run #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103)  
+**Authority:** Historical recommendation. ADR-0003 subsequently records the owner's approval of KMP and Ktor, with SQLDelight/SQLite retained as an optional preferred persistence candidate. M0.2/M0.3 acceptance gates remain in force.
 
 ## Executive recommendation
 
@@ -70,7 +70,7 @@ Trade-off:
 
 The actual engines passed deterministic local-fixture tests, including failure mapping, timeouts, cancellation, and disposal. Keep a shared client lifecycle at the engine/application boundary in production; do not create a new client per weather request. Configure connect/request/socket timeouts, redirects, proxy behaviour, user agent, TLS policy, and provider-specific limits explicitly in the production networking specification.
 
-Ktor is not yet approved as an immutable dependency choice. Re-check the selected stable version and platform-specific behaviour when M0.2 defines the real client lifecycle and public error contract.
+Ktor is approved as the initial networking implementation direction behind Meridian-owned contracts (ADR-0003). Re-check the selected version and platform-specific behaviour when M0.2 defines the real client lifecycle and public error contract.
 
 ### Local storage — SQLDelight
 
