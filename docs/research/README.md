@@ -8,7 +8,7 @@ These documents prepare work that can proceed alongside MER-0.1 without changing
 
 ## Reading order
 
-1. [Architecture review](ARCHITECTURE_REVIEW.md) — current architecture, evidence, risks, conflicts, and decisions that need owner approval.
+1. [Architecture review](ARCHITECTURE_REVIEW.md) — historical architecture/evidence snapshot with a dated status addendum; root PLAN.md and live PR status govern current decisions.
 2. [Weather data model](WEATHER_DATA_MODEL.md) — proposed semantics for observations, forecasts, derived values, time, units, quality, freshness, and provenance.
 3. [Weather intelligence](WEATHER_INTELLIGENCE.md) — meteorological rules, source selection, blending, verification, and regional test strategy.
 4. [Provider research](PROVIDER_RESEARCH.md) — provider capabilities, access conditions, limitations, and research tasks.
@@ -24,7 +24,7 @@ These documents do not override:
 - `AGENTS.md` — coding-agent instructions.
 - An approved milestone specification and an explicit owner decision.
 
-A recommendation in these documents is not an implementation instruction. Before a recommendation becomes binding, record the decision in the authoritative project document, update the relevant milestone specification, and obtain the required owner approval. Keep the proposal marked as pending until that happens.
+A recommendation in these documents is not an implementation instruction. Before a recommendation becomes binding, record it in the authoritative project document and update the relevant milestone specification. Owner approval is required for product, privacy, legal/licensing, paid-cost, public-contract, strategic compatibility, or scientific-method changes. Routine technical implementation choices within an approved milestone/specification may be made autonomously, documented, and verified under RULES.md and AGENTS.md. Keep unapproved proposals clearly marked.
 
 ## Research discipline
 
@@ -38,8 +38,8 @@ A recommendation in these documents is not an implementation instruction. Before
 
 ## Current boundary
 
-The current engineering work remains MER-0.1 stabilization. These documents prepare the decisions and research needed for MER-0.2, MER-0.3, and later weather milestones. They do not authorize production provider adapters, production persistence, forecast algorithms, blending, alerts, learning, radar, telemetry, hosting, or AI runtime integration.
+The current implementation gate remains MER-0.1 platform/production-stack evidence. PR #2 was closed while still Draft on 2026-11-26, unmerged, to clear unfinished open PRs; its source branch is preserved and none of its acceptance gates were waived. These documents prepare the decisions and research needed for M0.2, M0.3, and later weather milestones. They do not authorize production provider adapters, production persistence, forecast algorithms, blending, alerts, learning, radar, telemetry, hosting, or AI runtime integration.
 
 ## Research snapshot
 
-External material in these documents was checked on 2026-11-25. Provider terms and operational facts can change; re-check them immediately before implementation or release.
+External material in these documents was checked on 2026-11-25 or the date noted in the individual research file. Provider terms and operational facts can change; re-check them immediately before implementation or release.
