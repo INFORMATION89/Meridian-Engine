@@ -169,7 +169,7 @@ jobs:
       - name: Start local HTTP fixture server
         shell: pwsh
         run: |
-          Start-Process -FilePath python -ArgumentList @('-m','http.server','8765','--directory','ci/fixtures','--bind','0.0.0.0') -WindowStyle Hidden
+          Start-Process -FilePath python -ArgumentList @('ci/fixture_server.py') -WindowStyle Hidden
           $ready = $false
           for ($attempt = 0; $attempt -lt 10; $attempt++) {
             try {
