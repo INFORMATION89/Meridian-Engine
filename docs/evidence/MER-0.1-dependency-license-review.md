@@ -1,7 +1,8 @@
 # MER-0.1 dependency license inventory review
 
-**Evidence run:** [GitHub Actions #45781760705](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45781760705)  
-**Audited commit:** `62ec625e83447591e9ab5ea0eff2c5ae2af04d8b` (audit source; documentation follow-up on current PR head)  
+**Latest evidence run:** [GitHub Actions #45872259210 (run #222)](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210)  
+**Audited commit:** `91996fb7c190f80899261eb2ff21630b5e564209`  
+**Earlier baseline:** [run #45781760705](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45781760705), commit `62ec625e83447591e9ab5ea0eff2c5ae2af04d8b`  
 **Job:** `dependency-license-audit` — successful  
 **Generated:** 2026-11-26
 
@@ -86,3 +87,12 @@ This closes the previously open desktop app-image notice-staging check for Linux
 The iOS artifact contains the built XCFramework and Swift consumer build output, but no Android or iOS application release package is produced by this workflow. Android's artifact is test/report output only. Therefore, legal packaging for an eventual Android APK/AAB and a distributable iOS app/framework package remains unverified and must not be inferred from the desktop results.
 
 **Updated status:** desktop app-image notice inclusion is verified on all three desktop operating systems. The SBOM metadata audit passed with zero third-party coordinates missing license metadata. The five multi-license entries have been traced to lint/test/build-tool configurations rather than desktop runtime packages and their declared upstream license alternatives have been reviewed. Full mobile release-package notice verification remains open.
+
+
+## Latest audit refresh — CI #222 (2026-11-26)
+
+The dependency-license audit was repeated successfully on commit `91996fb7c190f80899261eb2ff21630b5e564209` in [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210). The generated artifact independently confirms the inventory counts above: 402 unique third-party Maven coordinates, zero missing third-party license metadata, zero unresolved dependency metadata, 54 runtime coordinates (53 Apache-2.0 and one MIT), and five multi-license coordinates. All 58 SBOM-only coordinates remain traced to Android Gradle Plugin, Kotlin Gradle Plugin, or SQLDelight Gradle Plugin/buildscript graphs.
+
+The same run's Linux, Windows, and macOS app-image artifacts were inspected directly. Their uncompressed app-image contents measure 183.0 MiB, 169.7 MiB, and 171.7 MiB respectively. Each includes the root project `LICENSE` and `THIRD-PARTY-NOTICES.md`, and preserves the bundled JDK legal directory (225 files on Linux/Windows; 224 on macOS).
+
+The iOS XCFramework is built and consumed by Swift tests, but the current CI artifact does not include the project license/third-party notice files alongside the XCFramework. The workflow also does not produce an Android APK/AAB or a distributable iOS application package. Do not infer mobile release-package compliance from desktop app-image verification; stage and inspect mobile distribution notices before a public mobile release.

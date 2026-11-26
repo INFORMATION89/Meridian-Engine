@@ -27,6 +27,7 @@ Kotlin Multiplatform, Ktor, and SQLDelight remain candidates under evaluation. T
 ## Product and architecture boundaries
 
 - Meridian is a reusable library, not a weather application.
+- Meridian returns meteorological facts, derived weather events, evidence, provenance, quality, and uncertainty; consuming applications own user-facing advice such as clothing, umbrella, UV-action, activity, and notification policies ([ADR-0002](docs/decisions/ADR-0002-application-owned-recommendations.md)).
 - Meridian must build and pass its own tests without checking out Solstice.
 - The engine core must not depend on UI frameworks, a consumer application's lifecycle, or any Meridian-hosted service.
 - Weather values must eventually retain units, timestamps, freshness, quality information, and source provenance.
