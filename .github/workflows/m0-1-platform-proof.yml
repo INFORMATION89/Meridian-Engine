@@ -251,10 +251,13 @@ jobs:
           env -u JAVA_HOME -u JAVA_HOME_21_X64 PATH="$empty_path" "$PWD/$dest_dir/MeridianProbe.app/Contents/MacOS/MeridianProbe"
           cp LICENSE THIRD-PARTY-NOTICES.md "$dest_dir/MeridianProbe.app/"
           du -sh "$dest_dir/MeridianProbe.app"
-      - name: Prepare Swift package consumer
+      - name: Prepare Swift package consumer and stage license notices
         run: |
           mkdir -p ios-consumer/Frameworks
           cp -R engine/build/XCFrameworks/debug/MeridianShared.xcframework ios-consumer/Frameworks/
+          cp LICENSE THIRD-PARTY-NOTICES.md ios-consumer/Frameworks/
+          du -sh ios-consumer/Frameworks/MeridianShared.xcframework
+          ls -lh ios-consumer/Frameworks/LICENSE ios-consumer/Frameworks/THIRD-PARTY-NOTICES.md
       - name: Run native Swift consumer tests
         working-directory: ios-consumer
         run: xcodebuild -scheme MeridianSwiftConsumer -destination 'platform=iOS Simulator,name=iPhone 17' test
@@ -269,6 +272,7 @@ jobs:
           path: |
             engine/build/XCFrameworks/
             engine/build/test-results/
+            ios-consumer/Frameworks/
             ios-consumer/.build/
             desktop-consumer/build/install/
             desktop-consumer/build/jpackage/
@@ -383,12 +387,24 @@ jobs:
         env:
           # Android Emulator refuses -accel off without this explicit opt-in.
           ANDROID_I_WANT_MY_TCG: "yes"
+      - name: Record Android consumer package sizes
+        if: always()
+        shell: bash
+        run: |
+          for dir in android-consumer/build/outputs/apk engine/build/outputs/aar; do
+            if [ -d "$dir" ]; then
+              find "$dir" -type f \\( -name '*.apk' -o -name '*.aab' -o -name '*.aar' \\) -printf '%p %s bytes\\n' | sort
+            fi
+          done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: mer-0-1-android-x86_64
           retention-days: 7
           path: |
+            LICENSE
+            THIRD-PARTY-NOTICES.md
             android-consumer/build/reports/
             android-consumer/build/outputs/androidTest-results/
+            android-consumer/build/outputs/apk/
             engine/build/reports/tests/testAndroidHostTest/
