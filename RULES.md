@@ -133,6 +133,8 @@ Contributor use of AI for engineering and occasional manual data analysis is gov
 
 ## 12. Testing and verification
 
+Follow `AI_COST_POLICY.md` when selecting AI/tool usage and verification scope. Choose tests according to the changed surface and risk: do not run expensive platform or historical suites for unrelated documentation changes, do not duplicate equivalent coverage, and never omit checks required by the affected risk or release gate.
+
 1. Core logic must have deterministic unit tests. Use fake clocks, fake HTTP clients, and fixtures where applicable.
 2. Test each source adapter offline with representative recorded responses, including empty, malformed, partial, stale, and error responses.
 3. Test rate-limit enforcement, minimum intervals, cache expiry, fallback selection, provenance propagation, and partial-source failures.
