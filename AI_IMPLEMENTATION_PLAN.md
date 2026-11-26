@@ -141,57 +141,26 @@ Make the repository legally, operationally, and procedurally coherent before pro
 
 ## 5. M0.1 — Platform and production-stack proof (complete; baseline approved)
 
-### Objective
+### Outcome and evidence
 
-Choose a production implementation direction based on actual target applications, runtime requirements, dependencies, packaging, and consumer-boundary behaviour—not familiarity with Solstice or a successful compile alone.
+M0.1 is complete for its owner-approved CI-only acceptance. The platform proof and production technology baseline were merged through PR #15. CI run [#224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103) passed all five required jobs on the merged proof branch.
 
-### Current evidence to preserve
+The approved baseline is Kotlin Multiplatform for the shared core, Ktor for HTTP, optional SQLDelight/SQLite behind an engine-owned storage contract, JVM-first desktop for Windows/macOS/Linux, and a Swift-friendly iOS framework facade. The owner decision is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md).
 
-The canonical proof is PR #2, not the closed duplicate PR #3. Its current head at the latest recorded review is bd395b5fd3a8eb03c96528eb429b183125eaf007. CI run 45736878709 completed six successful jobs: Android, Apple/iOS, Windows desktop, Linux desktop, and two dependency-metadata checks.
+The proof covered Android x86_64 emulator, ARM64 iOS simulator with native Swift consumer tests, macOS desktop JVM, Windows desktop JVM, Linux desktop JVM, and dependency/license auditing. Real Android, Darwin, and CIO HTTP engines and the tested SQLDelight drivers were exercised through deterministic local fixtures.
 
-That evidence demonstrates an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux. It does not demonstrate Android ARM64 runtime or physical Android/iOS device execution. CI-only coverage is accepted for this M0.1 stage; retain those limitations in the compatibility matrix and do not imply that they passed.
+### Explicit limitations
 
-PR #2's preserved source branch contains a root Apache License 2.0 file and a draft README, but neither file is on `main` because the PR was closed unmerged. The README's proposed KMP/JVM description must be reconciled with the still-open production-stack decision before it becomes authoritative.
+The following remain **NOT TESTED**: Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final Android/iOS release-package inclusion of project and third-party notices. Do not imply these passed. Mobile notice staging and verification remain mandatory before public mobile distribution. Probe app-image sizes are not release-size guarantees.
 
-### Required work
+### Gate result
 
-1. Inspect the preserved PR #2 source branch at its exact current head. Confirm the latest run belongs to that SHA; do not reuse older CI results after a relevant commit changes. Reopen or create a replacement PR only after the evidence package is ready.
-2. Verify every declared target and artifact type. Distinguish Android runtime, iOS framework/simulator, JVM desktop, and any native desktop ABI claims.
-3. Exercise the actual Ktor engine intended for Android, Darwin, and JVM/CIO. A common MockEngine test does not prove platform transport behaviour.
-4. Add deterministic, offline fixture requests through each real engine. Cover success, empty/partial data, malformed payload, transport error, timeout, cancellation, and client/resource cleanup as applicable.
-5. Verify typed error mapping at the public consumer boundary. No provider-specific exception or DTO should leak into the public domain contract.
-6. Verify cancellation propagation from consumer to request, parsing, orchestration, and storage. Confirm that one source's failure does not cancel unrelated work unless the request contract says so.
-7. Exercise SQLDelight/platform storage drivers if the candidate remains in use. Verify target compatibility, migrations, transaction behaviour, lifecycle, and whether the engine really needs to own persistence.
-8. Compare package size, startup/runtime requirements, dependency footprint, build reliability, CI cost, and how a consumer distributes the required runtime.
-9. Test the consumer shapes that determine the architecture: Kotlin/Android, Swift/iOS, and at least one non-Kotlin desktop consumer when native/non-JVM interoperability is a requirement.
-10. Complete dependency provenance and licence analysis, including transitive, test, build, and packaging dependencies. Decide whether NOTICE or other notices are required.
-11. Record untested architectures, device classes, native ABIs, and runtime combinations. Do not broaden the support promise to match the number of green jobs.
-12. Produce a like-for-like Rust/UniFFI comparator only if the KMP evidence exposes a concrete runtime, native ABI, or consumer-interoperability blocker. Do not create an expensive second spike by default.
-13. Present a bounded recommendation with evidence, costs, trade-offs, untested cells, migration consequences, and exact acceptance status.
+- Production technology baseline: **owner approved**.
+- M0.1 platform proof: **complete for CI-only acceptance**.
+- Production weather-provider/forecast implementation: **not authorized by M0.1**.
+- Next milestone: **M0.2 public API and storage contracts**.
 
-### Decision criteria
-
-Compare Kotlin Multiplatform and Rust against the same requirements:
-
-- Windows, macOS, Linux, Android, and iOS targets and supported architectures.
-- Actual consumer languages and app types, beyond Kotlin-only integration.
-- Whether a desktop JVM runtime is acceptable or a native library is needed.
-- iOS/Swift API ergonomics, async/cancellation behaviour, and native lifecycle.
-- Android packaging, supported ABIs, and app lifecycle.
-- Artifact size, startup, CPU, memory, battery, and distribution implications.
-- Dependency support, licensing, security, maintenance, and supply-chain risk.
-- CI reliability, build time, toolchain complexity, and long-term maintenance.
-
-### Acceptance gate
-
-- Actual engine transport, timeout, error, cancellation, and resource-lifecycle behaviour is evidenced on relevant targets.
-- Supported and untested target/artifact combinations are explicitly listed.
-- Storage and networking candidates are accepted or replaced based on proof.
-- Package and consumer interoperability limitations are known.
-- Dependency licensing and notice obligations are recorded.
-- The production stack recommendation is reviewed and explicitly approved by the owner.
-
-Do not merge PR #2 or begin M1 merely because its six existing CI jobs passed.
+Rust/UniFFI is deferred. Do not create a second implementation spike unless concrete consumer evidence demonstrates a KMP/JVM blocker; any strategic replacement requires owner review.
 
 ## 6. M0.2 — Public API and storage contract (active)
 
