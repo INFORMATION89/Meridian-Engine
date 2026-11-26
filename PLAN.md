@@ -122,11 +122,15 @@ A successful JVM test on Windows does not prove that an arbitrary native Windows
 
 ## 5. Technology and interoperability decision
 
-### No implementation language is irrevocably selected
+### Desktop distribution direction: JVM-first (owner-approved)
 
-Kotlin Multiplatform remains a credible candidate because Solstice already uses Kotlin and the current M0.1 work validates Android, iOS/Swift, and JVM desktop paths. It must not be selected merely for convenience or because Solstice uses it.
+The owner selected the JVM-packaged desktop path for the initial desktop distribution direction. Windows, macOS, and Linux desktop consumers will use the JVM artifact. Meridian's application-level distribution guidance should support bundling a compatible Java runtime (for example, a minimized runtime image) so end users of an application do not need to install Java separately. A generic Meridian library artifact does not itself contain or impose an application runtime; the consuming application controls its final packaging.
 
-Rust remains a credible alternative if a native shared library, broader language interoperability, or avoiding the desktop JVM is important enough to justify native packaging and FFI complexity. Neither candidate should be declared superior without evidence from the same consumer requirements.
+This decision prioritizes shared implementation, lower initial build and maintenance cost, and reuse of the validated desktop JVM path. It does **not** mean every desktop integration must use JVM forever. Native `.dll`, `.dylib`, and `.so` artifacts, C ABI, Rust bindings, and direct native-language integration remain future options if concrete consumer requirements justify their cost. Do not build or promise those native artifacts in M0.1.
+
+### Production language and shared-core strategy remain evidence-gated
+
+Kotlin Multiplatform remains a credible candidate because the current M0.1 work validates Android, iOS/Swift, and JVM desktop paths. It must not be selected merely because Solstice uses Kotlin. Rust remains a credible alternative for a future native interoperability layer or if measured requirements justify replacing the managed desktop route. The owner's JVM-first desktop decision narrows the desktop distribution target; it does not alone approve the complete production language, networking, storage, public API, or provider stack.
 
 ### What the current M0.1 evidence establishes
 
@@ -522,13 +526,14 @@ Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application
 - No mandatory Meridian hosting, accounts, telemetry, AI service, or external sharing.
 - Apache-2.0 is the selected project licence.
 - Releases are one GitHub Release per version with separate platform-specific artifacts.
+- Desktop distribution direction is JVM-first for Windows, macOS, and Linux; consuming applications may bundle a compatible runtime for self-contained delivery. Native desktop libraries remain a future option requiring evidence and approval.
 - AI may assist engineering and research but is not a runtime dependency.
 
 ### Technical decisions not yet locked
 
 These are evidence gates, not reasons to interrupt the owner with routine programming questions:
 - production language and shared-core strategy;
-- desktop JVM versus native desktop artifacts and consumer-language coverage;
+- final production language/shared-core strategy and non-JVM consumer bindings; desktop distribution direction is owner-approved as JVM-first with a bundled-runtime option for applications that need self-contained delivery; native desktop libraries remain a future interoperability option, not a M0.1 requirement;
 - platform artifact and packaging matrix;
 - storage implementation and host-provided storage contract;
 - exact public API shape, cancellation, errors, and compatibility rules;
