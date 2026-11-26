@@ -1,9 +1,8 @@
 # Meridian, the weather engine: spec
 
-Status: **draft for Marco** (2026-11-23). Clean room step 1 (CLEAN_ROOM.md): written in our own
-words from public sources only (list at the end). The build session works from this file, never from
-Breezy's code. Design background: SOURCES.md. Decisions: PLAN.md, "Weather engine". Libraries, modules, sources' terms, methods and
-milestones: MERIDIAN_PLAN.md.
+**Status:** legacy weather-behaviour specification under reconciliation. This file is supporting domain research, not an independent implementation authority. The root `PLAN.md` is the master source for product scope, architecture, milestones, and gates; approved milestone specifications govern implementation. The research and source notes below are historical starting points and must be revalidated before use.
+
+This document was originally written from public sources under `CLEAN_ROOM.md`. Preserve the source record, but resolve any conflict in favour of `PLAN.md` and the current approved milestone specification.
 
 ## 1. What it is
 
@@ -14,7 +13,7 @@ first consumer, not its owner or a required dependency. Meridian must build, tes
 other applications on iOS, Android, Windows, macOS, and Linux must be able to consume the same public API.
 
 - **Licence:** Apache 2.0.
-- **Implementation language and bindings:** defined by the master [PLAN.md](../PLAN.md). The current recommendation is a Kotlin Multiplatform engine with Android/iOS targets and a Desktop JVM artifact for Windows, macOS, and Linux, subject to the M0.1 proof of concept and owner approval. This specification defines weather behaviour, not a final programming-language choice.
+- **Implementation language and bindings:** defined only by the master [PLAN.md](../PLAN.md). The current KMP spike is evidence for one candidate; Kotlin Multiplatform and Rust remain candidates until the M0.1 evidence gate and owner approval. This specification does not select the production language, runtime, or artifact strategy.
 - **Platforms:** Windows, macOS, iOS, Android, and Linux are intended targets. Exact supported architectures, artifact formats, and support levels are maintained in [PLAN.md](../PLAN.md).
 - **Not in it:** UI, app navigation, Android `Context` or other platform UI objects in the engine core, dependency-injection frameworks in the core, or any consumer application's code.
 
@@ -24,7 +23,7 @@ The engine must keep weather-domain behaviour independent from the host operatin
 
 The five target platforms are Windows, macOS, iOS, Android, and Linux. A target is not considered supported simply because a compiler emits a binary: the library must load through its intended binding, execute a deterministic operation, handle errors and cancellation safely, and pass platform integration tests.
 
-The current recommended KMP target matrix, runtime requirements, dependency support, and platform build hosts are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before a release.
+The current M0.1 candidate target matrix, runtime requirements, dependency support, and platform build hosts are maintained in [PLAN.md](../PLAN.md). Revalidate target and dependency support before implementation and release; do not treat the KMP spike as a production-stack decision.
 
 Do not require a single database, HTTP client, date-time library, or UI framework across all host applications. Choose dependencies only after the M0.1/M0.2 compatibility and packaging tests. The engine must isolate network, storage, clock, and platform capabilities behind narrow internal boundaries.
 
@@ -97,75 +96,55 @@ For each feature of each place:
 
 ## 7. Combining sources
 
-**Forecast (blend):** a weighted mean per variable and time step across the models used. Weights come
-from configuration; later, from each model's recent error at this place (section 8). The spread per
-step (lowest and highest model, and the standard deviation) is part of the result.
-Precipitation probability, when models disagree, is the share of models above the rain threshold.
+**Forecast (blend):** the initial validated baseline may use neutral/equal weights where the approved M5 specification supports it. Adaptive weights and bias corrections are later capabilities; they require verified samples, chronological archive evaluation, provenance, bounded behaviour, and their own milestone gate. Preserve the individual inputs and per-step spread (range and suitable dispersion measure).
 
-**Next-hour rain:** phase 1 uses 15-minute model data where it exists (Central Europe and North
-America) and the hourly blend elsewhere, marked as coarse. Phase 2 adds a radar nowcast (section 10).
+A weighted share or fraction of deterministic models above a rain threshold is **model agreement**, not automatically a calibrated precipitation probability. Preserve provider-supplied probabilities separately. Expose a probability only when its event threshold, time window, method, and calibration/evaluation status are documented.
 
-**Current conditions:** the nearest observation within a maximum distance, elevation difference and
-age; otherwise the model's current hour, marked as a model value.
+**Next-hour rain:** use source-native temporal resolution only where the selected provider/model actually supplies it for the requested region. Distinguish native 15-minute values from interpolated or resampled hourly data; do not promise 15-minute coverage for Mexico or other regions without current source evidence. Radar/satellite nowcasting remains a later, gated capability (section 10).
 
-**Alerts:** the union of every alert source covering the place. Duplicates collapse when they share
-an identifier, when one references the other (CAP `references`), or when sender, event and overlapping
-validity match. Updates replace what they reference; cancels remove it. The most local copy wins
-(city over national over global aggregator). Alerts are never blended or reworded.
+**Current conditions:** use a quality-controlled, sufficiently fresh and representative observation when one is available. Evaluate distance, elevation, exposure, sensor/quality flags, and variable-specific representativeness; the nearest station is not automatically the best. Otherwise return an explicitly labelled model estimate or an unavailable result.
+
+**Alerts:** normalize eligible official alert feeds while preserving the issuing authority, original message identity, source route, CAP references, updates, cancellations, validity, geography, and attribution. Deduplicate using CAP identity/reference semantics; do not replace official authority or instructions with an aggregator's interpretation merely because a copy is more local. Alerts are never blended or reworded as if Meridian issued them.
 
 **Air quality and UV:** a local station when close and fresh, otherwise the global model.
 
-## 8. Learning (on the phone)
+## 8. Local verification and learning (future, gated capability)
 
-- A short rolling log per saved place: what each source forecast for each hour, and what the nearest
-  observation later measured. Kept 30 days by default (configuration; decided 2026-11-23), then deleted.
-- From it: each source's recent error, used for weights, and a bias correction for the next hours
-  that fades out with lead time.
-- Seeded from public data so it works from day one: archived past forecasts (Open-Meteo's Previous Runs
-  API, from January 2024; see M7_LEARNING.md) checked against station observations.
-- **Opt-in sharing** (RULES.md section 10): only aggregated forecast errors, area-rounded and
-  hour-rounded, computed on the device. This is a separate future feature and is not required for
-  local learning or normal engine operation. Do not add a Meridian-hosted collection server by default.
+- Meridian does not own or persist the consumer application's saved-place list and must not create background location tracking. Any recent verification/learning record is derived only from explicit consumer requests and retains the minimum spatial detail needed for valid forecast/observation matching.
+- The initial 30-day rolling window applies to recent local learning/verification records only, when the M7 gate approves their use. It is configurable, bounded, and independently deletable. It is not a universal retention period for cache, forecast archives, observations, or historical/climatological datasets.
+- Match forecasts only to quality-controlled, temporally appropriate and spatially representative observations. The nearest airport is not automatically representative of the requested point.
+- M7 may begin with descriptive skill statistics. Adaptive weights and bias corrections are not automatically activated by new data; they require sufficient samples, an independently evaluated method, provenance, regression safeguards, and the relevant approval gate.
+- Historical forecast archives are candidate research inputs, not a guaranteed day-one seed. Verify exact product/run semantics, coverage, terms, licence, attribution, availability, and request cost before use. A stitched historical series or reanalysis is not interchangeable with archived issued forecasts.
+- **Optional sharing:** disabled by default and not required for local learning. Any future opt-in must separately explain the data fields, purpose, destination, recipients, and retention; provide an inspectable payload example and controls for withdrawal and deletion of eligible local data. Do not add a Meridian-hosted collection service by default.
 
 ## 9. Storage, caching and scheduling
 
-- `core` defines storage contracts for the cache, forecast/observation history and local verification statistics.
-- The preferred implementation is local SQLite through the cross-platform storage module (SQLDelight candidate, subject to M0.2 proof). On-device storage is owned by the consuming application and remains available without a Meridian account or remote database.
-- Application settings, secure storage for any user-supplied provider credentials, and refresh scheduling remain the consuming application's responsibility.
-- Cache each response for its source's update cadence; never call a source more often than its minimum interval, whatever the app asks.
-- The engine never schedules itself; the app decides when to refresh (WorkManager on Android).
-- Network access is used only to contact configured weather/observation/alert providers directly. The engine does not call a Meridian-operated backend or require a persistent connection to a Meridian service.
-- When offline, return valid cached data with its original timestamp and freshness state, or a typed unavailable/stale result. Never imply cached data is current.
+- The core defines consumer-neutral contracts. Persistent storage is optional; the host may use a validated optional storage implementation or a host-supplied adapter only after the M0.2 contract is approved. Do not assume Room, SQLDelight, SQLite, or another database is selected for production.
+- Keep response cache, issued-forecast snapshots, observation history, the short local learning/verification window, and long-term historical/climatological datasets as distinct data categories with separate retention, licensing, and deletion rules.
+- The host owns the application lifecycle, settings, secure credential storage, saved places, and refresh scheduling. Meridian never stores a saved-place list or schedules background refreshes itself.
+- Honour source update cadence, published cache/expiry metadata, rate limits, and terms; never call a source more frequently than permitted.
+- Normal network access is used only to contact configured weather/observation/alert providers directly where their access and credential model permit. The engine does not call a Meridian-operated backend or require a persistent connection to a Meridian service.
+- When offline, return valid cached data with its original timestamps and freshness state, or a typed unavailable/stale result. Never imply cached data is current.
 
 ## 10. Phase 2: radar nowcast (not before phase 1 works)
 
-Extrapolate the last radar frames forward with optical flow, then blend into the model over the first
-hour, as open nowcasting systems do. Inputs: public radar composites where they exist (US, Canada,
-Europe's OPERA, Japan, Taiwan and others); elsewhere, the satellite rain rate (NOAA's Enterprise Rain
-Rate from GOES-18, GOES-19 and Himawari-9: 2 km, every 10 minutes, open data). Mexico City has SMN's
-Cerro Catedral radar, published only as images on SMN's site; ask SMN about access first.
+Radar and satellite nowcasting are research leads, not a committed implementation. Before processing, verify current source access rights, regional coverage, latency, scan/update cadence, georeferencing, calibration, quality, and redistribution terms. Keep radar observations distinct from satellite-derived precipitation estimates. Optical-flow extrapolation and blending require a regional benchmark and the M10 acceptance gate. Any Mexico-specific access claim must be rechecked against current SMN documentation and terms.
 
-## 11. API for apps
+## 11. API for apps (historical sketch; M0.2 governs the contract)
 
-- `refresh(place, features)` returns a result with values, spread and provenance; streams partial
-  results as sources answer.
-- `sources(place)` lists candidates and their state for the settings screen.
-- `credits(result)` lists the credits that must be shown.
-- Errors are values in the result, never exceptions across the API.
-- Android: Solstice re-exposes results to other apps on the phone (the data sharing Breezy already
-  offers to Gadgetbridge and launchers), with the person's consent.
+- The first-release direction is a batch-oriented request/result API, as proposed in M0.2. This document's earlier streaming sketch is not an adopted contract. Streaming/partial updates may be reconsidered only if M0.1 interoperability evidence and a concrete consumer requirement justify them.
+- Results should express per-feature success, partial failure, unavailable/stale states, provenance, units, timestamps, and relevant uncertainty. Provider-specific DTOs must remain internal.
+- Source diagnostics and attribution data may be exposed through documented, consumer-neutral methods; do not make engine APIs depend on settings-screen or UI concepts.
+- Preserve typed problem information for input/provider/storage failures. Cancellation remains cancellation and must not be swallowed as a normal successful result or ordinary source failure.
+- Inter-application sharing, notifications, settings, and their consent UI are consumer-application responsibilities. This engine specification does not define Solstice-specific sharing behaviour.
 
-## 12. First sources (decided 2026-11-23)
+## 12. Researched source candidates (not integration approval)
 
-Open-Meteo (forecast, air quality; no key), aviationweather.gov airport reports (current conditions;
-public, no key), WMO Severe Weather and the FOSS Public Alert Server (official alerts). Everything
-else plugs in later.
+Open-Meteo, aviationweather.gov, direct official alert feeds identified through WMO, and FOSS Public Alert Server are research candidates for particular features. Inclusion here does not approve an adapter or imply universal coverage, commercial eligibility, stable uptime, or a single-source plan. Select each provider only after checking current terms, licence, attribution, coverage, authentication/credential distribution, request costs, rate limits, and failure behaviour for the intended consumer deployment.
 
 ## 13. Configuration and tokens
 
-Every threshold, weight, distance, age, window, cell size and interval is configuration with a named
-default, never typed into code (RULES.md section 9). The list grows with the code; each new one is
-agreed with Marco.
+Every operational threshold, weight, distance, age, window, cell size and interval must be named, documented, validated, and traceable to an approved specification. Agents may choose routine internal parameters within an approved method and record their rationale/tests. A new consumer-configurable default, material change to forecast behaviour, or change to the approved scientific method requires owner review under `PLAN.md` and `RULES.md`.
 
 ## 14. Testing
 
@@ -174,9 +153,9 @@ agreed with Marco.
 - Blend and correction changes are checked against public archives (past forecasts against
   observations) before they ship, with the error before and after recorded in the pull request.
 
-## Open questions for Marco
+## Current decisions and open gates
 
-None right now.
+This legacy specification is not an approval record. Reconcile remaining behaviour against `PLAN.md` and the active milestone specification. The production language/runtime, public API and storage contract, provider eligibility, historical archive, adaptive learning, and radar/nowcasting methods remain subject to their respective evidence and approval gates.
 
 ## Consulted (public sources only)
 
