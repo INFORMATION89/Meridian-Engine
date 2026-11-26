@@ -402,6 +402,7 @@ Do not promise a package format until a proof of concept is built and loaded on 
 | `PLAN.md` | Master plan, decisions, milestones, acceptance criteria |
 | `AGENTS.md` | Instructions for coding agents operating in a code environment |
 | `AI_POLICY.md` | Governance for AI-assisted engineering and occasional manual research; prohibits AI runtime dependencies |
+| `AI_COST_POLICY.md` | Cost-aware use of AI models, context, tools, CI, providers, datasets, and compute without weakening required verification |
 | `docs/ENGINE_SPEC.md` | Weather engine behaviour and domain requirements |
 | `docs/MERIDIAN_PLAN.md` | Supporting research and earlier design notes; not authority for the toolchain |
 | `docs/specs/M*` | Milestone-specific specifications |

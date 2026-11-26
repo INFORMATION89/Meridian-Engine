@@ -2,7 +2,9 @@
 
 **Scope:** AI tools used by contributors to research, inspect data, develop, test, and improve Meridian.  
 **Status:** Proposed project policy for owner review.  
-**Related documents:** `RULES.md`, `CLEAN_ROOM.md`, `PLAN.md`, `AGENTS.md`.
+**Related documents:** `RULES.md`, `CLEAN_ROOM.md`, `PLAN.md`, `AGENTS.md`, and `AI_COST_POLICY.md`.
+
+Contributor AI usage must also follow `AI_COST_POLICY.md`, which governs efficient use of model calls, context, tools, CI, datasets, and compute without weakening required verification.
 
 ## 1. Governing principle
 

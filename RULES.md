@@ -14,7 +14,7 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 
 ## 1. Read before every session
 
-1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Read AI_POLICY.md before any coding-agent session or when using AI tools with project data.
+1. Read this file and CLEAN_ROOM.md before changing code or project documentation. Every coding-agent session must also read AI_POLICY.md and AI_COST_POLICY.md before using AI tools or project data.
 2. Read the current decision, status, roadmap, and history documents when they exist.
 3. Read the approved specification for the task. A research note or draft is not automatically an approved implementation requirement.
 4. Inspect the actual repository, code, tests, and build configuration. Never assume a planned feature already exists.
@@ -132,6 +132,8 @@ Review every new dependency for maintenance, supported targets, and licence comp
 Contributor use of AI for engineering and occasional manual data analysis is governed by `AI_POLICY.md`. Read it before using a coding agent or sharing project data with an AI tool. Meridian has no AI runtime integration: the shipped engine must not call a model, require an AI provider or credentials, or incur token costs. An optional MCP adapter may be considered outside the weather core to expose approved read-only queries to an external chat client; it must not become a core dependency and requires its own specification and owner approval.
 
 ## 12. Testing and verification
+
+Follow `AI_COST_POLICY.md` when selecting AI/tool usage and verification scope. Choose tests according to the changed surface and risk: do not run expensive platform or historical suites for unrelated documentation changes, do not duplicate equivalent coverage, and never omit checks required by the affected risk or release gate.
 
 1. Core logic must have deterministic unit tests. Use fake clocks, fake HTTP clients, and fixtures where applicable.
 2. Test each source adapter offline with representative recorded responses, including empty, malformed, partial, stale, and error responses.
