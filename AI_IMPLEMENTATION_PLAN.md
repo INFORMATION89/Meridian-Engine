@@ -10,9 +10,9 @@
 
 This document translates the Meridian master plan into an ordered, verifiable work programme. It is intended to help coding agents execute bounded engineering tasks without repeatedly asking the owner to make routine technical decisions.
 
-It does not authorize skipping milestones, implementing every planned capability at once, selecting an unproven production stack, or treating research proposals as approved specifications.
+It does not authorize skipping milestones, implementing every planned capability at once, changing the approved production stack, or treating research proposals as approved specifications.
 
-The project outcome is an independent, reusable, local-first meteorological engine that can serve unrelated applications on Windows, macOS, Linux, Android, and iOS. Solstice is one consumer and must never become a build-time, runtime, or product dependency of Meridian.
+The project outcome is an independent, reusable, local-first meteorological engine that can serve unrelated applications on Windows, macOS, Linux, Android, and iOS. The approved baseline is Kotlin Multiplatform + Ktor + optional SQLDelight/SQLite, with JVM-first desktop and a Swift-friendly iOS facade. Rust/UniFFI and native desktop ABIs are deferred. Solstice is one consumer and must never become a build-time, runtime, or product dependency of Meridian.
 
 ### 1.1 Mandatory project boundaries
 
@@ -139,7 +139,7 @@ Make the repository legally, operationally, and procedurally coherent before pro
 - CI has a known baseline and required checks are identifiable.
 - Documentation authority is unambiguous.
 
-## 5. M0.1 — Platform and production-stack proof
+## 5. M0.1 — Platform and production-stack proof (complete; baseline approved)
 
 ### Objective
 
@@ -193,7 +193,7 @@ Compare Kotlin Multiplatform and Rust against the same requirements:
 
 Do not merge PR #2 or begin M1 merely because its six existing CI jobs passed.
 
-## 6. M0.2 — Public API and storage contract
+## 6. M0.2 — Public API and storage contract (active)
 
 ### Objective
 
