@@ -40,6 +40,22 @@ public class AndroidProbeTest {
     }
 
     @Test
+    public void mapsHttpStatusAndMalformedFixtureResponses() {
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
+            "http://10.0.2.2:8765/status/503", ProbeErrorCode.HTTP_STATUS));
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
+            "http://10.0.2.2:8765/malformed.json", ProbeErrorCode.MALFORMED_RESPONSE));
+    }
+
+    @Test
+    public void mapsFixtureTimeoutAndTransportFailure() {
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
+            "http://10.0.2.2:8765/slow", ProbeErrorCode.TIMEOUT, 50));
+        assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
+            "http://10.0.2.2:8766/offline", ProbeErrorCode.TRANSPORT));
+    }
+
+    @Test
     public void persistsSqliteDataAcrossDriverReopen() {
         assertTrue(AndroidStorageProbe.verifyReopen(
             InstrumentationRegistry.getInstrumentation().getTargetContext()
