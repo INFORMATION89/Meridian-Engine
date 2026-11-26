@@ -3,6 +3,16 @@ import MeridianShared
 @testable import MeridianSwiftConsumer
 
 final class ProbeUseTests: XCTestCase {
+    func testSwiftCanUseExperimentalPublicApi() {
+        let finished = expectation(description: "M0.2 public API query completes")
+        PublicApiUse.run { status, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(status, "UNAVAILABLE")
+            finished.fulfill()
+        }
+        wait(for: [finished], timeout: 5)
+    }
+
     func testSwiftCanCallSharedKotlinFramework() {
         XCTAssertEqual(ProbeUse.run(), "meridian:13")
         XCTAssertEqual(MeridianProbe().version, "0.1.0")
