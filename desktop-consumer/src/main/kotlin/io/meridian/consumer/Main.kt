@@ -4,8 +4,11 @@ import io.meridian.probe.DesktopKtorProbe
 import io.meridian.probe.DesktopStorageProbe
 import io.meridian.probe.MeridianProbe
 import io.meridian.probe.ProbeErrorCode
+import io.meridian.contractspike.WeatherContractDemo
 
 suspend fun main() {
+    val contractSummary = WeatherContractDemo.verifySampleRequest()
+    check(contractSummary == "current=available;hourly=unavailable;air=18.0C;apparent=21.0C")
     val probe = MeridianProbe()
     check(probe.transform(" Meridian ", 5) == "meridian:5")
     check(DesktopKtorProbe.verifyClientLifecycle())
