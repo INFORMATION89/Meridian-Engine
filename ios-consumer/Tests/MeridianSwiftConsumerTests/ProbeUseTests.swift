@@ -31,7 +31,7 @@ final class ProbeUseTests: XCTestCase {
             url: "http://localhost:8765/probe.json",
             timeoutMillis: 5_000
         )
-        XCTAssertEqual(body, #"{\"status\":\"ok\",\"source\":\"local-fixture\"}"#)
+        XCTAssertEqual(body, #"{"status":"ok","source":"local-fixture"}"#)
     }
 
     func testDarwinEngineMapsHttpAndMalformedResponses() async throws {
