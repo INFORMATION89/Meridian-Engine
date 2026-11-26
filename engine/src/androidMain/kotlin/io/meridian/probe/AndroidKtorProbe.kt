@@ -34,9 +34,17 @@ object AndroidKtorProbe {
             val client = HttpClient(Android)
             try {
                 FixtureHttpProbe.fetch(client, url, timeoutMillis)
-                false
+                throw IllegalStateException(
+                    "Expected fixture failure $expectedCode for $url, but the request completed successfully."
+                )
             } catch (failure: ProbeFailure) {
-                failure.code == expectedCode
+                if (failure.code != expectedCode) {
+                    throw IllegalStateException(
+                        "Expected fixture failure $expectedCode for $url, but received ${failure.code}: ${failure.message}",
+                        failure,
+                    )
+                }
+                true
             } finally {
                 client.close()
             }
