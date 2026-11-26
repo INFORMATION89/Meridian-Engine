@@ -50,7 +50,10 @@ jobs:
       - name: Summarize license metadata
         run: |
           python3 ci/summarize-sbom.py build/reports/cyclonedx/bom.json \
-            --output build/reports/cyclonedx/license-metadata-summary.md
+            --output build/reports/cyclonedx/license-metadata-summary.md \
+            --lockfile engine/gradle.lockfile \
+            --lockfile android-consumer/gradle.lockfile \
+            --lockfile desktop-consumer/gradle.lockfile
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -62,6 +65,9 @@ jobs:
             android-consumer/build/reports/cyclonedx-direct/
             desktop-consumer/build/reports/cyclonedx-direct/
             gradle/verification-metadata.xml
+            engine/gradle.lockfile
+            android-consumer/gradle.lockfile
+            desktop-consumer/gradle.lockfile
 
   desktop-linux:
     runs-on: ubuntu-24.04
