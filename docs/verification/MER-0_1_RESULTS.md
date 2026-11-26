@@ -8,6 +8,12 @@
 **Baseline Run #103 tested commit:** `8cb472db60920d425feb81dea89843a5be03aadf`  
 **Recorded:** 2026-11-25
 
+## Legal record update
+
+The Apache-2.0 copyright notice on this branch has been updated to **Copyright 2026 Marco García** (commit `a3783928eefc613c322f22a70eee89f56d5233fc`). The copyright-holder confirmation is resolved. The separate dependency licence/NOTICE inventory remains open; this update does not establish third-party licence compliance or determine whether a project NOTICE file is required.
+
+The updated commit is undergoing CI in [Run #158](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45728733338). Do not treat it as fully validated until the run completes.
+
 ## Owner decision — CI-only validation for now
 
 A passing supported CI matrix is sufficient for current MER-0.1 validation. Physical-device testing is deferred because the owner does not yet have access to all target platforms. No manual device runs are required from the owner, and lack of physical Android/iOS devices is not an MER-0.1 blocker.
