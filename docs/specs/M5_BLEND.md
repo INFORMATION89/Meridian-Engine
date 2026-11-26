@@ -1,7 +1,6 @@
 # Meridian M5: blend and spread
 
-Status: **spec, clean room step 1** (2026-11-23), from Open-Meteo's API documentation and the published
-work listed in MERIDIAN_PLAN.md section 6. No other engine's code read.
+**Status:** historical design proposal (2026-11-23), not an approved blending algorithm or provider/model list. Root `PLAN.md` requires a verified baseline, source-dependency/correlation awareness, and archive evaluation before production use. Re-check model availability, terms, request weights, and product semantics before implementation.
 
 ## Scope
 
@@ -29,7 +28,7 @@ Per variable, per hour:
 | Temperature, dew point, pressure, humidity | weighted mean |
 | Wind | weighted mean of u and v components, then back to speed and direction; gusts weighted mean |
 | Precipitation amount | weighted mean |
-| Rain chance | the weighted share of models at or above the rain threshold (configuration, default 0.1 mm in the hour), as ENGINE_SPEC.md section 7 says; each model's own chance is kept in provenance, not blended |
+| Rain-event model agreement | The share of eligible deterministic models above a predeclared precipitation threshold; report this as **model agreement**, not calibrated rain probability. Keep provider-supplied probabilities and any separately calibrated probability distinct, with event threshold, time window, method, source, and calibration status. |
 | Cloud cover | weighted mean |
 | Weather code | from the blended values (rain amount, cloud, temperature for snow), not a vote between codes |
 
@@ -54,14 +53,13 @@ Daily values are made from the blended hours (max, min, sums), never blended sep
 - Fixture with four models: hand-worked blend for a few hours.
 - Wind: two models at 350° and 10° blend to 0°, not 180°.
 - A model missing hours 120+: the blend uses the rest, weights renormalise.
-- Rain chance: 3 of 4 equal-weight models above the threshold gives 75 %.
+- Model agreement: 3 of 4 eligible deterministic models above the threshold gives 75% agreement; it must not be labelled a 75% probability of rain unless independent calibration verifies that interpretation for the defined event.
 - Weather code: blended light rain and 90 % cloud gives a rain code even if two models say cloudy.
 - Spread: identical models give zero; one outlier widens the range.
 
 ## Done when
 
-The blend beats or matches best match on the archive check (MERIDIAN_PLAN.md section 9): mean absolute
-error for temperature and Brier score for rain, Mexico City, Previous Runs API, results in the PR.
+The candidate blend is compared with each eligible individual model and the previous Meridian baseline using a versioned, licensed archive and a documented chronological holdout. Report gains and regressions by variable, region, season, and forecast lead, plus sample counts and uncertainty. Use Brier/calibration scores only for a defined probability event; deterministic-model agreement is not a probability score.
 
 ## Consulted
 
