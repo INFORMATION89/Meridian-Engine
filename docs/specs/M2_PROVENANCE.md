@@ -1,13 +1,11 @@
 # Meridian M2: provenance, source selection, caching, storage
 
-Status: **spec, clean room step 1** (2026-11-23). Written from Meridian's own docs (ENGINE_SPEC.md,
-MERIDIAN_PLAN.md, SOURCES.md) and the sources' published rate limits. No other engine's code read.
+**Status:** historical design proposal from 2026-11-23. Root `PLAN.md` and the approved M0.2 storage/API contract supersede its implementation assumptions. Re-check all provider limits, call weights, endpoints, and terms before implementation; do not treat example sources or database choices below as approved.
 
 ## Scope
 
 Every result says where each value came from. Each refresh asks only the sources that need asking.
-No source gets called more often than it allows. What's fetched is kept behind a storage interface
-(Room comes in its own module).
+No source gets called more often than it allows. Any persistent storage remains optional and behind the approved M0.2 storage contract. Room and other concrete database choices in this historical specification are not adopted.
 
 ## Provenance
 
@@ -43,9 +41,8 @@ Open-Meteo: CC BY 4.0, credit with link. WMO feeds: credit the issuing agency na
 3. Drop sources still **fresh** for that feature (below their wait, from configuration; defaults:
    forecast 15 min, current 10 min, alerts 5 min, air quality 1 h).
 4. Drop sources **over their limit** (below).
-5. Ask the rest at the same time; publish partial results through `results(place)` as each answers.
-6. A source that fails: its last good data stays (marked stale, with its age), the next source for that
-   feature fills in (`fallback`), and a `Problem` is added. Never an exception to the caller.
+5. Execute requests under the approved public request/result contract. M0.2 prefers batch-first for the first release; this old proposal to publish a stream as each source answers is not an adopted API.
+6. A source that fails: its last good data may be returned only with original timestamps and an explicit stale state; a permitted next source may provide a fallback with its reason recorded. Represent partial feature outcomes without hiding failures. Cancellation must retain its cancellation semantics.
 
 ## Rate limits
 
@@ -69,35 +66,23 @@ Open-Meteo are estimated from its documented rule and counted, not guessed later
   start shows something before any network call.
 - Places that are close (configuration, default 1 km) and use the same source share cached forecasts.
 
-## Storage interface
+## Storage boundary (proposal only)
 
-```kotlin
-interface MeridianStorage {
-    suspend fun putForecasts(rows: List<ForecastRow>)
-    suspend fun forecasts(place: PlaceKey, from: Instant, to: Instant): List<ForecastRow>
-    suspend fun putObservations(rows: List<ObservationRow>)
-    suspend fun observations(station: String, from: Instant, to: Instant): List<ObservationRow>
-    suspend fun putStats(rows: List<StatRow>)
-    suspend fun stats(place: PlaceKey): List<StatRow>
-    suspend fun putCache(entry: CacheEntry)
-    suspend fun cache(key: String): CacheEntry?
-    suspend fun deleteOlderThan(cutoff: Instant)     // 30 days, decided
-    suspend fun clear()                              // Settings › Privacy
-}
-```
+The old Room-backed interface and single `deleteOlderThan`/30-day policy below are not adopted. M0.2 defines optional persistence and the host-provided storage boundary. Keep these categories distinct:
 
-Settings and keys aren't part of it: the app passes key-value settings and secure key storage
-(DataStore and Android's keystore in Solstice), as ENGINE_SPEC.md section 9 says.
+- Response cache with provider-aware expiry and freshness.
+- Issued forecast snapshots and matched observations needed for verification.
+- Recent local learning/verification records, initially a bounded 30-day rolling window when M7 is approved.
+- Long-term historical/climatological datasets, with separate licence and retention rules.
 
-`testing` ships an in-memory version; `storage-room` the Room one. Rows match MERIDIAN_PLAN.md section 7.
-A place is stored by rounded coordinates (configuration, default 3 decimals, about 100 m), never by name.
+The storage contract must support category-specific retention, clear/export/delete semantics, transactions, concurrency, and operation without persistent storage. The app owns saved places and user-facing privacy controls. Meridian must not persist a saved-place list or track locations in the background. Exact coordinate precision and keying are M0.2 decisions; retain only the minimum required for valid matching.
 
 ## Tests
 
 - Selection: a fresh source isn't asked; an uncovered one isn't asked; a failing one falls back.
 - Limiter: 1,000 simulated refreshes never exceed any ceiling; 429 backs off.
 - Provenance: every value in a result has a contributor; credits list only used sources.
-- Storage: in-memory and Room pass the same test suite; `deleteOlderThan` removes exactly the old rows.
+- Storage: the public contract works with in-memory/no-persistence operation; any optional store passes the same contract tests, including category-specific retention, atomicity, concurrency, and deletion.
 
 ## Done when
 
