@@ -30,7 +30,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-provider: basic
-          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+          cache-read-only: ${{ github.event_name == 'pull_request' && (github.event.pull_request.head.repo.fork || github.job == 'android') }}
       - name: Start local HTTP fixture server
         run: |
           python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
@@ -79,7 +79,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-provider: basic
-          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+          cache-read-only: ${{ github.event_name == 'pull_request' && (github.event.pull_request.head.repo.fork || github.job == 'android') }}
       - name: Start local HTTP fixture server
         shell: pwsh
         run: |
@@ -100,6 +100,8 @@ jobs:
         run: |
           .\gradlew.bat --warning-mode=all --stacktrace :engine:desktopTest :desktop-consumer:installDist
           .\desktop-consumer\build\install\desktop-consumer\bin\desktop-consumer.bat
+          # Stop Gradle daemons so file locks do not prevent the Basic cache from being archived.
+          .\gradlew.bat --stop
       - name: Package and launch self-contained desktop app image
         shell: pwsh
         run: |
@@ -135,7 +137,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-provider: basic
-          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+          cache-read-only: ${{ github.event_name == 'pull_request' && (github.event.pull_request.head.repo.fork || github.job == 'android') }}
       - name: Start local HTTP fixture server
         run: |
           python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
@@ -265,7 +267,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-provider: basic
-          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+          cache-read-only: ${{ github.event_name == 'pull_request' && (github.event.pull_request.head.repo.fork || github.job == 'android') }}
       - name: Start local HTTP fixture server
         run: |
           python3 -m http.server 8765 --directory ci/fixtures --bind 0.0.0.0 >/tmp/meridian-fixture.log 2>&1 &
