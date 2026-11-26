@@ -1,9 +1,9 @@
 # MER-0.2: Public API, lifecycle, and storage contract design
 
-- **Status:** Draft — design and evidence milestone; owner review required before implementation.
+- **Status:** Draft — design and deterministic contract-proof milestone; owner review required before production weather implementation.
 - **Baseline:** Owner-approved Kotlin Multiplatform shared core, Ktor networking, SQLDelight as an optional persistence implementation, and JVM-first desktop distribution.
 - **Parent evidence:** [MER-0.1 platform validation](../evidence/MER-0.1-platform-validation.md), CI #222.
-- **Product authority:** [PLAN.md](../../PLAN.md), [ADR-0001](../decisions/ADR-0001-jvm-first-desktop.md), and [ADR-0002](../decisions/ADR-0002-application-owned-recommendations.md).
+- **Product authority:** [PLAN.md](../../PLAN.md), [ADR-0001](../decisions/ADR-0001-jvm-first-desktop.md), and [ADR-0002](../decisions/ADR-0002-application-owned-recommendations.md), and [ADR-0003](../decisions/ADR-0003-approved-production-technology-direction.md).
 
 ## 1. Purpose
 
@@ -183,7 +183,7 @@ A cache hit must retain original provenance and timestamps. Cache age must be vi
 
 ### 6.3 Retention and deletion
 
-Keep operational cache separate from scientific verification/learning history and climatological archives. The existing product direction proposes a bounded 30-day rolling recent verification/learning window; M0.2 must specify whether this belongs to the storage contract or a later scientific milestone, and must not silently turn it into an unbounded history.
+Keep operational cache separate from scientific verification/learning history and climatological archives. A bounded recent verification/learning window (30 days was previously discussed) is not an approved retention commitment. M0.2 defines separation and metadata only; M0.3 or a later reviewed scientific specification must propose a bounded duration with evidence and owner approval before persistent collection begins. Never imply unbounded history.
 
 Define:
 - Configurable bounded retention where appropriate.
