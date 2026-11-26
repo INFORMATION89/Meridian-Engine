@@ -6,6 +6,7 @@ import io.meridian.probe.MeridianProbe
 import io.meridian.probe.ProbeErrorCode
 
 suspend fun main() {
+    check(runPublicApiContract() == "PUBLIC_API_OK:UNAVAILABLE")
     val probe = MeridianProbe()
     check(probe.transform(" Meridian ", 5) == "meridian:5")
     check(DesktopKtorProbe.verifyClientLifecycle())
