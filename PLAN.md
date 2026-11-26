@@ -130,9 +130,9 @@ Rust remains a credible alternative if a native shared library, broader language
 
 ### What the current M0.1 evidence establishes
 
-The canonical five-platform proof is [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2), not the superseded duplicate [PR #3](https://github.com/INFORMATION89/Meridian-Engine/pull/3).
+The active canonical M0.1 proof is [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15), targeting `main` from `work/m0.1-platform-proof-refresh`. Earlier PRs were superseded during reconstruction; their evidence must not be confused with the current branch's final validation.
 
-At this plan revision, the six-job CI run [45736878709](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45736878709) completed successfully for PR #2 head commit bd395b5fd3a8eb03c96528eb429b183125eaf007: Android, Apple/iOS, Windows desktop, Linux desktop, and both dependency-metadata jobs passed. The demonstrated Android runtime is an Android x86_64 emulator; iOS validation uses an ARM64 simulator and Swift consumer; desktop validation uses JVM consumers on Windows, macOS, and Linux.
+A later five-job run [45781760705](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45781760705) passed Android, Apple/iOS, Windows desktop, Linux desktop, and dependency-license audit on commit `62ec625e83447591e9ab5ea0eff2c5ae2af04d8b`. It validates the earlier platform proof and SBOM generation, not the subsequent expanded consumer-boundary error tests. Android runtime evidence is x86_64 emulator; iOS evidence is ARM64 simulator plus Swift consumer; desktop evidence is JVM consumers on Windows, macOS, and Linux.
 
 This is useful KMP evidence, but it is not complete production-stack approval. Android ARM64 runtime and physical Android/iOS device execution are not tested; the owner has accepted CI-only validation for the current M0.1 stage, so those device runs are deferred rather than hidden or falsely marked passed. The remaining transport and licensing gaps are listed in the immediate next task below.
 
@@ -546,19 +546,19 @@ The responsible agent should research these, recommend a bounded solution, recor
 
 - [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) merged the architecture and weather research documents as reference material. Their recommendations remain proposals unless adopted here or in an approved milestone.
 - [PR #6](https://github.com/INFORMATION89/Meridian-Engine/pull/6) merged the approved `AI_COST_POLICY.md` into `main`; its requirements apply to all subsequent AI-assisted work and verification.
-- [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) was closed as administrative cleanup without merging; its acceptance gates were not waived. The preserved branch was used to reconstruct the proof directly on current `main`.
-- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) is the active canonical replacement for MER-0.1. Its working branch is `work/m0.1-platform-proof-refresh`; the latest branch head when this status was recorded is `a44716ff43a0c3b337c6d6ffe08529586a7a3017`. Do not merge it until all evidence and owner review are complete.
+- Earlier proof PRs were closed/superseded during reconstruction; their closure did not waive M0.1 acceptance criteria.
+- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) is the active canonical MER-0.1 PR. Its current working branch is `work/m0.1-platform-proof-refresh`; branch head at this revision is `e089126f09416529774c2e7b6b268c24d0e9ca72`. Do not merge it until the current-head CI and all evidence/review gates are complete.
 - A completed platform matrix on [run 45777929849](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45777929849), commit `aa5e86ec1cab1d302b9f2165327deddf299f48dc`, passed Linux, Windows, macOS/iOS, and Android. It records an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and the same desktop JVM consumer on Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED**; CI-only validation is accepted for this M0.1 stage and those cells must stay explicit.
 - The optimized CI removed two serial dependency-metadata jobs, added the pinned open-source Gradle cache path, and avoided duplicate Android emulator downloads. The measured baseline was 21m15s and the first completed optimized run was 12m38s (40.5% lower wall-clock time); this comparison predates the final SBOM and Android SDK cleanup changes and is not a performance guarantee.
 - A preliminary CycloneDX audit completed successfully on [run 45779632538](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45779632538), commit `faaeb43fd08fa0d9f1865b1d8c8a800e484b95d6`. The initial SBOM had zero unresolved module metadata, four project records without license metadata, and 13 distinct license labels; the report still needs Gradle configuration classification and upstream review. A later run on that commit had Linux/Android Gradle plugin-resolution failures; do not treat that run as a green platform matrix.
-- The active PR branch now contains the Apache-2.0 `LICENSE`. A root `README.md` is still required. No root `NOTICE` has been added; its necessity must be decided after reviewing runtime-reachable and actually packaged components and upstream notices.
+- The active PR branch contains the Apache-2.0 `LICENSE`, root `README.md`, and `THIRD-PARTY-NOTICES.md` including the SLF4J MIT notice. The Linux app-image inspection confirmed SLF4J is packaged. Upstream review of the five multiple-license coordinates and Android/iOS/Windows distributable artifacts remains open; no root `NOTICE` decision is implied.
 
 ### Next task: finish MER-0.1 evidence, not weather features
 
 1. Continue from active PR #15 and validate every final CI job against its exact latest head SHA; investigate transient dependency-resolution failures rather than weakening verification.
-2. Retain the actual Android, Darwin, and JVM/CIO fixture requests, and add deterministic timeout, HTTP-status, transport, parse-error, and cancellation/cleanup probes at consumer boundaries. A common MockEngine test alone does not prove real engine behaviour.
+2. Exercise deterministic success, HTTP 503, malformed, empty, partial, timeout, transport failure, and cancellation through actual Android Ktor, Darwin Ktor, and desktop CIO consumers; retain common MockEngine unit coverage as a separate layer. Confirm resource closure in finally blocks and review platform-specific cancellation semantics.
 3. Complete the license inventory by joining CycloneDX SBOM components to the committed engine, Android-consumer, and desktop-consumer Gradle lockfiles; then inspect authoritative upstream licenses and notices for runtime-reachable and actually packaged dependencies.
-4. Reconcile `README.md`, Apache-2.0 `LICENSE`, package/runtime implications, and the M0.1 evidence record. Add `NOTICE` only if required after upstream notice review.
+4. Finish upstream review of multiple-license dependencies, inspect Android/iOS/Windows distributable contents when available, and reconcile required attributions/notices. README, Apache-2.0 LICENSE, and the current SLF4J third-party notice are already present on the PR branch.
 5. Record exact final SHA, commands, toolchain versions, OS/architecture/runtime boundaries, test outcomes, package sizes, CI measurements, and untested cells.
 6. Present the language, target, driver, consumer interoperability, and packaging recommendation to the owner. Do not merge PR #15 or begin M1 until the owner approves the production direction.
 
@@ -573,7 +573,7 @@ The responsible agent should research these, recommend a bounded solution, recor
 ### Prohibited until the corresponding gate is approved
 
 - Do not begin production weather providers, blending, local learning, alerts, radar, or application UI as part of the M0.1 spike.
-- Do not merge PR #2 or authorize M1 based solely on one green CI run.
+- Do not merge PR #15 or authorize M1 based solely on a green CI run for an earlier commit.
 - Do not assume KMP, Rust, SQLDelight, Room, Ktor, streaming APIs, MCP, or a hosted service is finally selected merely because it appears in a proposal or research document.
 - Do not change Solstice, Motion, or another consumer repository as part of this Meridian master-plan revision.
 
