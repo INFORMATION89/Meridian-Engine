@@ -40,7 +40,7 @@ class MeridianEngineContractTest {
         engine.close()
         engine.close()
 
-        assertFailsWith<IllegalStateException> {
+        assertFailsWith<MeridianEngineClosedException> {
             runBlocking {
                 engine.query(
                     WeatherQuery(
