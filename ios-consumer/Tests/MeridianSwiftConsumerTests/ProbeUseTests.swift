@@ -49,7 +49,7 @@ final class ProbeUseTests: XCTestCase {
 
     func testDarwinEngineRequestsLocalFixture() async throws {
         let body = try await IosKtorProbe.shared.fetchFixture(
-            url: "http://localhost:8765/probe.json",
+            url: "http://127.0.0.1:8765/probe.json",
             timeoutMillis: 5_000
         )
         XCTAssertEqual(body, #"{"status":"ok","source":"local-fixture"}"#)
@@ -57,12 +57,12 @@ final class ProbeUseTests: XCTestCase {
 
     func testDarwinEngineMapsHttpAndMalformedResponses() async throws {
         let status = try await IosKtorProbe.shared.verifyHttpStatusFailure(
-            url: "http://localhost:8765/status/503"
+            url: "http://127.0.0.1:8765/status/503"
         )
         XCTAssertTrue(status.boolValue)
 
         let malformed = try await IosKtorProbe.shared.verifyMalformedResponseFailure(
-            url: "http://localhost:8765/malformed.json"
+            url: "http://127.0.0.1:8765/malformed.json"
         )
         XCTAssertTrue(malformed.boolValue)
     }
@@ -81,12 +81,12 @@ final class ProbeUseTests: XCTestCase {
 
     func testDarwinEngineMapsEmptyAndPartialResponses() async throws {
         let empty = try await IosKtorProbe.shared.verifyEmptyResponseFailure(
-            url: "http://localhost:8765/empty.json"
+            url: "http://127.0.0.1:8765/empty.json"
         )
         XCTAssertTrue(empty.boolValue)
 
         let partial = try await IosKtorProbe.shared.verifyPartialResponseFailure(
-            url: "http://localhost:8765/partial.json"
+            url: "http://127.0.0.1:8765/partial.json"
         )
         XCTAssertTrue(partial.boolValue)
     }
