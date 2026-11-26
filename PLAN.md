@@ -416,7 +416,7 @@ Every milestone follows the same cycle: **research → written specification →
 | Milestone | Scope | Completion gate |
 |---|---|---|
 | M0 — Repository foundation | Governance, Apache-2.0 licence and notices, README, CI, coding-agent instructions, documentation hierarchy | Repository identity, licence file, rules, and CI baseline are consistent and verifiable |
-| M0.1 — Platform proof | KMP five-OS proof, Ktor engines, SQLDelight drivers, consumer interoperability and packaging evidence | Complete evidence and remaining gaps reviewed; owner approves or rejects the production stack |
+| M0.1 — Platform proof | KMP five-OS proof, Ktor engines, SQLDelight drivers, consumer interoperability and packaging evidence | Evidence reviewed; production technology direction approved in ADR-0003; remaining packaging gaps stay explicit and PR #15 remains subject to owner review |
 | M0.2 — Public API and storage | Consumer-neutral API for meteorological facts/events only (no application recommendations), storage boundary, caching, history, offline states, partial results, errors, cancellation, versioning | Independent consumer contract tests pass; API/storage decisions approved before weather-feature implementation |
 | M0.3 — Verification foundation | Forecast/observation records, matching, data quality, archived datasets, metrics, leakage controls, reproducible reports and human-reviewed improvement workflow | A forecast evaluation can be reproduced from versioned data/code; AI is not required |
 | M1 — First forecast path | Normalized current, hourly, and daily forecast from one eligible provider; 10-day default where supported | CLI and independent consumer return correct units, time semantics, source, freshness, and typed problems |
@@ -582,26 +582,27 @@ The responsible agent should research these, recommend a bounded solution, recor
 - Linux, Windows, and macOS JVM app-images from CI #222 were inspected directly. All contain root `LICENSE` and `THIRD-PARTY-NOTICES.md` and retain their bundled JDK legal directories. Measured app-image sizes: Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB.
 - The CI artifact does not produce an Android APK/AAB or an iOS app distribution package. The iOS XCFramework is built and tested, but its current test artifact does not yet stage root `LICENSE` and `THIRD-PARTY-NOTICES.md` alongside the framework; mobile release-package notice inclusion remains a release-packaging requirement, not a claim established by the desktop checks.
 
-### Next task: finish MER-0.1 evidence, not weather features
+### Current next task: complete M0.2 contract design and independent proof
 
-1. Keep CI #222 as the current green platform proof for code commit `91996fb7c190f80899261eb2ff21630b5e564209`; any later code change must be statically reviewed first and validated on its exact final head.
-2. Keep the Android ARM64 runtime, physical Android/iOS devices, and native desktop ABIs explicitly **NOT TESTED**; do not expand the M0.1 scope unless a real consumer requirement justifies it.
-3. Before any public mobile distribution, stage and verify the required project and third-party license/notice files alongside the iOS XCFramework and in the Android AAR/APK/AAB release packaging. Current M0.1 CI does not create those mobile release packages.
-4. Present the production language/shared-core, Ktor, SQLDelight, consumer interoperability, and packaging recommendation to the owner with the evidence and trade-offs. Do not merge PR #15 or begin M1 until the owner approves the production direction.
+1. Preserve CI #222 as inherited M0.1 platform evidence for code commit `91996fb7c190f80899261eb2ff21630b5e564209`; do not treat it as validation of M0.2 contracts or as a newer run.
+2. Keep Android ARM64 runtime, physical Android/iOS devices, and native desktop ABIs explicitly **NOT TESTED**. Mobile release-package notice staging/inspection remains required before public distribution.
+3. Keep PR #15 open until its exact head, CI, evidence, and owner review are checked. This is a merge/review gate, not a reason to block the already approved M0.2 design work. Do not merge it without explicit owner approval.
+4. Complete and reconcile the M0.2 public API, lifecycle/networking, storage/cache, and compatibility/versioning specifications. Keep retention and persistent-data policy unresolved until the relevant reviewed decision; do not silently adopt a 30-day window.
+5. Build the smallest independent Kotlin, Swift, and Desktop JVM consumer proof using deterministic local fixtures. Verify lifecycle, cancellation, normalized errors, partial results, storage-disabled operation, optional storage semantics, and version separation. Update the M0.2 evidence ledger with exact commits and results.
+6. Submit the complete M0.2 package for owner review. Do not begin M1 weather-provider or forecast implementation until the M0.2 acceptance gate is passed.
 
-### After MER-0.1 approval
+### After M0.2 approval
 
-1. Complete M0 repository/legal bootstrap and reconcile stale documentation.
-2. Approve M0.2 public API and storage contracts with an independent consumer test; do not make Solstice a required dependency.
-3. Complete M0.3 reproducible forecast/observation verification and research safeguards.
-4. Only then authorize the first production weather feature specification and implementation.
-5. Add each later capability through its own milestone, evidence, and acceptance gate. Do not create a large all-at-once production workspace or enable every planned feature prematurely.
+1. Complete M0.3 reproducible forecast/observation verification and research safeguards.
+2. Present the first weather-feature specification with source terms, data quality, scientific baseline, and deterministic acceptance criteria.
+3. Only then begin the first production weather capability under its own approved scope and evidence gate.
+4. Add each later capability through its own milestone; do not create a large all-at-once production workspace or enable every planned feature prematurely.
 
 ### Prohibited until the corresponding gate is approved
 
 - Do not begin production weather providers, blending, local learning, alerts, radar, or application UI as part of the M0.1 spike.
 - Do not merge PR #15 or authorize M1 based solely on a green CI run for an earlier commit.
-- Do not assume KMP, Rust, SQLDelight, Room, Ktor, streaming APIs, MCP, or a hosted service is finally selected merely because it appears in a proposal or research document.
+- Do not treat deferred alternatives as selected: Rust native core, mandatory SQLDelight persistence, Room in Meridian core, streaming APIs, MCP, or hosted services require their own evidence and approval. KMP and Ktor are approved directions; SQLDelight remains an optional preferred candidate.
 - Do not change Solstice, Motion, or another consumer repository as part of this Meridian master-plan revision.
 
 ## 17. Research references
