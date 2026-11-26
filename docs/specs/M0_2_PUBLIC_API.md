@@ -73,8 +73,8 @@ The Swift consumer uses `MeridianEngine.companion.create()`, `WeatherQuery.compa
 Prototype semantics:
 
 - `GeoLocation` validates finite latitude/longitude ranges.
-- `WeatherQuery` requires at least one unique requested variable and bounds the forecast horizon to 1–240 hours.
-- `WeatherQueryResult` represents `COMPLETE`, `PARTIAL`, and `UNAVAILABLE`; exceptional request failures are thrown, not disguised as an unavailable result.
+- `WeatherQuery` requires at least one unique requested variable and bounds the prototype forecast horizon to 1–240 hours. That upper bound is a defensive prototype limit, not an approved product/provider horizon. The query snapshots the caller's variable list.
+- `WeatherQueryResult` represents `COMPLETE`, `PARTIAL`, and `UNAVAILABLE`; construction enforces consistent value/issue/reason combinations and snapshots its collections. Exceptional request failures are thrown, not disguised as an unavailable result.
 - `WeatherDatum` carries value, unit, valid time, optional issue/observation instants, data kind, source/method provenance, freshness, quality, and optional uncertainty.
 - `ComponentIssue` reports per-variable omissions. The prototype returns `NO_DATA_SOURCE` for each requested variable because no production or fixture source is configured.
 - `MeridianEngine.close()` is idempotent; a later query throws `MeridianEngineClosedException`.
