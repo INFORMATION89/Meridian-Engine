@@ -19,7 +19,7 @@ Any additional transport/integration checks (including real Ktor platform-engine
 
 | Pull request | Purpose | State at review | What remains |
 |---|---|---|---|
-| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Run #152 is the last complete passing matrix. Run #157's initial Linux KGP resolution failure was cleared by rerunning the failed job; dependent platform jobs are now executing. Commit `53de58d` adds the missing Desktop CIO lifecycle assertion; its new full run is queued. Real-engine HTTP requests/timeouts/error mapping and the complete dependency/licence inventory remain open. |
+| [PR #2](https://github.com/INFORMATION89/Meridian-Engine/pull/2) | MER-0.1 KMP/platform proof | Open, Draft, not merged | Run #152 remains the last complete passing matrix. Run #157's transient Linux KGP resolution failure was cleared by retry; the later Apple Swift consumer check was still pending when superseded. Run #158 is still in progress on commit `53de58d` (Desktop CIO lifecycle assertion). Run #160 is pending on current head `3a06d40` (includes the confirmed copyright notice and refreshed evidence record). Run #159 was cancelled when the newer commit arrived. Real-engine HTTP requests/timeouts/error mapping and the complete dependency/licence inventory remain open. |
 | [PR #3](https://github.com/INFORMATION89/Meridian-Engine/pull/3) | Duplicate MER-0.1 platform spike | Closed, not merged | Superseded by PR #2; no unique production functionality lost. |
 | [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) | Architecture and weather research documents | Merged (documentation-only) | Research is now in `main`; recommendations remain non-binding until explicit owner decisions are adopted. |
 
@@ -35,7 +35,7 @@ PR #2 remains separate from the research baseline and must not be merged until i
 - [x] Record that Run #152 tested commit 28817f6a09c0099ac340ff4df55ea5377ec5ed0a; documentation-only commits then advanced the PR head to 3575f51752b15fecff76c4405610b44fdafeea2c.
 - [x] Keep all platform cells explicit: PASS, FAIL, BLOCKED, or NOT TESTED.
 
-The evidence-record synchronization for Run #152 is complete. A later documentation-only PR update triggered Run #157; its Linux dependency-metadata job failed at Gradle plugin resolution (`org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`) before any platform job ran. The version is a published Kotlin release; the precise resolution cause is not yet established. A retry of that failed job is in progress. Do not overwrite the Run #152 evidence or call the current head fully green until the retry and, where needed, a fresh full matrix establish it.
+The evidence-record synchronization for Run #152 is complete. Run #157's Linux dependency-metadata failure at Gradle plugin resolution (`org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`) was cleared by retry; no version downgrade was made. Run #158 remains in progress on the code commit that adds the Desktop CIO lifecycle assertion. The copyright/evidence documentation update then advanced the PR head to `3a06d40`; Run #160 is pending for that exact head. Run #159 was cancelled after the newer push. Do not call the current head fully green until Run #160 (or a later run for the same head) completes successfully.
 
 Run #152 completed six jobs successfully on the inspected workflow: dependency metadata, Linux dependency metadata, Apple/iOS, Linux desktop, Windows desktop, and Android. Its logs show:
 
@@ -72,7 +72,8 @@ The formal M0.1 specification asks for a minimal Ktor path. Any additional real-
 - [x] Defer the no-KVM TCG/software-emulation fallback for now. Run #152 used KVM successfully, so the fallback remains unverified; this is not a current MER-0.1 blocker and is not proof of Android ARM64.
 - [ ] Complete the direct and transitive dependency licence/notice inventory. The current MER-0.1 branch has 486 component coordinates in `gradle/verification-metadata.xml`; lockfiles contain 228 engine, 258 Android-consumer, and 73 Desktop-consumer configuration entries. These are not unique-library counts and do not identify licence obligations.
 - [ ] Generate a configuration-aware SPDX/CSV/compliance inventory for runtime, test, and build dependencies; manually supplement native SDK/toolchain components that Gradle metadata cannot identify.
-- [ ] Confirm the correct copyright holder and whether a project NOTICE file is needed before creating it. The current Apache-2.0 `LICENSE` on the MER-0.1 branch still contains the template placeholder `[yyyy] [name of copyright owner]`; do not replace it with a GitHub username without owner confirmation.
+- [x] Confirm the project copyright holder: the owner specified **Marco García**, and the Apache-2.0 notice on the MER-0.1 PR branch now reads `Copyright 2026 Marco García` (commit `a3783928eefc613c322f22a70eee89f56d5233fc`). This does not establish third-party dependency compliance.
+- [ ] Complete the direct/transitive dependency licence inventory and determine whether a project `NOTICE` file is required. Do not infer third-party obligations from the project copyright notice.
 - [ ] Record exact supported runtime/JDK requirements and tested Linux distributions.
 - [ ] Review the Gradle disabled-native-target warnings on Linux/Windows and decide whether they are expected benign target-skips or require an explicit configuration note.
 
