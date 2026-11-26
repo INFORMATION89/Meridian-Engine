@@ -24,16 +24,20 @@ Meridian must not hide uncertainty behind one polished number, silently substitu
 
 The current roadmap separates concerns sensibly. Preserve the boundaries:
 
-| Milestone | Weather-intelligence responsibility | What it must not absorb early |
+The labels in the earlier research sequence used a pre-master-plan milestone numbering. Use the current M0–M10 sequence in root `PLAN.md`; the mapping below preserves the subject matter without creating a second roadmap.
+
+| Current milestone | Weather-intelligence responsibility | What it must not absorb early |
 |---|---|---|
-| MER-1 | One documented forecast path and normalized hourly/daily/current values | Blending, local learning, radar, production alerts |
-| MER-2 | Per-value provenance, source eligibility, rate limits, cache/fallback semantics | Automatic skill weighting |
-| MER-3 | Official alert ingestion and CAP lifecycle | Averaging or rewriting official alerts |
-| MER-4 | Airport/station observations and variable-level observation selection | Assuming the nearest airport is always representative |
-| MER-5 | Multiple model forecasts, blend, and spread | Adaptive skill weights before verified history exists |
-| MER-6 | Independent consumer integration | Making Meridian depend on Solstice |
-| MER-7 | Local forecast/observation matching, statistics, and any approved correction | Automatic/self-modifying production updates |
-| MER-8 | Radar/satellite nowcasting feasibility and benchmark | Promising radar coverage before regional access is proven |
+| M1 | One eligible forecast provider and normalized hourly/daily/current values | Blending, local learning, radar, or unrelated features |
+| M2 | Per-value provenance, source eligibility, rate limits, cache/fallback semantics | Automatic skill weighting |
+| M3 | Official alert ingestion and CAP lifecycle | Averaging or rewriting official alerts |
+| M4 | Quality-controlled observations and variable-level representativeness | Assuming the nearest airport is always representative |
+| M5 | Multiple model forecasts, a measured blend, and spread | Adaptive skill weights before verified history exists |
+| M6 | Independent consumer integration | Making Meridian depend on Solstice |
+| M7 | Level 2 regional intelligence, including only validated local learning/corrections | Automatic/self-modifying production updates |
+| M8 | Supported phenomena and event tracking | Claiming detections or alerts without evidence |
+| M9 | Licensed historical and climatological context | Treating historical patterns as current forecasts |
+| M10 | Radar/satellite feasibility and validated nowcasting | Promising radar coverage before regional access is proven |
 
 A specification can be researched in advance, but implementation remains gated by the approved milestone.
 
@@ -249,7 +253,7 @@ Requirements before a correction ships:
 - visible correction provenance;
 - user/consumer ability to disable the optional correction;
 - bounded and independently deletable history;
-- human approval for every algorithm or configuration change.
+- Agents may implement algorithmic details within an approved specification and scientific method, with required tests and evidence. Owner review is required before changing the approved scientific method or its assumptions, changing meteorological meaning or product scope, introducing a new capability, automatically promoting weights/corrections, or weakening an evaluation gate.
 
 Do not introduce a learned model or adaptive weights because the project has data. Use the simplest method that demonstrates repeatable improvement.
 
