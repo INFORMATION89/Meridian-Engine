@@ -29,7 +29,7 @@ My main recommendation is to complete any remaining CI-level MER-0.1 evidence (w
 
 ### Latest inspected workflow
 
-The latest inspected workflow for PR #2 was [Run #152](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45717462136), associated with the MER-0.1 spike branch. Its six jobs completed successfully:
+The latest complete supported platform matrix remains [Run #152](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45717462136), associated with tested commit `28817f6a09c0099ac340ff4df55ea5377ec5ed0a`; all six jobs passed. A later documentation-only PR update triggered [Run #157](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45724901588). Its macOS dependency-metadata job passed, but the Linux metadata job failed before platform jobs could start: Gradle could not resolve `org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`. The official Kotlin documentation lists 2.4.21 as a released KGP version compatible with Gradle 9.7.0, so the observed failure is not sufficient evidence of an invalid version; the exact repository/network resolution cause remains unconfirmed. The failed Linux job was manually re-run and its result is pending. Until a fresh full matrix passes, Run #152 is the last complete passing evidence and Run #157 must remain recorded as a failed attempt.
 
 | Job | Observed result | What it covers |
 |---|---|---|
