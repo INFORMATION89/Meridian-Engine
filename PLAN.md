@@ -539,73 +539,43 @@ The responsible agent should research these, recommend a bounded solution, recor
 
 ## 16. Immediate next work and implementation gates
 
-### Current repository status at this revision
+### Current repository status
 
-- [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) merged the architecture and weather research documents as reference material. Their recommendations remain proposals unless adopted here or in an approved milestone.
-- [PR #6](https://github.com/INFORMATION89/Meridian-Engine/pull/6) merged the approved `AI_COST_POLICY.md` into `main`; its requirements apply to all subsequent AI-assisted work and verification.
-- Earlier proof PRs were closed/superseded during reconstruction; their closure did not waive M0.1 acceptance criteria.
-- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) is the active canonical MER-0.1 PR. Its current working branch is `work/m0.1-platform-proof-refresh`; the branch head must be checked against GitHub before any evidence is accepted. Do not merge it until the current-head CI and all evidence/review gates are complete.
-- A completed platform matrix on [run 45777929849](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45777929849), commit `aa5e86ec1cab1d302b9f2165327deddf299f48dc`, passed Linux, Windows, macOS/iOS, and Android. It records an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and the same desktop JVM consumer on Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED**; CI-only validation is accepted for this M0.1 stage and those cells must stay explicit.
-- The optimized CI removed two serial dependency-metadata jobs, added the pinned open-source Gradle cache path, and avoided duplicate Android emulator downloads. The measured baseline was 21m15s and the first completed optimized run was 12m38s (40.5% lower wall-clock time); this comparison predates the final SBOM and Android SDK cleanup changes and is not a performance guarantee.
-- A preliminary CycloneDX audit completed successfully on [run 45779632538](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45779632538), commit `faaeb43fd08fa0d9f1865b1d8c8a800e484b95d6`. The initial SBOM had zero unresolved module metadata, four project records without license metadata, and 13 distinct license labels; the report still needs Gradle configuration classification and upstream review. A later run on that commit had Linux/Android Gradle plugin-resolution failures; do not treat that run as a green platform matrix.
-- [CI #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210) passed all five jobs on code commit `91996fb7c190f80899261eb2ff21630b5e564209`; Android instrumentation passed 8/8, iOS simulator/common passed 9/9, native Swift passed 10/10, and macOS desktop common/storage passed 11/11. See [platform validation evidence](docs/evidence/MER-0.1-platform-validation.md).
-- The latest CycloneDX audit in CI #222 reports 402 unique third-party Maven coordinates, zero missing third-party license metadata, zero unresolved dependency metadata, 54 non-test runtime coordinates (53 Apache-2.0 and one MIT), and five multi-license coordinates. All 58 SBOM-only coordinates were traced to plugin/buildscript dependency graphs; the five multi-license entries were reviewed as lint/test/build tooling rather than desktop runtime.
-- Linux, Windows, and macOS JVM app-images from CI #222 were inspected directly. All contain root `LICENSE` and `THIRD-PARTY-NOTICES.md` and retain their bundled JDK legal directories. Measured app-image sizes: Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB.
-- The CI artifact does not produce an Android APK/AAB or an iOS app distribution package. The iOS XCFramework is built and tested, but its current test artifact does not yet stage root `LICENSE` and `THIRD-PARTY-NOTICES.md` alongside the framework; mobile release-package notice inclusion remains a release-packaging requirement, not a claim established by the desktop checks.
+- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) merged the MER-0.1 platform proof into main. CI [#224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103) passed all five jobs.
+- The owner approved KMP + Ktor + optional SQLDelight/SQLite, JVM-first desktop, and a Swift-friendly iOS facade. The decision is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md).
+- [PR #19](https://github.com/INFORMATION89/Meridian-Engine/pull/19) records the formal approval, reconciles project instructions, and updates the M0.2 handoff. It is open for review; do not claim it is merged until GitHub confirms.
+- [PR #16](https://github.com/INFORMATION89/Meridian-Engine/pull/16) was closed as superseded after its branch became stale. Its accepted meteorological-versus-consumer responsibility boundary has been preserved in ADR-0002 and the current master-plan/PR #19 changes.
+- Android x86_64 emulator, ARM64 iOS simulator with Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux were exercised. The dependency/license audit passed.
+- Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion remain **NOT TESTED**. Mobile notice staging and verification are mandatory before public mobile distribution.
+- The probe app-image sizes (Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB) are not release-size guarantees.
+- [PR #17](https://github.com/INFORMATION89/Meridian-Engine/pull/17) remains a separate draft concerning AI model-routing guidance. It has not received its optional advanced review and is not a blocker for M0.2.
+- [PR #18](https://github.com/INFORMATION89/Meridian-Engine/pull/18) concerns the versioned GitHub Wiki publisher and its one-time WIKI_TOKEN setup; it is separate from the engine architecture decision.
 
-### Next task: finish MER-0.1 evidence, not weather features
+### Active task: M0.2 public API and storage contracts
 
-1. Keep CI #222 as the current green platform proof for code commit `91996fb7c190f80899261eb2ff21630b5e564209`; any later code change must be statically reviewed first and validated on its exact final head.
-2. Keep the Android ARM64 runtime, physical Android/iOS devices, and native desktop ABIs explicitly **NOT TESTED**; do not expand the M0.1 scope unless a real consumer requirement justifies it.
-3. Before any public mobile distribution, stage and verify the required project and third-party license/notice files alongside the iOS XCFramework and in the Android AAR/APK/AAB release packaging. Current M0.1 CI does not create those mobile release packages.
-4. Present the production language/shared-core, Ktor, SQLDelight, consumer interoperability, and packaging recommendation to the owner with the evidence and trade-offs. Do not merge PR #15 or begin M1 until the owner approves the production direction.
+1. Define a small, consumer-neutral batch request/result API. Keep provider DTOs, database rows, platform-specific types, and application advice out of public contracts.
+2. Specify request configuration, lifecycle ownership, cancellation propagation, typed errors, partial results, source diagnostics, and freshness semantics.
+3. Specify the optional storage boundary: host-supplied implementation expectations, SQLDelight-backed implementation boundary, in-memory/no-persistence operation, schema/versioning, atomicity, concurrency, retention, deletion, and recovery.
+4. Specify response-cache, issued-forecast archive, observation history, and longer-term meteorological datasets as separate categories. Preserve provenance and issue/measurement/fetch/valid times.
+5. Design and test a Swift-friendly facade for async operations and cancellation; M0.1 proved basic framework consumption, not the ergonomics of the final weather API.
+6. Build a standalone consumer that imports only Meridian's public API. It must not check out or depend on Solstice.
+7. Run deterministic contract tests using fake clocks, fake transports, in-memory storage, and fixture sources. Verify offline, stale, unavailable, partial failure, and cancellation behaviour.
+8. Prepare explicit recommendations for public API stability/versioning, host-supplied storage extension guarantees, and retention defaults. Request owner review only for those genuine contract decisions.
 
-### After MER-0.1 approval
+M0.2 must not implement live weather providers, production forecast algorithms, source blending, official-alert ingestion, local learning, radar, remote services, telemetry, or UI.
 
-1. Complete M0 repository/legal bootstrap and reconcile stale documentation.
-2. Approve M0.2 public API and storage contracts with an independent consumer test; do not make Solstice a required dependency.
-3. Complete M0.3 reproducible forecast/observation verification and research safeguards.
-4. Only then authorize the first production weather feature specification and implementation.
-5. Add each later capability through its own milestone, evidence, and acceptance gate. Do not create a large all-at-once production workspace or enable every planned feature prematurely.
+### After M0.2
+
+1. Complete M0.3 reproducible forecast/observation verification and scientific safeguards.
+2. Obtain the required M0.2 and M0.3 approvals before authorizing M1.
+3. Implement the first forecast path only after its provider rights, credentials, API, source semantics, and acceptance criteria are approved.
+4. Add later capabilities through their own milestones and evidence gates.
 
 ### Prohibited until the corresponding gate is approved
 
-- Do not begin production weather providers, blending, local learning, alerts, radar, or application UI as part of the M0.1 spike.
-- Do not merge PR #15 or authorize M1 based solely on a green CI run for an earlier commit.
-- Do not assume KMP, Rust, SQLDelight, Room, Ktor, streaming APIs, MCP, or a hosted service is finally selected merely because it appears in a proposal or research document.
-- Do not change Solstice, Motion, or another consumer repository as part of this Meridian master-plan revision.
+- Do not begin production weather providers, blending, local learning, alerts, radar, or application UI as part of M0.2.
+- Do not claim Android ARM64, physical-device, native desktop ABI, or final mobile release-package notice verification based on the current CI evidence.
+- Do not add Rust/UniFFI or native desktop libraries without a concrete consumer requirement, comparative evidence, and owner approval.
+- Do not treat the technology approval as approval of the final public API, storage schema, provider list, forecast algorithms, telemetry, hosted services, or AI runtime.
+- Do not change Solstice, Motion, or another consumer repository as part of Meridian work unless a separate task explicitly authorizes it.
 
-## 17. Research references
-
-Re-check official documentation, terms, compatibility tables, and licence status immediately before implementation; these links are research entry points, not permanent version locks.
-
-### Platform and tooling
-
-- [Kotlin Multiplatform compatibility guide](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html)
-- [Kotlin Multiplatform supported platforms](https://kotlinlang.org/docs/multiplatform/supported-platforms.html)
-- [Kotlin/Native target support](https://kotlinlang.org/docs/native-target-support.html)
-- [Ktor client engines](https://ktor.io/docs/client-engines.html)
-- [SQLDelight documentation](https://sqldelight.github.io/sqldelight/)
-- [Rust target platform support](https://doc.rust-lang.org/stable/rustc/platform-support.html)
-- [UniFFI user guide](https://mozilla.github.io/uniffi-rs/latest/)
-- [GitHub Actions runner selection](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job)
-
-### Meteorology, observations, alerts, and data
-
-- [WMO Guide to Instruments and Methods of Observation](https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/instruments-and-methods-of-observation-programme-imop/guide-instruments-and-methods-of-observation-wmo-no-8-0)
-- [OASIS Common Alerting Protocol](https://www.oasis-open.org/standard/cap/)
-- [Open-Meteo forecast API](https://open-meteo.com/en/docs)
-- [Open-Meteo Previous Runs API](https://open-meteo.com/en/docs/previous-runs-api)
-- [Open-Meteo Single Runs API](https://open-meteo.com/en/docs/single-runs-api)
-- [AviationWeather.gov Data API](https://aviationweather.gov/data/api/)
-- [WMO Severe Weather Information Centre](https://severeweather.wmo.int/)
-
-### Internal research baselines
-
-- [Architecture review](docs/research/ARCHITECTURE_REVIEW.md)
-- [Weather data model](docs/research/WEATHER_DATA_MODEL.md)
-- [Weather intelligence strategy](docs/research/WEATHER_INTELLIGENCE.md)
-- [Provider research](docs/research/PROVIDER_RESEARCH.md)
-- [Remaining-work checklist](docs/research/REMAINING_WORK.md)
-
-Research references and internal notes must be refreshed when an implementation milestone begins. Do not claim that a dataset, model, service, endpoint, licence, or platform is currently available without rechecking its current terms and status.
