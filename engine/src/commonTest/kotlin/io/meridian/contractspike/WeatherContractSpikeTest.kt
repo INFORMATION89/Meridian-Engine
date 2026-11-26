@@ -110,6 +110,7 @@ class WeatherContractSpikeTest {
         assertFailsWith<CancellationException> {
             engine.fetch(WeatherContractDemo.sampleRequest())
         }
+        Unit
     }
 
     @Test
