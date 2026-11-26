@@ -1,5 +1,7 @@
 package io.meridian.api
 
+import kotlin.concurrent.Volatile
+
 /**
  * Experimental M0.2 engine entry point.
  *
