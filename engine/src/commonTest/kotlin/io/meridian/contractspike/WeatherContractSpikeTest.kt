@@ -1,7 +1,7 @@
 package io.meridian.contractspike
 
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 
 class WeatherContractSpikeTest {
     @Test
-    fun noStorageModeReturnsIndependentFeatureOutcomes() = runTest {
+    fun noStorageModeReturnsIndependentFeatureOutcomes() = runBlocking {
         assertEquals(
             "current=available;hourly=unavailable;air=18.0C;apparent=21.0C",
             WeatherContractDemo.verifySampleRequest(),
@@ -18,7 +18,7 @@ class WeatherContractSpikeTest {
     }
 
     @Test
-    fun freshCachedFeatureDoesNotCallSource() = runTest {
+    fun freshCachedFeatureDoesNotCallSource() = runBlocking {
         val store = InMemoryWeatherStore()
         val request = WeatherContractDemo.sampleRequest(CachePolicy.PREFER_FRESH)
         val key = FeatureCacheKey(
@@ -56,7 +56,7 @@ class WeatherContractSpikeTest {
     }
 
     @Test
-    fun staleDataIsExplicitAndOnlyUsedWhenAllowed() = runTest {
+    fun staleDataIsExplicitAndOnlyUsedWhenAllowed() = runBlocking {
         val store = InMemoryWeatherStore()
         val request = WeatherContractDemo.sampleRequest(
             cachePolicy = CachePolicy.ALLOW_STALE,
@@ -96,7 +96,7 @@ class WeatherContractSpikeTest {
     }
 
     @Test
-    fun cancellationIsNotConvertedIntoFeatureFailure() = runTest {
+    fun cancellationIsNotConvertedIntoFeatureFailure() = runBlocking {
         val engine = WeatherContractEngine(
             source = object : WeatherSource {
                 override suspend fun fetchFeature(request: WeatherRequest, feature: WeatherFeature): FeatureOutcome {
