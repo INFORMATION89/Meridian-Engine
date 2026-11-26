@@ -5,6 +5,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -13,6 +14,7 @@ import io.ktor.http.headersOf
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -152,13 +154,23 @@ class MeridianProbeTest {
 
     @Test
     fun fixtureProbePropagatesCallerCancellation() = runBlocking {
+        val requestStarted = CompletableDeferred<Unit>()
         val client = HttpClient(MockEngine) {
-            engine { addHandler { awaitCancellation() } }
+            engine {
+                addHandler {
+                    requestStarted.complete(Unit)
+                    awaitCancellation()
+                }
+            }
         }
         try {
-            assertTrue(
-                FixtureHttpProbe.verifyCancellation(client, "https://fixture.invalid/cancel")
-            )
+            val request = launch {
+                FixtureHttpProbe.fetch(client, "https://fixture.invalid/cancel")
+            }
+            // Cancel only after the mock transport confirms the request is in flight.
+            withTimeout(2_000) { requestStarted.await() }
+            request.cancelAndJoin()
+            assertTrue(request.isCancelled)
         } finally {
             client.close()
         }
