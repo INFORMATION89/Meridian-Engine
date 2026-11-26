@@ -94,7 +94,7 @@ Choose the least costly model that can reliably complete the task. Model names a
 
 | Workload | ChatGPT guidance | Claude guidance |
 |---|---|---|
-| Routine, bounded work: formatting, extraction, short summaries, simple documentation or test edits | Use an efficient model such as the currently available Luna-class option | Use Haiku-class models |
+| Routine, bounded work: formatting, extraction, short summaries, simple documentation or test edits | Use an efficient model available in the current ChatGPT model menu | Use Haiku-class models |
 | Standard coding: scoped implementation, ordinary debugging, focused code review | Balanced coding model | Sonnet-class models |
 | Routine coding: clear components, endpoints, tests, scoped refactors, standard docs, fast iteration | Interchangeable with Sonnet for this tier | Default model for this tier; interchangeable with balanced ChatGPT coding models |
 | Advanced engineering: complex architecture/trade-offs, cross-repository reasoning, long-context work, difficult concurrency/system bugs, complex specifications, stubborn failures | Use a suitable advanced reasoning model with effort matched to risk | Escalate to **Claude Opus** when its stronger reasoning materially reduces risk or rework; may plan, implement, or independently review as appropriate |
