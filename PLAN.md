@@ -85,13 +85,21 @@ AI is a tool for contributors, not a runtime requirement. The shipped engine mus
 - Separate historical meteorological and climatological context, including statistical references, anomalies, and regional trend analysis where datasets support them.
 - Radar/satellite integration and progressive nowcasting research, with honest geographic coverage and confidence.
 - Structured API/SDK results for native and managed applications, plus local developer diagnostics and CLI tools.
-- Structured meteorological and practical recommendations adapted to place, time, conditions, evidence, and uncertainty; consumers decide how to present or notify them.
+- Structured meteorological interpretation and derived signals adapted to place, time, conditions, evidence, and uncertainty (for example, precipitation timing, heat stress indicators, hazardous conditions, and forecast confidence). Meridian describes meteorological conditions; consuming applications own lifestyle advice and user-facing recommendations.
 - Global design and provider assessment, with early quality validation prioritized in Mexico and then expanded across different meteorological regions.
+
+### Consumer responsibility boundary
+
+Meridian owns meteorological data and meteorological reasoning, not the application-specific decisions people make from that information. Its outputs may include validated derived variables, event detections, risk indicators, probabilities, timing windows, confidence, uncertainty, explanations, and machine-readable meteorological signals. These are part of the engine's Level 2 intelligence when supported by evidence.
+
+Consuming applications own the policy and presentation layer that turns those outputs into personal or situational advice. Examples include what clothing to wear, whether to carry an umbrella, which outdoor activity to choose, when a person should leave, and personalized routines or notifications. These recommendations may use Meridian's outputs, but must not be required by Meridian's core API and must not introduce a dependency from Meridian back to Solstice.
+
+This is a responsibility boundary, not a ban on useful derived meteorology: Meridian may calculate and explain that rain is likely during a time window or that UV conditions are high; Solstice decides whether that means suggesting an umbrella, sunscreen, changing an activity, or sending a notification. Other consumers remain free to make different recommendations from the same neutral results.
 
 ### Product non-goals
 
 - Building a new global numerical weather-prediction model or fundamental climate model.
-- A Meridian-owned weather application, visual interface, map renderer, chart renderer, notification manager, or saved-place UI.
+- A Meridian-owned weather application, visual interface, map renderer, chart renderer, notification manager, saved-place UI, or lifestyle-advice layer (such as clothing, umbrella, activity, or personal-routine recommendations).
 - Mandatory hosting, cloud processing, remote synchronization, accounts, or central telemetry.
 - Generative AI in the production weather request path.
 - Automatic self-modifying algorithms or unreviewed promotion of new weights, corrections, or models.
