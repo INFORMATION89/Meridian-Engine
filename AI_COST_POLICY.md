@@ -54,6 +54,52 @@ Stop investigating when the evidence is sufficient to make and verify the reques
 - Do not fan out multiple agents for one task unless the subtasks are genuinely independent and parallel work reduces total cost or risk. Assign non-overlapping scopes and avoid duplicate repository exploration.
 - Do not ask an AI to regenerate information already available in a trustworthy current source. Do not treat a model's confident answer as evidence.
 
+### 4.1 Provider-aware model selection: ChatGPT and Claude
+
+Choose the least costly model that can reliably complete the task. Model names and availability change; the examples below describe the current selection strategy, not permanent version locks. Check the provider's current official model catalogue and pricing before configuring an API workflow.
+
+| Workload | ChatGPT guidance | Claude guidance |
+|---|---|---|
+| Routine, bounded work: formatting, extraction, short summaries, simple documentation or test edits | Use an efficient model such as the currently available Luna-class option | Use Haiku-class models |
+| Standard coding: scoped implementation, ordinary debugging, focused code review | Use a balanced coding model such as the currently available Sol-class option | Use Sonnet-class models |
+| Advanced engineering: cross-module architecture, difficult root-cause analysis, complex concurrency, high-risk refactors, security-sensitive review | Use the strongest suitable reasoning model, such as the current Astra-class option, with effort matched to risk | Use **Claude Opus 5.5** when its stronger reasoning materially reduces risk, uncertainty, or rework |
+| Critical decisions: product architecture, privacy, legal, security, or irreversible changes | Use an advanced model to prepare evidence and alternatives; owner approval remains mandatory | Opus 5.5 may provide a specialist analysis or independent challenge; it does not replace owner approval |
+
+#### ChatGPT-specific rules
+
+- Distinguish ChatGPT web conversations, ChatGPT Work/Codex subscription usage, and OpenAI API-key billing. They have separate usage limits, credits, and pricing; API token rates must not be used to estimate subscription task allowances.
+- Use Work/Codex when repository-aware, terminal, or multi-step execution materially reduces handoffs. Do not start an autonomous workflow for a trivial deterministic edit.
+- Select reasoning effort proportionally. High effort is not the default for formatting, mechanical edits, or straightforward lookups.
+- Check current account entitlements and model availability; do not assume a particular plan, credit balance, or model access.
+
+#### Claude-specific rules
+
+- Use Haiku for routine, bounded tasks; Sonnet for ordinary engineering; reserve **Claude Opus 5.5** for complex architecture, long-running coding agents, difficult debugging, large refactors, and independent review of consequential changes.
+- Claude Code is appropriate when repository-aware execution is useful. Give it a bounded task, allowed scope, checkpoints, and a stop condition; do not leave it running indefinitely.
+- Use adaptive thinking / effort controls proportionally. Do not request maximum effort by habit.
+- If using the API, verify the current model ID and pricing, including input, output, cache writes/reads, batch pricing, long-context tiers, and any fast-mode multiplier. Do not infer API cost from Claude subscription usage.
+
+#### Multi-agent coordination
+
+- Assign one primary owner agent to each coherent task. That agent owns the plan, implementation, verification, diff review, and handoff.
+- Add a second model only for a genuinely independent contribution: adversarial design review, a separate debugging hypothesis, a focused security/privacy review, or a final diff review where the risk warrants it.
+- Do not ask ChatGPT and Claude to duplicate repository exploration, implement the same change independently, or run identical full test matrices by default.
+- Give a specialist a concise brief with the relevant files/diff, constraints, acceptance criteria, and exact question. Do not resend the full project history.
+- Resolve disagreements by checking code, official documentation, reproducible evidence, or a small discriminating test—not by model confidence or majority vote.
+- A second model's approval is not proof of correctness. The primary agent remains responsible for validating all suggestions.
+
+#### Paid usage boundary
+
+The existing approval rule in section 2 applies: do not enable a paid API, paid model, credits, subscription, or higher-cost service tier without explicit owner approval. Existing subscription allowances must still be treated as finite resources. If a task approaches a usage limit, stop optional work and report it rather than silently switching to paid API billing.
+
+Official references:
+- [ChatGPT models](https://learn.chatgpt.com/docs/models)
+- [ChatGPT Work and Codex pricing / usage](https://learn.chatgpt.com/docs/pricing)
+- [OpenAI API pricing](https://platform.openai.com/pricing/)
+- [Claude Opus 5.5 model overview](https://platform.claude.com/docs/en/models/opus-5-5/overview)
+- [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Claude plans and pricing](https://claude.com/pricing)
+
 ## 5. Tool and request efficiency
 
 1. Batch independent, read-only lookups when it reduces overhead and does not obscure dependencies.
