@@ -150,11 +150,11 @@ The canonical proof is PR #2, not the closed duplicate PR #3. Its current head a
 
 That evidence demonstrates an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux. It does not demonstrate Android ARM64 runtime or physical Android/iOS device execution. CI-only coverage is accepted for this M0.1 stage; retain those limitations in the compatibility matrix and do not imply that they passed.
 
-PR #2 currently contains a root Apache License 2.0 file and a draft README, but those files are not on main unless and until the PR is merged. The README's proposed KMP/JVM description must be reconciled with the open technology decision before it becomes authoritative.
+PR #2's preserved source branch contains a root Apache License 2.0 file and a draft README, but neither file is on `main` because the PR was closed unmerged. The README's proposed KMP/JVM description must be reconciled with the still-open production-stack decision before it becomes authoritative.
 
 ### Required work
 
-1. Re-read PR #2 at its exact current head. Confirm the latest run belongs to that SHA; do not reuse older CI results after a relevant commit changes.
+1. Inspect the preserved PR #2 source branch at its exact current head. Confirm the latest run belongs to that SHA; do not reuse older CI results after a relevant commit changes. Reopen or create a replacement PR only after the evidence package is ready.
 2. Verify every declared target and artifact type. Distinguish Android runtime, iOS framework/simulator, JVM desktop, and any native desktop ABI claims.
 3. Exercise the actual Ktor engine intended for Android, Darwin, and JVM/CIO. A common MockEngine test does not prove platform transport behaviour.
 4. Add deterministic, offline fixture requests through each real engine. Cover success, empty/partial data, malformed payload, transport error, timeout, cancellation, and client/resource cleanup as applicable.
