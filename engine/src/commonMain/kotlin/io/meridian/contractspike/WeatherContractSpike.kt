@@ -254,7 +254,7 @@ class WeatherContractEngine(
         if (cacheReadProblem != null && data != null) {
             return FeatureOutcome.Partial(
                 data,
-                (sourceOutcome as? FeatureOutcome.Partial)?.problems.orEmpty() + cacheReadProblem,
+                (sourceOutcome as? FeatureOutcome.Partial)?.problems.orEmpty() + listOfNotNull(cacheReadProblem),
             )
         }
 
