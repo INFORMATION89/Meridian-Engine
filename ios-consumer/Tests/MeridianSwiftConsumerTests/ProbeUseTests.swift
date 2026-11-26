@@ -29,22 +29,30 @@ final class ProbeUseTests: XCTestCase {
     }
 
     func testSwiftTaskCancellationPropagatesToKotlinSuspendFunction() async throws {
+        let cancellationObserved = expectation(
+            description: "Swift task cancellation reaches the Kotlin suspend function"
+        )
+
         let operation = Task {
-            try await MeridianProbe().awaitCancellation()
+            do {
+                _ = try await MeridianProbe().awaitCancellation()
+                XCTFail("Expected Swift task cancellation to cancel the Kotlin coroutine")
+                cancellationObserved.fulfill()
+            } catch is CancellationError {
+                // Expected: cancellation crosses the Swift/Kotlin boundary.
+                cancellationObserved.fulfill()
+            } catch {
+                XCTFail("Expected CancellationError, received: \(error)")
+                cancellationObserved.fulfill()
+            }
         }
 
         // Let the Kotlin coroutine enter its suspension point before cancelling.
         try await Task.sleep(for: .milliseconds(50))
         operation.cancel()
 
-        do {
-            _ = try await operation.value
-            XCTFail("Expected Swift task cancellation to cancel the Kotlin coroutine")
-        } catch is CancellationError {
-            // Expected: cancellation crosses the Swift/Kotlin boundary.
-        } catch {
-            XCTFail("Expected CancellationError, received: \(error)")
-        }
+        // A broken cancellation bridge must fail within a bounded time, not hang CI.
+        await fulfillment(of: [cancellationObserved], timeout: 5)
     }
 
     func testDarwinKtorEngineCanBeCreatedAndClosed() {
