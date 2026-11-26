@@ -9,8 +9,9 @@ These rules govern the design, implementation, testing, and maintenance of Merid
 ## Adopted project decisions
 
 1. **Repository identity:** the repository is INFORMATION89/Meridian-Engine. The product and library name remains Meridian.
-2. **Storage boundary:** the core must remain independent of concrete databases. The current cross-platform proposal is an optional SQLDelight/SQLite implementation behind a storage boundary; Room is not a Meridian-wide requirement. Final storage and extension decisions are governed by PLAN.md M0.2.
-3. **Clean-room policy:** CLEAN_ROOM.md is a separate, authoritative policy. This file explains when it applies but does not duplicate its detailed requirements.
+2. **Production technology:** owner-approved baseline is Kotlin Multiplatform, Ktor, and optional SQLDelight/SQLite behind an engine-owned storage contract; desktop is JVM-first across Windows, macOS, and Linux; iOS uses a Swift-friendly framework facade. Rust/UniFFI and native desktop ABIs are deferred unless concrete consumer evidence justifies reconsideration. See PLAN.md section 5 and ADR-0003.
+3. **Storage boundary:** the core remains independent of concrete databases. SQLDelight/SQLite is the approved initial optional implementation behind a storage boundary; Room is not a Meridian-wide requirement. M0.2 defines the schema and extension contract.
+4. **Clean-room policy:** CLEAN_ROOM.md is a separate, authoritative policy. This file explains when it applies but does not duplicate its detailed requirements.
 
 ## 1. Read before every session
 
@@ -44,7 +45,7 @@ Follow the authority model in PLAN.md and AI_IMPLEMENTATION_PLAN.md. These rules
 
 ## 4. Architecture and dependency boundaries
 
-1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the portable engine core selected through the M0.1 gate in PLAN.md. Kotlin Multiplatform and Rust remain candidates; do not treat either as the approved production stack before the gate is complete.
+1. Keep domain models, units, provenance, source selection, blending, alert normalization, and platform-independent logic in the owner-approved Kotlin Multiplatform core. Follow PLAN.md section 5 and ADR-0003. Rust/UniFFI and native desktop ABIs are deferred and must not be introduced as part of routine implementation.
 2. Keep provider-specific request and response details inside that provider's adapter. Provider DTOs must not leak into the public domain model.
 3. Put platform-specific implementations behind narrow interfaces or in the appropriate platform source sets. Do not add platform dependencies to common code for convenience.
 4. Access storage, HTTP, time, and other external capabilities through explicit interfaces or injected dependencies. Core logic must be testable without a real network, database, device, or wall clock.
