@@ -15,7 +15,7 @@ final class ProbeUseTests: XCTestCase {
 
     func testNativeCoroutinesCanAwaitSharedKotlinSuspendFunction() async throws {
         let result = try await asyncFunction(
-            for: MeridianProbe().transformAsync(input: "Swift native bridge", seed: 42)
+            for: MeridianProbe().transformAsyncNative(input: "Swift native bridge", seed: 42)
         )
         XCTAssertEqual(result, "swift native bridge:42")
     }
@@ -27,7 +27,7 @@ final class ProbeUseTests: XCTestCase {
 
         let operation = Task {
             do {
-                _ = try await asyncFunction(for: MeridianProbe().awaitCancellation())
+                _ = try await asyncFunction(for: MeridianProbe().awaitCancellationNative())
                 XCTFail("Expected native coroutine cancellation to reach Kotlin")
                 cancellationObserved.fulfill()
             } catch is CancellationError {
