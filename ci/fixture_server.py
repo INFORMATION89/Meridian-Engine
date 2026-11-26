@@ -12,6 +12,10 @@ class FixtureHandler(BaseHTTPRequestHandler):
             self.send_payload(503, b'{"error":"fixture unavailable"}')
         elif self.path == "/malformed.json":
             self.send_payload(200, b'{"status":')
+        elif self.path == "/empty.json":
+            self.send_payload(200, b'')
+        elif self.path == "/partial.json":
+            self.send_payload(200, b'{"status":"ok"}')
         elif self.path == "/slow":
             time.sleep(0.35)
             self.send_payload(200, b'{"status":"ok","source":"local-fixture"}')
