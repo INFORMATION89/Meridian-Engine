@@ -26,7 +26,7 @@ Every task must preserve these requirements:
 - Solstice remains independent and consumes Meridian through its public contract. A separate minimal consumer must prove that Meridian can be integrated without Solstice.
 - Observations, source forecasts, blends, corrected values, estimates, detections, predictions, and official alerts must remain distinguishable.
 - Meaningful outputs preserve source, issue/measurement/fetch/valid times, freshness, quality, transformations, limitations, and uncertainty where available.
-- Local learning and verification data remain local by default. The initial recent learning window is 30 days, configurable and bounded. Long-term meteorological and climatological datasets are separate categories with their own licence and retention rules.
+- Local learning and verification data remain local by default. No specific recent-learning retention duration is approved yet; any window must be bounded, purpose-specific, evidence-based, and owner-reviewed before persistent collection. Operational cache, verification/learning records, and long-term meteorological/climatological archives are separate categories with their own licence and retention rules.
 - Telemetry and external data contribution are off by default. Any future opt-in must separately explain what data is collected, why, where it is sent, who receives it, and how long it is retained; show an inspectable payload example; require explicit consent; and provide controls to withdraw consent and delete eligible local data.
 - Do not claim universal source coverage, forecast skill, radar access, 15-minute precipitation detail, or platform support without evidence.
 
@@ -98,7 +98,7 @@ Follow this dependency order unless verified evidence justifies a documented cha
 
 1. **M0 — Repository foundation:** project identity, governance, licensing, CI baseline, and authoritative documentation.
 2. **M0.1 — Platform proof:** establish the viable cross-platform implementation and consumer-interoperability path.
-3. **M0.2 — Public API and storage:** approve the stable consumer-neutral contracts, errors, cancellation, cache, and storage boundary.
+3. **M0.2 — Public API and storage:** design and validate consumer-neutral API, lifecycle, networking, cache, and optional storage contracts; do not declare the API stable until the owner approves the release contract.
 4. **M0.3 — Verification foundation:** make forecast/observation comparisons reproducible and scientifically defensible.
 5. **M1 — First forecast path:** deliver a narrow, reliable forecast flow through one eligible provider.
 6. **M2 — Provenance and source resilience:** introduce source catalogue, request planning, fallback, and per-value lineage.
@@ -143,61 +143,36 @@ Make the repository legally, operationally, and procedurally coherent before pro
 
 ### Objective
 
-Choose a production implementation direction based on actual target applications, runtime requirements, dependencies, packaging, and consumer-boundary behaviour—not familiarity with Solstice or a successful compile alone.
+Establish credible platform, consumer, networking-candidate, storage-driver, packaging, and dependency evidence. M0.1 is now the inherited proof baseline; the owner-approved production technology direction is recorded in ADR-0003.
 
-### Current evidence to preserve
+### Canonical evidence to preserve
 
-The canonical proof is PR #2, not the closed duplicate PR #3. Its current head at the latest recorded review is bd395b5fd3a8eb03c96528eb429b183125eaf007. CI run 45736878709 completed six successful jobs: Android, Apple/iOS, Windows desktop, Linux desktop, and two dependency-metadata checks.
+- Canonical PR: [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15), branch `work/m0.1-platform-proof-refresh`.
+- Current recorded complete matrix: [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), code commit `91996fb7c190f80899261eb2ff21630b5e564209`.
+- Run #222 passed five jobs: Android x86_64 emulator, iOS ARM64 simulator with Swift consumer, macOS/Linux/Windows Desktop JVM, and dependency/license audit.
+- Recorded tests: Android instrumentation 8/8; iOS common simulator 9/9; native Swift consumer 10/10; macOS common/storage 11/11. Linux and Windows JVM consumers launched successfully.
+- Dependency audit: 402 unique third-party Maven coordinates, no missing license metadata, 54 runtime dependencies (53 Apache-2.0 and one MIT), with multi-license declarations reviewed as recorded in the M0.1 evidence.
+- Desktop app-images include project and third-party notices and retain bundled JDK legal directories.
 
-That evidence demonstrates an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux. It does not demonstrate Android ARM64 runtime or physical Android/iOS device execution. CI-only coverage is accepted for this M0.1 stage; retain those limitations in the compatibility matrix and do not imply that they passed.
+### Owner-approved technology direction
 
-PR #2's preserved source branch contains a root Apache License 2.0 file and a draft README, but neither file is on `main` because the PR was closed unmerged. The README's proposed KMP/JVM description must be reconciled with the still-open production-stack decision before it becomes authoritative.
+ADR-0003 records the approved KMP shared core and Ktor initial networking implementation behind engine-owned contracts. SQLDelight/SQLite is the preferred optional persistence candidate, not a mandatory core dependency. ADR-0001 governs JVM-first desktop distribution on Windows, macOS, and Linux.
 
-### Required work
+### Remaining limitations and PR gate
 
-1. Inspect the preserved PR #2 source branch at its exact current head. Confirm the latest run belongs to that SHA; do not reuse older CI results after a relevant commit changes. Reopen or create a replacement PR only after the evidence package is ready.
-2. Verify every declared target and artifact type. Distinguish Android runtime, iOS framework/simulator, JVM desktop, and any native desktop ABI claims.
-3. Exercise the actual Ktor engine intended for Android, Darwin, and JVM/CIO. A common MockEngine test does not prove platform transport behaviour.
-4. Add deterministic, offline fixture requests through each real engine. Cover success, empty/partial data, malformed payload, transport error, timeout, cancellation, and client/resource cleanup as applicable.
-5. Verify typed error mapping at the public consumer boundary. No provider-specific exception or DTO should leak into the public domain contract.
-6. Verify cancellation propagation from consumer to request, parsing, orchestration, and storage. Confirm that one source's failure does not cancel unrelated work unless the request contract says so.
-7. Exercise SQLDelight/platform storage drivers if the candidate remains in use. Verify target compatibility, migrations, transaction behaviour, lifecycle, and whether the engine really needs to own persistence.
-8. Compare package size, startup/runtime requirements, dependency footprint, build reliability, CI cost, and how a consumer distributes the required runtime.
-9. Test the consumer shapes that determine the architecture: Kotlin/Android, Swift/iOS, and at least one non-Kotlin desktop consumer when native/non-JVM interoperability is a requirement.
-10. Complete dependency provenance and licence analysis, including transitive, test, build, and packaging dependencies. Decide whether NOTICE or other notices are required.
-11. Record untested architectures, device classes, native ABIs, and runtime combinations. Do not broaden the support promise to match the number of green jobs.
-12. Produce a like-for-like Rust/UniFFI comparator only if the KMP evidence exposes a concrete runtime, native ABI, or consumer-interoperability blocker. Do not create an expensive second spike by default.
-13. Present a bounded recommendation with evidence, costs, trade-offs, untested cells, migration consequences, and exact acceptance status.
+- Android ARM64 runtime remains **NOT TESTED**.
+- Physical Android/iOS device execution remains **NOT TESTED**.
+- Native Windows/macOS/Linux ABI remains **NOT TESTED** and is not part of the current desktop promise.
+- Mobile release-package notice staging/verification remains outstanding before public distribution; M0.1 CI did not produce final Android APK/AAB or iOS app distribution packages.
+- PR #15 remains open and must be checked at its exact head for CI, evidence, and owner review. Do not merge without explicit owner approval. Its pending merge does not revoke the separate approval to continue M0.2 contract design.
 
-### Decision criteria
-
-Compare Kotlin Multiplatform and Rust against the same requirements:
-
-- Windows, macOS, Linux, Android, and iOS targets and supported architectures.
-- Actual consumer languages and app types, beyond Kotlin-only integration.
-- Whether a desktop JVM runtime is acceptable or a native library is needed.
-- iOS/Swift API ergonomics, async/cancellation behaviour, and native lifecycle.
-- Android packaging, supported ABIs, and app lifecycle.
-- Artifact size, startup, CPU, memory, battery, and distribution implications.
-- Dependency support, licensing, security, maintenance, and supply-chain risk.
-- CI reliability, build time, toolchain complexity, and long-term maintenance.
-
-### Acceptance gate
-
-- Actual engine transport, timeout, error, cancellation, and resource-lifecycle behaviour is evidenced on relevant targets.
-- Supported and untested target/artifact combinations are explicitly listed.
-- Storage and networking candidates are accepted or replaced based on proof.
-- Package and consumer interoperability limitations are known.
-- Dependency licensing and notice obligations are recorded.
-- The production stack recommendation is reviewed and explicitly approved by the owner.
-
-Do not merge PR #2 or begin M1 merely because its six existing CI jobs passed.
+Do not rerun the M0.1 matrix merely to repeat existing evidence. Re-run only if the relevant code changes, the exact PR head lacks required checks, or a defined acceptance gap needs proof.
 
 ## 6. M0.2 — Public API and storage contract
 
 ### Objective
 
-Define a stable public contract that unrelated applications can consume without importing internal modules, providers, databases, UI frameworks, or Solstice.
+Design and prototype a consumer-neutral public contract that unrelated applications can consume without importing internal modules, providers, databases, UI frameworks, or Solstice. No stable API is declared during M0.2.
 
 ### Required contract work
 
@@ -212,7 +187,7 @@ Define a stable public contract that unrelated applications can consume without 
 - Define the consumer-provided configuration and credential boundary. Private developer credentials must never be embedded in a distributed library.
 - Define cache/storage interfaces, ownership, transactions, expiry, corruption recovery, migrations, export, deletion, and host-supplied storage options.
 - Treat saved places and app settings as consumer-owned. Meridian must not silently become a location-history manager.
-- Keep cache, forecast-run archive, observation history, 30-day local learning history, and long-term historical/climate datasets separate.
+- Keep operational cache, forecast/observation verification records, and long-term historical/climate archives separate. No fixed learning-retention window is approved; propose a bounded duration in M0.3 or a later reviewed specification.
 - Define API versioning and binary/source compatibility expectations for each advertised artifact.
 
 ### Required independent-consumer proof
@@ -221,7 +196,7 @@ Build and test a minimal consumer that is not Solstice. It must request structur
 
 ### Acceptance gate
 
-A fresh consumer can integrate without private implementation imports, network or storage assumptions are documented, the contract tests pass, cancellation and typed errors are demonstrated, and the owner has approved the API/storage boundaries.
+A fresh consumer can integrate without private implementation imports; network and storage assumptions are documented; deterministic contract tests pass; cancellation and typed errors are demonstrated; and the owner has reviewed and approved the M0.2 API/storage contract before M1. API stability remains explicitly experimental until a separate release decision.
 
 ## 7. M0.3 — Forecast and observation verification foundation
 
@@ -403,25 +378,26 @@ Do not close a milestone based on code completion alone. Close it only when its 
 
 ## 13. Immediate work queue
 
-At the latest recorded review on 2026-11-26:
+At the current recorded revision (2026-11-26):
 
-- The revised master plan is merged into main and is authoritative.
-- AI_COST_POLICY.md is merged and approved.
-- PR #2 was closed unmerged while still Draft on 2026-11-26 to clear unfinished open PRs; its source branch `spike/m0.1-kmp-platform-proof` is preserved at head bd395b5fd3a8eb03c96528eb429b183125eaf007. Six CI jobs passed for that exact head in run 45736878709, but the proof is not complete and none of its remaining gates were waived.
-- PR #2 carries a root Apache License 2.0 LICENSE and README.md on its branch; these are not yet on main. Reconcile the README's KMP/JVM proposal with the unresolved stack decision before merging.
-- No production weather provider, production forecast pipeline, stable public API, or production storage contract is authorized merely by the current platform proof.
-- Root LICENSE/README bootstrap and complete direct/transitive licensing/NOTICE decisions remain part of M0.
+- M0.1 platform evidence and limitations are recorded in PLAN.md and the MER-0.1 evidence documents.
+- The owner-approved technology direction is KMP shared core, Ktor behind an engine-owned networking contract, optional SQLDelight/SQLite candidate, and JVM-first desktop (ADR-0001 and ADR-0003).
+- PR #15 remains open; do not merge it without checking its exact head, CI, evidence, and obtaining explicit owner approval.
+- M0.2 is the active milestone. Its design specifications are in `docs/specs/M0_2_*`; the evidence ledger is `docs/evidence/MER-0.2-contract-validation.md`.
+- A static review of M0.1 proof code is recorded in `docs/evidence/MER-0.2-m0.1-implementation-reuse-audit.md`. Probe helpers and the probe database are evidence infrastructure, not the production API or schema.
+- No M0.2 implementation build/test has yet been claimed by the evidence ledger. Do not infer M0.2 validation from CI #222.
+- No production weather provider, forecast pipeline, stable public API, fixed learning-retention window, or mandatory persistence implementation is authorized by the current M0.2 design work.
 
 ### Next bounded task
 
-Continue the preserved MER-0.1 source branch and open/recreate its PR when the evidence and review package are ready. Finish the outstanding evidence on the exact current branch head:
+Continue M0.2 on `work/m0.2-contract-design`:
 
-1. Confirm latest checks still match the exact head SHA.
-2. Exercise actual Android, Darwin, and JVM Ktor engines using deterministic fixtures.
-3. Verify timeout, transport/parse errors, cancellation, cleanup, and consumer-boundary behaviour.
-4. Verify SQLDelight/platform storage candidates only to the extent required by the architecture comparison.
-5. Complete direct/transitive licence inventory and NOTICE decision.
-6. Record package/runtime implications and the exact compatibility matrix.
-7. Produce the KMP-versus-Rust recommendation and request owner review only for the production stack decision.
+1. Reconcile and review the public API, lifecycle/networking, storage/cache, and compatibility/versioning contracts.
+2. Prototype the smallest engine-owned public API and verify Kotlin/Swift consumer ergonomics without exposing Ktor, SQLDelight, platform, provider, or Solstice types.
+3. Prove storage-disabled operation before adding optional storage adapter behaviour.
+4. Add focused deterministic contract tests for lifecycle, cancellation, normalized failures, partial results, freshness/provenance, and schema/version boundaries.
+5. Update the M0.2 evidence ledger with exact commits, commands, toolchains, test counts, and limitations.
+6. Present the completed M0.2 package for owner review before M1 production weather implementation.
 
-Do not begin M1 production weather providers or forecast algorithms until M0.1, M0.2, and M0.3 gates have been completed and the production direction has been approved.
+Do not create a large all-at-once production workspace, start live provider integrations, or run broad CI for documentation-only changes. Follow the workflow's path filters and repository test-budget policy.
+
