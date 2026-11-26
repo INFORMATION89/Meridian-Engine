@@ -6,23 +6,23 @@ Meridian is an independent, embeddable weather-data and forecasting engine. It h
 
 **Experimental — not ready for production use.**
 
-The current active work is MER-0.1, a bounded compatibility and dependency-evidence spike. It validates a candidate Kotlin Multiplatform implementation across Android and iOS, with a Desktop JVM artifact consumed on Windows, macOS, and Linux.
+The MER-0.1 platform proof is complete for its owner-approved CI-only acceptance. The owner has approved Kotlin Multiplatform for the shared core, Ktor for HTTP, optional SQLDelight/SQLite behind a storage contract, JVM-first desktop distribution, and a Swift-friendly iOS framework facade. The active milestone is M0.2: public API and storage contracts.
 
 This repository is not yet a usable weather engine. It does not contain production weather-provider integration, a forecast pipeline, a stable public API, a production cache, or a released package. Do not use this branch as a production dependency.
 
-The last fully completed platform matrix is recorded at commit `aa5e86ec1cab1d302b9f2165327deddf299f48dc` in [CI run 45777929849](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45777929849). PR [#15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) contains follow-up CI, license-audit, and documentation changes; only checks for the current PR head establish its current status.
+The final MER-0.1 platform matrix passed all five jobs in [CI run #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103). The code-validation results and limitations are recorded in [MER-0.1 platform validation](docs/evidence/MER-0.1-platform-validation.md). The formal production technology decision is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md) and documented for review in [PR #19](https://github.com/INFORMATION89/Meridian-Engine/pull/19).
 
-The owner-approved desktop direction is recorded in [ADR-0001: JVM-first desktop distribution](docs/decisions/ADR-0001-jvm-first-desktop.md). This is a desktop packaging decision, not final approval of the complete production technology stack.
+The owner-approved desktop direction is recorded in [ADR-0001: JVM-first desktop distribution](docs/decisions/ADR-0001-jvm-first-desktop.md). The complete initial technology baseline is now owner-approved in ADR-0003.
 
-## Candidate platform strategy
+## Approved initial platform strategy
 
 - **Android:** Kotlin Multiplatform Android target; the accepted CI path is an x86_64 emulator.
 - **iOS:** Kotlin/Native framework consumed from Swift; the accepted CI path is an ARM64 iOS simulator.
 - **Windows, macOS, and Linux:** one Desktop JVM artifact, tested on each operating system.
 
-This owner-approved JVM-first strategy provides desktop compatibility, not native `.dll`, `.dylib`, or `.so` libraries for every desktop OS. A consuming application may bundle a compatible Java runtime in its own distribution to avoid requiring users to install Java separately. Android ARM64 runtime and physical Android/iOS devices remain **NOT TESTED** under the current CI-only M0.1 acceptance.
+This owner-approved JVM-first strategy provides desktop compatibility, not native `.dll`, `.dylib`, or `.so` libraries for every desktop OS. A consuming application may bundle a compatible Java runtime in its own distribution to avoid requiring users to install Java separately. Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion remain **NOT TESTED**. Mobile notice inclusion must be verified before public mobile distribution.
 
-Kotlin Multiplatform, Ktor, and SQLDelight remain candidates under evaluation. The spike does not approve the production language/runtime, networking engine, database driver, public API, or packaging commitment. See [PLAN.md](PLAN.md) and the [M0.1 platform proof specification](docs/specs/M0_1_PLATFORM_SPIKE.md).
+The initial production baseline is KMP + Ktor + optional SQLDelight/SQLite, with JVM-first desktop distribution and a Swift-friendly iOS framework facade. Rust/UniFFI and native desktop ABIs are deferred unless a concrete consumer requirement justifies revisiting them. This approval does not finalize the public API, storage schema, provider list, forecast algorithms, telemetry, or production feature implementation. See [PLAN.md](PLAN.md), [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md), and the active [M0.2 contract specification](docs/specs/M0_2_PUBLIC_API_STORAGE.md).
 
 ## Product and architecture boundaries
 
