@@ -69,6 +69,40 @@ class MeridianEngineContractTest {
     }
 
     @Test
+    fun resultEnvelopeRejectsContradictoryStates() {
+        assertFailsWith<IllegalArgumentException> {
+            WeatherQueryResult(
+                status = QueryStatus.COMPLETE,
+                values = emptyList(),
+                issues = emptyList(),
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            WeatherQueryResult(
+                status = QueryStatus.PARTIAL,
+                values = emptyList(),
+                issues = emptyList(),
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            WeatherQueryResult(
+                status = QueryStatus.UNAVAILABLE,
+                values = emptyList(),
+                issues = emptyList(),
+            )
+        }
+    }
+
+    @Test
+    fun queryCopiesRequestedVariables() {
+        val requested = mutableListOf(WeatherVariable.AIR_TEMPERATURE)
+        val query = WeatherQuery(GeoLocation(0.0, 0.0), requested)
+        requested += WeatherVariable.WIND_SPEED
+
+        assertEquals(listOf(WeatherVariable.AIR_TEMPERATURE), query.variables)
+    }
+
+    @Test
     fun domainCanRepresentPartialValuesWithProvenanceAndQuality() {
         val datum = WeatherDatum(
             variable = WeatherVariable.AIR_TEMPERATURE,
