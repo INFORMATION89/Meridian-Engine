@@ -3,7 +3,8 @@
 **Status:** active design specification. The production technology baseline is approved by ADR-0003; the public API and detailed storage contract remain subject to their M0.2 acceptance and owner review. No production weather feature or production database schema is authorized by this document.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 6–8, 11–16.  
 **Depends on:** completed M0.1 platform proof and the owner-approved KMP + Ktor + optional SQLDelight/SQLite baseline in ADR-0003.  
-**Purpose:** define a small, consumer-neutral API and local persistence boundary before implementing weather providers or algorithms.
+**Purpose:** define a small, consumer-neutral API and local persistence boundary before implementing weather providers or algorithms.  
+**Design recommendation:** [`M0_2_PUBLIC_API_STORAGE_PROPOSAL.md`](../recommendations/M0_2_PUBLIC_API_STORAGE_PROPOSAL.md) — proposed batch API, Swift facade, partial-result, storage, and versioning approach for owner review.
 
 ## 1. Objective
 
