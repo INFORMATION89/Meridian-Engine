@@ -10,7 +10,7 @@ The active milestone is **M0.2: public API, lifecycle/networking, optional stora
 
 This repository is not yet a usable weather engine. It does not contain production weather-provider integration, a forecast pipeline, a stable public API, a production cache, or a released package. Do not use this branch as a production dependency.
 
-The latest recorded complete M0.1 platform matrix is [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), on code commit `91996fb7c190f80899261eb2ff21630b5e564209`. PR [#15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) remains open; verify its exact head and checks before treating it as merge-ready. This inherited M0.1 evidence does not validate M0.2 contracts.
+The original detailed M0.1 platform matrix is [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), on code commit `91996fb7c190f80899261eb2ff21630b5e564209`. The current PR [#15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) head `009e5979ce63f8b169c542d24c654fa64b59c363` was revalidated by [CI run #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103), with all five jobs passing. PR #15 remains open and requires owner approval before merge. Neither run validates M0.2 contracts.
 
 The owner-approved technology direction is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-direction.md): KMP shared core, Ktor behind Meridian-owned networking contracts, and SQLDelight/SQLite as the preferred optional persistence candidate. [ADR-0001](docs/decisions/ADR-0001-jvm-first-desktop.md) defines the JVM-first desktop route.
 
