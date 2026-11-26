@@ -37,10 +37,14 @@ The M0.1 PR #15 description records CI run #222 as passing five jobs, including 
 
 Do not claim Android ARM64 runtime or physical Android/iOS device validation. Do not claim native desktop ABI. Mobile release-package legal-notice verification remains outstanding before public distribution.
 
-## 4. Commands and results
+## 4. Related implementation audit
+
+See [M0.1 implementation reuse audit](MER-0.2-m0.1-implementation-reuse-audit.md) for the static review of existing probe code, transport helpers, storage probes, consumers, and build setup. It is not a runtime validation.
+
+## 5. Commands and results
 
 No M0.2 build, test, or CI command has been executed as part of creating this evidence baseline. Record exact commands, toolchain versions, host, artifacts, and test counts here when performed.
 
-## 5. Acceptance gate
+## 6. Acceptance gate
 
 M0.2 is ready for owner review only when the public API and all three contract documents are internally consistent, independent Kotlin/Swift consumer proof is recorded, deterministic contract tests pass, and unresolved privacy/retention/compatibility decisions are explicitly listed. Owner approval is required before production weather-feature implementation.
