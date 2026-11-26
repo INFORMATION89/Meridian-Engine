@@ -553,7 +553,7 @@ Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application
 ### Technical decisions not yet locked
 
 These are evidence gates, not reasons to interrupt the owner with routine programming questions:
-- non-JVM consumer bindings and any future change to the owner-approved KMP shared-core direction (ADR-0003);
+- any future change to the owner-approved KMP shared-core direction (ADR-0003);
 - non-JVM consumer bindings and future native desktop interoperability; desktop distribution is owner-approved as JVM-first with a bundled-runtime option for applications that need self-contained delivery; native desktop libraries remain a future interoperability option, not a current requirement;
 - platform artifact and packaging matrix;
 - storage implementation and host-provided storage contract;
