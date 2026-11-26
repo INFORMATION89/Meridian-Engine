@@ -28,15 +28,19 @@ data class GeoLocation(
     }
 }
 
-data class WeatherQuery(
-    val location: GeoLocation,
-    val variables: List<WeatherVariable>,
-    val forecastHours: Int = 24,
+class WeatherQuery(
+    location: GeoLocation,
+    variables: List<WeatherVariable>,
+    forecastHours: Int = 24,
 ) {
+    val location: GeoLocation = location
+    val variables: List<WeatherVariable> = variables.toList()
+    val forecastHours: Int = forecastHours
+
     init {
-        require(variables.isNotEmpty()) { "At least one weather variable must be requested" }
+        require(this.variables.isNotEmpty()) { "At least one weather variable must be requested" }
         require(forecastHours in 1..240) { "forecastHours must be between 1 and 240" }
-        require(variables.distinct().size == variables.size) { "variables must not contain duplicates" }
+        require(this.variables.distinct().size == this.variables.size) { "variables must not contain duplicates" }
     }
 
     companion object {
@@ -119,12 +123,15 @@ enum class QueryUnavailableReason {
     NO_DATA_SOURCES_CONFIGURED,
 }
 
-data class WeatherQueryResult(
+class WeatherQueryResult(
     val status: QueryStatus,
-    val values: List<WeatherDatum>,
-    val issues: List<ComponentIssue>,
+    values: List<WeatherDatum>,
+    issues: List<ComponentIssue>,
     val unavailableReason: QueryUnavailableReason? = null,
 ) {
+    val values: List<WeatherDatum> = values.toList()
+    val issues: List<ComponentIssue> = issues.toList()
+
     init {
         when (status) {
             QueryStatus.COMPLETE -> {
