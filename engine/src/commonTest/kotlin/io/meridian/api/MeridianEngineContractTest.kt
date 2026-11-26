@@ -1,6 +1,11 @@
 package io.meridian.api
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -91,6 +96,69 @@ class MeridianEngineContractTest {
                 issues = emptyList(),
             )
         }
+    }
+
+    @Test
+    fun enginePreservesPartialExecutorResult() = runBlocking {
+        val expected = WeatherQueryResult(
+            status = QueryStatus.PARTIAL,
+            values = listOf(
+                WeatherDatum(
+                    variable = WeatherVariable.AIR_TEMPERATURE,
+                    value = 18.0,
+                    unit = "Cel",
+                    validAtEpochMillis = 1_798_000_000_000,
+                    dataKind = WeatherDataKind.FORECAST,
+                    sourceId = "fixture",
+                    method = "deterministic",
+                    freshness = DataFreshness.CURRENT,
+                    quality = DataQuality.VALIDATED,
+                ),
+            ),
+            issues = listOf(
+                ComponentIssue(
+                    variable = WeatherVariable.WIND_SPEED,
+                    code = ComponentIssueCode.SOURCE_UNAVAILABLE,
+                    safeMessage = "No fixture value",
+                ),
+            ),
+        )
+        val engine = MeridianEngine.createForTesting { expected }
+        try {
+            val actual = engine.query(
+                WeatherQuery(
+                    GeoLocation(0.0, 0.0),
+                    listOf(WeatherVariable.AIR_TEMPERATURE, WeatherVariable.WIND_SPEED),
+                ),
+            )
+            assertEquals(QueryStatus.PARTIAL, actual.status)
+            assertEquals(expected.values, actual.values)
+            assertEquals(expected.issues, actual.issues)
+        } finally {
+            engine.close()
+        }
+    }
+
+    @Test
+    fun callerCancellationPropagatesThroughQueryExecutor() = runBlocking {
+        val started = CompletableDeferred<Unit>()
+        val engine = MeridianEngine.createForTesting {
+            started.complete(Unit)
+            awaitCancellation()
+        }
+        val request = launch {
+            engine.query(
+                WeatherQuery(
+                    GeoLocation(0.0, 0.0),
+                    listOf(WeatherVariable.AIR_TEMPERATURE),
+                ),
+            )
+        }
+
+        withTimeout(2_000) { started.await() }
+        request.cancelAndJoin()
+        assertTrue(request.isCancelled)
+        engine.close()
     }
 
     @Test
