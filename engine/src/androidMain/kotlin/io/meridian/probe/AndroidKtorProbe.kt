@@ -12,6 +12,7 @@ object AndroidKtorProbe {
         try { FixtureHttpProbe.verifyCancellation(client, url) } finally { client.close() }
     }
 
+    @JvmStatic
     fun verifyClientLifecycle(): Boolean {
         val client = HttpClient(Android)
         try { return true } finally { client.close() }
