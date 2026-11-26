@@ -271,9 +271,11 @@ class WeatherContractEngine(
             is FeatureOutcome.Failed -> null
         }
 
-        if (data != null && store != null) {
+        // Only complete outcomes are cached. Caching partial data would cause a
+        // later fresh-cache read to be misreported as fully Available and lose diagnostics.
+        if (sourceOutcome is FeatureOutcome.Available && store != null) {
             try {
-                store.write(key, data)
+                store.write(key, sourceOutcome.data)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
@@ -282,8 +284,8 @@ class WeatherContractEngine(
                     failure.message,
                 )
                 return FeatureOutcome.Partial(
-                    data,
-                    (sourceOutcome as? FeatureOutcome.Partial)?.problems.orEmpty() + problem,
+                    sourceOutcome.data,
+                    listOf(problem),
                 )
             }
         }
