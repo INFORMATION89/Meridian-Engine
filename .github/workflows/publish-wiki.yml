@@ -28,7 +28,7 @@ jobs:
 
       - name: Validate Wiki publishing secret
         env:
-          WIKI_TOKEN: \${{ secrets.WIKI_TOKEN }}
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
         run: |
           if [ -z "$WIKI_TOKEN" ]; then
             echo "::error::Repository secret WIKI_TOKEN is missing. See wiki/README.md."
@@ -37,11 +37,11 @@ jobs:
 
       - name: Clone native Wiki repository
         env:
-          WIKI_TOKEN: \${{ secrets.WIKI_TOKEN }}
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
         run: |
           AUTH="$(printf 'x-access-token:%s' "$WIKI_TOKEN" | base64 | tr -d '\n')"
           git -c http.extraheader="AUTHORIZATION: basic $AUTH" clone \
-            "https://github.com/\${GITHUB_REPOSITORY}.wiki.git" wiki-repo
+            "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-repo
 
       - name: Copy managed pages without replacing Home
         run: |
