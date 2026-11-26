@@ -22,7 +22,7 @@ Every value Meridian returns can be traced to:
 | `fallback` | `true` when the preferred source failed and this one stood in |
 
 `Provenance` on a result holds one entry per source and model used, plus per variable the list of
-contributors. The UI never reads values without being able to show this (SOURCES.md, transparency).
+contributors. Consumers must be able to inspect the source lineage for every meaningful returned value. Presentation is owned by each consuming application; Meridian has no UI.
 
 ## Credits
 
@@ -46,7 +46,7 @@ Open-Meteo: CC BY 4.0, credit with link. WMO feeds: credit the issuing agency na
 
 ## Rate limits
 
-One limiter per source, shared across places and callers (the CLI and the app count together):
+One limiter per source, shared across consumers/callers where a shared process or host policy allows it. The exact figures in this historical table are a 2026-11-23 research snapshot, not current provider guarantees or approved production defaults. Re-check official terms, account/deployment limits, and request weights immediately before integration:
 
 | Source | Limits (from its docs) | Meridian's own ceiling |
 |---|---|---|
