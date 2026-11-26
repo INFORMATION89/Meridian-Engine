@@ -7,6 +7,12 @@ import kotlinx.coroutines.runBlocking
 /** Android Ktor engine probes; fixture traffic must stay on a local CI server. */
 object AndroidKtorProbe {
     @JvmStatic
+    @JvmStatic
+    fun verifyFixtureCancellation(url: String): Boolean = runBlocking {
+        val client = HttpClient(Android)
+        try { FixtureHttpProbe.verifyCancellation(client, url) } finally { client.close() }
+    }
+
     fun verifyClientLifecycle(): Boolean {
         val client = HttpClient(Android)
         try { return true } finally { client.close() }
