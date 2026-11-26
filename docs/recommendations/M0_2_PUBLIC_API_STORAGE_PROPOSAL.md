@@ -136,6 +136,34 @@ The technology baseline is already approved by ADR-0003. Remaining decisions:
 
 Present these with a working standalone sample and evidence, not as abstract technology questions.
 
+### Suggested initial defaults (for owner review)
+
+The following defaults make the proposal testable and give the owner a concrete decision surface. They are recommendations only; they do not authorize implementation of a stable public API or production storage schema.
+
+| Area | Recommended initial default | Why / trade-off |
+|---|---|---|
+| Engine lifecycle | One immutable engine instance per host-application scope; construction performs no network I/O; the host closes it explicitly. | Reuses clients and resources without introducing a Meridian-owned scheduler or daemon. |
+| Concurrency | An engine instance may serve concurrent requests; shared configuration is immutable and request state is isolated. Bound internal work and expose no executor or coroutine-scope types publicly. | Avoids forcing consumer threading choices into the API while keeping resource use controllable. |
+| Request validation | Validate coordinates, feature selection, horizon, and limits before starting I/O. Invalid top-level input is a typed request error; unsupported or unavailable individual features remain feature outcomes. | Separates caller mistakes from independent source/feature failures. |
+| Partial results | Return one explicit outcome for every requested feature: available, partial, unavailable, or failed. Include structured reasons and provenance where known. Never encode missing values as zero or an ambiguous null. | A source failure for one feature must not erase valid results for another. |
+| Cancellation | Propagate coroutine cancellation unchanged. Cancellation is not a weather-provider failure and must not produce a successful/persisted result for work that did not finish. | Keeps Kotlin and Swift task cancellation predictable. |
+| Freshness | Prefer fresh cache/network results. Use stale-but-usable data only when the request explicitly allows it and supplies a maximum age. Never relabel stale data as current; preserve original issue, observation, and fetch times. | Makes offline fallback useful without hiding age or uncertainty. |
+| Persistence | No persistent store is required or silently created. Support a no-persistence engine and deterministic in-memory test store. SQLDelight/SQLite is an explicit optional module. | Makes privacy, storage footprint, and migration ownership visible to the host. |
+| Host-supplied storage | Keep the internal storage port narrow, but defer a supported third-party storage SPI from the first stable API unless an independent consumer demonstrates a real requirement. Add it only with conformance tests for atomicity, concurrency, deletion, and migrations. | A public storage SPI is a long-lived compatibility promise and can constrain future schema evolution. |
+| Retention | Do not apply one global retention period. Cache expiry follows provider cadence/HTTP metadata and terms; the agreed initial local learning/verification window is a configurable, bounded 30 days; forecast archives and licensed climatological datasets have separate explicit policies. | Prevents the learning window from deleting scientific archives or long-term datasets. |
+| Swift integration | Keep the Kotlin suspend API as the source of truth; expose a small Swift-friendly async facade. Accept direct suspend-to-async interop only if the native Swift async and cancellation proof passes on the supported toolchain. | Avoids adding a wrapper dependency before it is shown to be necessary. |
+| Versioning | Use pre-1.0 semantic versions while public semantics are still being validated. Version persisted-record schemas independently from library/API versions and require explicit migrations. | Allows controlled contract evolution without silently reinterpreting stored historical data. |
+
+#### Proposed outcome and failure boundary
+
+For the first contract proof, treat invalid top-level request/configuration and use-after-close as request-level typed errors; treat source, transport, parse, rate-limit, and optional-storage failures as feature/source diagnostics wherever unrelated requested features can still complete. Cancellation remains cancellation. A request with mixed feature outcomes is a valid result, not a top-level exception.
+
+The proof should also establish that closing an engine releases its owned clients, that repeated close is harmless, and that concurrent requests cannot share mutable result state. Exact public type names and whether the request-level error surface is represented by a sealed result or typed exception remain subject to owner approval.
+
+#### Decision emphasis
+
+The highest-impact owner choice is whether a third-party host-supplied storage implementation is a first-release promise. The safest initial recommendation is to keep the internal abstraction from day one, ship the no-storage and official SQLDelight paths, and defer the public SPI until a real consumer and a complete conformance contract justify it. This does not prevent revisiting the choice before 1.0.
+
 ## 10. Out of scope
 
 No live provider adapters, production forecast algorithms, source blending, adaptive weights, official-alert ingestion, radar/nowcasting, local learning, telemetry, hosted services, accounts, remote sync, MCP/LLM runtime, UI, or Solstice changes.
