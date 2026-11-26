@@ -18,7 +18,7 @@ The last fully completed platform matrix is recorded at commit `aa5e86ec1cab1d30
 - **iOS:** Kotlin/Native framework consumed from Swift; the accepted CI path is an ARM64 iOS simulator.
 - **Windows, macOS, and Linux:** one Desktop JVM artifact, tested on each operating system.
 
-This strategy provides JVM desktop compatibility, not native `.dll`, `.dylib`, or `.so` libraries for every desktop OS. Desktop consumers need a compatible Java runtime or must bundle one in their own distribution. Android ARM64 runtime and physical Android/iOS devices remain **NOT TESTED** under the current CI-only M0.1 acceptance.
+This owner-approved JVM-first strategy provides desktop compatibility, not native `.dll`, `.dylib`, or `.so` libraries for every desktop OS. A consuming application may bundle a compatible Java runtime in its own distribution to avoid requiring users to install Java separately. Android ARM64 runtime and physical Android/iOS devices remain **NOT TESTED** under the current CI-only M0.1 acceptance.
 
 Kotlin Multiplatform, Ktor, and SQLDelight remain candidates under evaluation. The spike does not approve the production language/runtime, networking engine, database driver, public API, or packaging commitment. See [PLAN.md](PLAN.md) and the [M0.1 platform proof specification](docs/specs/M0_1_PLATFORM_SPIKE.md).
 
