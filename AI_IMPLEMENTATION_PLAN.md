@@ -385,17 +385,17 @@ At the current recorded revision (2026-11-26):
 - PR #15 remains open; do not merge it without checking its exact head, CI, evidence, and obtaining explicit owner approval.
 - M0.2 is the active milestone. Its design specifications are in `docs/specs/M0_2_*`; the evidence ledger is `docs/evidence/MER-0.2-contract-validation.md`.
 - A static review of M0.1 proof code is recorded in `docs/evidence/MER-0.2-m0.1-implementation-reuse-audit.md`. Probe helpers and the probe database are evidence infrastructure, not the production API or schema.
-- No M0.2 implementation build/test has yet been claimed by the evidence ledger. Do not infer M0.2 validation from CI #222.
+- Experimental M0.2 API and Kotlin/Swift consumer source prototypes now exist; no M0.2 build/test has yet been run. Do not infer M0.2 validation from CI #222.
 - No production weather provider, forecast pipeline, stable public API, fixed learning-retention window, or mandatory persistence implementation is authorized by the current M0.2 design work.
 
 ### Next bounded task
 
 Continue M0.2 on `work/m0.2-contract-design`:
 
-1. Reconcile and review the public API, lifecycle/networking, storage/cache, and compatibility/versioning contracts.
-2. Prototype the smallest engine-owned public API and verify Kotlin/Swift consumer ergonomics without exposing Ktor, SQLDelight, platform, provider, or Solstice types.
-3. Prove storage-disabled operation before adding optional storage adapter behaviour.
-4. Add focused deterministic contract tests for lifecycle, cancellation, normalized failures, partial results, freshness/provenance, and schema/version boundaries.
+1. Compile the experimental public API, common tests, Desktop JVM consumer, and Swift consumer on the exact branch head; resolve generated Swift API and compiler findings.
+2. Refine the experimental public API against actual Kotlin/Swift ergonomics without exposing Ktor, SQLDelight, platform, provider, or Solstice types.
+3. Prove storage-disabled operation, then add only the smallest optional storage contract proof.
+4. Add deterministic contract tests for in-flight cancellation, close races, normalized failures, real partial-result aggregation, freshness/provenance, and schema/version boundaries.
 5. Update the M0.2 evidence ledger with exact commits, commands, toolchains, test counts, and limitations.
 6. Present the completed M0.2 package for owner review before M1 production weather implementation.
 
