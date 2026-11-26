@@ -33,7 +33,7 @@ final class ProbeUseTests: XCTestCase {
             } catch is CancellationError {
                 cancellationObserved.fulfill()
             } catch {
-                XCTFail("Expected CancellationError, received: \\(error)")
+                XCTFail("Expected CancellationError, received: \(error)")
                 cancellationObserved.fulfill()
             }
         }
