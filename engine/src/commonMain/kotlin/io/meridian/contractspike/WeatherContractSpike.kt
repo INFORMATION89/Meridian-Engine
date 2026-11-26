@@ -8,32 +8,38 @@ import kotlinx.coroutines.sync.withLock
  * M0.2 design spike only. These types are deliberately isolated from the stable
  * probe package and are not an approved or versioned public API.
  */
-@ExperimentalWeatherContractSpike\nenum class WeatherFeature {
+@ExperimentalWeatherContractSpike
+enum class WeatherFeature {
     CURRENT_CONDITIONS,
     HOURLY_FORECAST,
 }
 
-@ExperimentalWeatherContractSpike\nenum class WeatherVariable {
+@ExperimentalWeatherContractSpike
+enum class WeatherVariable {
     AIR_TEMPERATURE,
     APPARENT_TEMPERATURE,
 }
 
-@ExperimentalWeatherContractSpike\nenum class WeatherUnit {
+@ExperimentalWeatherContractSpike
+enum class WeatherUnit {
     CELSIUS,
 }
 
-@ExperimentalWeatherContractSpike\nenum class DataFreshness {
+@ExperimentalWeatherContractSpike
+enum class DataFreshness {
     FRESH,
     STALE,
 }
 
-@ExperimentalWeatherContractSpike\nenum class CachePolicy {
+@ExperimentalWeatherContractSpike
+enum class CachePolicy {
     NETWORK_ONLY,
     PREFER_FRESH,
     ALLOW_STALE,
 }
 
-@ExperimentalWeatherContractSpike\nenum class WeatherProblemCode {
+@ExperimentalWeatherContractSpike
+enum class WeatherProblemCode {
     SOURCE_UNAVAILABLE,
     SOURCE_FAILURE,
     TRANSPORT_FAILURE,
@@ -43,7 +49,8 @@ import kotlinx.coroutines.sync.withLock
     STALE_CACHE_USED,
 }
 
-@ExperimentalWeatherContractSpike\ndata class GeoCoordinates(
+@ExperimentalWeatherContractSpike
+data class GeoCoordinates(
     val latitude: Double,
     val longitude: Double,
 ) {
@@ -57,7 +64,8 @@ import kotlinx.coroutines.sync.withLock
     }
 }
 
-@ExperimentalWeatherContractSpike\ndata class WeatherRequest(
+@ExperimentalWeatherContractSpike
+data class WeatherRequest(
     val location: GeoCoordinates,
     val features: Set<WeatherFeature>,
     val cachePolicy: CachePolicy = CachePolicy.NETWORK_ONLY,
@@ -72,7 +80,8 @@ import kotlinx.coroutines.sync.withLock
     }
 }
 
-@ExperimentalWeatherContractSpike\ndata class WeatherValue(
+@ExperimentalWeatherContractSpike
+data class WeatherValue(
     val variable: WeatherVariable,
     val value: Double,
     val unit: WeatherUnit,
@@ -82,17 +91,20 @@ import kotlinx.coroutines.sync.withLock
     }
 }
 
-@ExperimentalWeatherContractSpike\ndata class SourceProvenance(
+@ExperimentalWeatherContractSpike
+data class SourceProvenance(
     val sourceId: String,
     val sourceVersion: String?,
 )
 
-@ExperimentalWeatherContractSpike\ndata class WeatherProblem(
+@ExperimentalWeatherContractSpike
+data class WeatherProblem(
     val code: WeatherProblemCode,
     val detail: String? = null,
 )
 
-@ExperimentalWeatherContractSpike\ndata class WeatherFeatureData(
+@ExperimentalWeatherContractSpike
+data class WeatherFeatureData(
     val feature: WeatherFeature,
     val values: List<WeatherValue>,
     val provenance: SourceProvenance,
@@ -127,7 +139,8 @@ import kotlinx.coroutines.sync.withLock
     }
 }
 
-@ExperimentalWeatherContractSpike\nsealed interface FeatureOutcome {
+@ExperimentalWeatherContractSpike
+sealed interface FeatureOutcome {
     data class Available(val data: WeatherFeatureData) : FeatureOutcome
     data class Partial(
         val data: WeatherFeatureData,
@@ -137,22 +150,26 @@ import kotlinx.coroutines.sync.withLock
     data class Failed(val problem: WeatherProblem) : FeatureOutcome
 }
 
-@ExperimentalWeatherContractSpike\ndata class WeatherResult(
+@ExperimentalWeatherContractSpike
+data class WeatherResult(
     val outcomes: Map<WeatherFeature, FeatureOutcome>,
     val completedAtEpochMillis: Long,
 )
 
-@ExperimentalWeatherContractSpike\ndata class FeatureCacheKey(
+@ExperimentalWeatherContractSpike
+data class FeatureCacheKey(
     val latitude: Double,
     val longitude: Double,
     val feature: WeatherFeature,
 )
 
-@ExperimentalWeatherContractSpike\ninterface WeatherClock {
+@ExperimentalWeatherContractSpike
+interface WeatherClock {
     fun nowEpochMillis(): Long
 }
 
-@ExperimentalWeatherContractSpike\ninterface WeatherSource {
+@ExperimentalWeatherContractSpike
+interface WeatherSource {
     suspend fun fetchFeature(
         request: WeatherRequest,
         feature: WeatherFeature,
@@ -163,13 +180,15 @@ import kotlinx.coroutines.sync.withLock
  * A storage port for the spike. A null store means no persistence at all.
  * The first implementation is intentionally in-memory and test-oriented.
  */
-@ExperimentalWeatherContractSpike\ninterface WeatherStore {
+@ExperimentalWeatherContractSpike
+interface WeatherStore {
     suspend fun read(key: FeatureCacheKey): WeatherFeatureData?
     suspend fun write(key: FeatureCacheKey, data: WeatherFeatureData)
     suspend fun clear()
 }
 
-@ExperimentalWeatherContractSpike\nclass InMemoryWeatherStore : WeatherStore {
+@ExperimentalWeatherContractSpike
+class InMemoryWeatherStore : WeatherStore {
     private val mutex = Mutex()
     private val entries = mutableMapOf<FeatureCacheKey, WeatherFeatureData>()
 
@@ -189,7 +208,8 @@ import kotlinx.coroutines.sync.withLock
  * Experimental request orchestrator. It has no provider, network, database,
  * background scheduler, or consumer-application dependency.
  */
-@ExperimentalWeatherContractSpike\nclass WeatherContractEngine(
+@ExperimentalWeatherContractSpike
+class WeatherContractEngine(
     private val source: WeatherSource,
     private val clock: WeatherClock,
     private val store: WeatherStore? = null,
@@ -301,7 +321,8 @@ import kotlinx.coroutines.sync.withLock
  * A deterministic fixture used only by the standalone Kotlin, Android and Swift
  * consumers in this design spike. It is not a weather provider.
  */
-@ExperimentalWeatherContractSpike\nobject WeatherContractDemo {
+@ExperimentalWeatherContractSpike
+object WeatherContractDemo {
     private class FixedClock(private val now: Long) : WeatherClock {
         override fun nowEpochMillis(): Long = now
     }
