@@ -88,18 +88,21 @@ Context management is both a usage-control measure and a correctness measure. Mo
 
 ### Provider-aware model selection: ChatGPT and Claude
 
+For standard engineering, **Claude Sonnet and a balanced ChatGPT coding model are interchangeable defaults**. Pick one primary agent based on repository/tool access, capability for the scoped task, and available usage. Do not run both in parallel on the same implementation. Use Opus only when the task's complexity or risk justifies escalation.
+
 Choose the least costly model that can reliably complete the task. Model names and availability change; the examples below describe the current selection strategy, not permanent version locks. Check the provider's current official model catalogue and pricing before configuring an API workflow.
 
 | Workload | ChatGPT guidance | Claude guidance |
 |---|---|---|
 | Routine, bounded work: formatting, extraction, short summaries, simple documentation or test edits | Use an efficient model such as the currently available Luna-class option | Use Haiku-class models |
-| Standard coding: scoped implementation, ordinary debugging, focused code review | Use a balanced coding model such as the currently available Sol-class option | Use Sonnet-class models |
-| Advanced engineering and independent review: cross-module architecture, difficult root-cause analysis, complex concurrency, high-risk refactors, security-sensitive review | Use a suitable advanced reasoning model with effort matched to risk | Use **Claude Opus 5.5** as an optional second reviewer after the primary implementation or analysis, when deeper independent reasoning materially reduces risk |
-| Critical decisions: product architecture, privacy, legal, security, or irreversible changes | Use an advanced model to prepare evidence and alternatives; owner approval remains mandatory | Opus 5.5 may provide an optional independent review after the initial analysis; it does not replace owner approval or authorize additional spend |
+| Standard coding: scoped implementation, ordinary debugging, focused code review | Balanced coding model | Sonnet-class models |
+| Routine coding: clear components, endpoints, tests, scoped refactors, standard docs, fast iteration | Interchangeable with Sonnet for this tier | Default model for this tier; interchangeable with balanced ChatGPT coding models |
+| Advanced engineering: complex architecture/trade-offs, cross-repository reasoning, long-context work, difficult concurrency/system bugs, complex specifications, stubborn failures | Use a suitable advanced reasoning model with effort matched to risk | Escalate to **Claude Opus** when its stronger reasoning materially reduces risk or rework; may plan, implement, or independently review as appropriate |
+| Critical decisions: product architecture, privacy, legal, security, or irreversible changes | Use an advanced model to prepare evidence and alternatives; owner approval remains mandatory | Opus may provide an independent review; it does not replace owner approval or authorize additional spend |
 
 #### ChatGPT-specific rules
 
-- ChatGPT/Codex can be the primary agent for advanced work and should not be blocked while waiting for another model. When the task would materially benefit from a stronger independent pass, label the handoff **“Opus review recommended”** and schedule it at a useful checkpoint or before merge.
+- ChatGPT/Codex can be the primary agent for advanced work and should not be blocked while waiting for another model. When the task would materially benefit from a stronger independent pass, label the handoff **“Opus review pending”** and schedule it at a useful checkpoint or before merge.
 - This is a recommendation, not a mandatory dependency or a guarantee that Opus must be used. If Opus is unavailable or would require unapproved paid usage, continue with ChatGPT/Codex and proportionate evidence-based review; record that the recommended pass was deferred or not performed.
 
 - Distinguish ChatGPT web conversations, ChatGPT Work/Codex subscription usage, and OpenAI API-key billing. They have separate usage limits, credits, and pricing; API token rates must not be used to estimate subscription task allowances.
@@ -109,7 +112,7 @@ Choose the least costly model that can reliably complete the task. Model names a
 
 #### Claude-specific rules
 
-- Use Haiku for routine, bounded tasks and Sonnet for ordinary engineering and the initial implementation of most tasks. For high-risk work, use the optional Opus second-review guidance below rather than making Opus the default initial implementation model.
+- Use Haiku for routine extraction/classification when that is sufficient, and Sonnet for everyday coding, clear feature work, routine fixes, tests, scoped refactors, standard documentation, and fast iteration. Sonnet and balanced ChatGPT coding models are interchangeable execution choices for this tier. Escalate to Opus for complex architecture, cross-repository reasoning, difficult bugs that resist normal debugging, complex specifications, or high-value independent review.
 - Claude Code is appropriate when repository-aware execution is useful. Give it a bounded task, allowed scope, checkpoints, and a stop condition; do not leave it running indefinitely.
 - Do not block implementation while waiting for Opus. Start with the suitable available model, then request the optional Opus review at a useful checkpoint or before merge when it can change the decision.
 - Use adaptive thinking / effort controls proportionally. Do not request maximum effort by habit.
@@ -132,7 +135,7 @@ Official references:
 - [ChatGPT models](https://learn.chatgpt.com/docs/models)
 - [ChatGPT Work and Codex pricing / usage](https://learn.chatgpt.com/docs/pricing)
 - [OpenAI API pricing](https://platform.openai.com/pricing/)
-- [Claude Opus 5.5 model overview](https://platform.claude.com/docs/en/models/opus-5-5/overview)
+- [Claude Opus model overview](https://platform.claude.com/docs/en/about-claude/models/overview)
 - [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Claude plans and pricing](https://claude.com/pricing)
 
