@@ -1,3 +1,4 @@
+import Foundation
 import MeridianShared
 
 /// Swift-facing proof of the experimental, consumer-neutral M0.2 API.
