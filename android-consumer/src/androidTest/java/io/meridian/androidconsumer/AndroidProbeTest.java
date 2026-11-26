@@ -52,7 +52,7 @@ public class AndroidProbeTest {
     @Test
     public void mapsFixtureTimeoutAndTransportFailure() {
         assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
-            "http://10.0.2.2:8765/cancel", ProbeErrorCode.TIMEOUT, 50L));
+            "http://10.0.2.2:8765/slow", ProbeErrorCode.TIMEOUT, 50L));
         assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureFailure(
             "http://10.0.2.2:8766/offline", ProbeErrorCode.TRANSPORT, DEFAULT_TIMEOUT_MILLIS));
     }
@@ -68,7 +68,7 @@ public class AndroidProbeTest {
     @Test
     public void propagatesRequestCancellationThroughAndroidEngine() {
         assertTrue(io.meridian.probe.AndroidKtorProbe.verifyFixtureCancellation(
-            "http://10.0.2.2:8765/slow"));
+            "http://10.0.2.2:8765/cancel"));
     }
 
     @Test

@@ -67,7 +67,9 @@ object FixtureHttpProbe {
         // Reset the fixture's server-side signal so repeated consumer launches are isolated.
         val reset = client.get("$url/reset")
         reset.bodyAsText()
-        if (!reset.status.isSuccess()) return@coroutineScope false
+        check(reset.status.isSuccess()) {
+            "Cancellation fixture reset failed: HTTP ${reset.status.value}"
+        }
 
         val request = launch { fetch(client, url) }
         // The fixture confirms that the request reached the server and is being held
@@ -81,6 +83,9 @@ object FixtureHttpProbe {
             }
         }
         request.cancelAndJoin()
-        request.isCancelled
+        check(request.isCancelled) {
+            "HTTP request completed before cancellation was observed"
+        }
+        true
     }
 }
