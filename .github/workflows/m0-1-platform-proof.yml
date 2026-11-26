@@ -37,14 +37,48 @@ jobs:
       - name: Verify committed Gradle Wrapper
         run: ./gradlew --version
       - name: Generate CycloneDX SBOM and bootstrap audit-tool checksums
+        shell: bash
         run: |
-          ./gradlew --no-daemon --no-configuration-cache \
+          run_gradle_with_retries() {
+            local attempt
+            for attempt in 1 2 3; do
+              echo "Gradle audit attempt ${attempt}/3"
+              if ./gradlew --max-workers=2 --no-daemon --no-configuration-cache "$@"; then
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep_seconds=$((attempt * 20))
+                echo "Dependency resolution failed; retrying in ${sleep_seconds}s."
+                sleep "$sleep_seconds"
+              fi
+            done
+            echo "Gradle audit failed after 3 attempts." >&2
+            return 1
+          }
+          run_gradle_with_retries \
             --write-verification-metadata sha256 \
             --init-script ci/license-audit.init.gradle.kts \
             cyclonedxBom
       - name: Re-run SBOM generation with strict dependency verification
+        shell: bash
         run: |
-          ./gradlew --no-daemon --no-configuration-cache \
+          run_gradle_with_retries() {
+            local attempt
+            for attempt in 1 2 3; do
+              echo "Strict Gradle audit attempt ${attempt}/3"
+              if ./gradlew --max-workers=2 --no-daemon --no-configuration-cache "$@"; then
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep_seconds=$((attempt * 20))
+                echo "Dependency resolution failed; retrying in ${sleep_seconds}s."
+                sleep "$sleep_seconds"
+              fi
+            done
+            echo "Strict Gradle audit failed after 3 attempts." >&2
+            return 1
+          }
+          run_gradle_with_retries \
             --init-script ci/license-audit.init.gradle.kts \
             cyclonedxBom
       - name: Summarize license metadata
