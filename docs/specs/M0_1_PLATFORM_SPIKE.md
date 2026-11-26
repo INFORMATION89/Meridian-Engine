@@ -1,6 +1,6 @@
-# M0.1 — Five-platform Kotlin Multiplatform proof
+# M0.1 — Five-platform Kotlin Multiplatform candidate proof
 
-**Status:** proposed execution spec; no production weather-engine implementation is authorized by this document.  
+**Status:** proposed execution specification for evaluating the KMP candidate; it does not approve the production language/runtime or authorize production weather-engine implementation.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 4–5, 11–12, and 16.  
 **Purpose:** prove that one shared KMP engine can be consumed on Windows, macOS, iOS, Android, and Linux using the intended runtime strategy.
 
@@ -8,10 +8,12 @@
 
 Can Meridian keep its domain and weather-engine logic in Kotlin Multiplatform, target Android and iOS directly, and support Windows/macOS/Linux desktop through the stable JVM target?
 
-The recommended strategy is:
+The KMP candidate to evaluate is:
 - Android: KMP Android target.
 - iOS: Kotlin/Native framework linked into a native Swift/Objective-C app.
 - Windows, macOS, Linux: one JVM desktop artifact, run with a supported JDK/JRE. A desktop app may bundle a runtime to avoid requiring the user to install Java.
+
+Rust/UniFFI remains a conditional comparison only if KMP presents a concrete blocker or a real consumer requires a native desktop ABI. The production-stack decision remains open until the evidence gate in root `PLAN.md` is satisfied.
 
 This is OS compatibility, not a promise of a native `.dll`, `.dylib`, or `.so` for every desktop OS. Native Windows/Linux libraries are a separate future requirement.
 
@@ -28,12 +30,20 @@ The probe should expose from shared code:
 
 Use the same observable behaviour on all five operating systems.
 
-## 3. KMP targets to validate
+## 3. KMP candidate targets and accepted validation scope
 
-| OS | Build target | Required runtime check |
+The owner accepted CI-only validation for the current M0.1 stage. The accepted evidence scope is not a claim of universal device/ABI support:
+
+- Android x86_64 emulator is the tested CI path.
+- Android ARM64 runtime remains **NOT TESTED** and is deferred; it is not a blocker for this CI-only M0.1 acceptance.
+- iOS ARM64 simulator with a Swift consumer is the tested CI path.
+- Physical Android and iOS device execution remains **NOT TESTED** and is deferred; do not infer device support from emulator/simulator results.
+- Windows, macOS, and Linux are validated through the Desktop JVM artifact only; this does not prove native desktop library ABIs.
+
+| OS | Build target | Accepted CI runtime evidence |
 |---|---|---|
-| Android | Android/Kotlin target, ARM64 first | Load library from an Android test app on an ARM64 emulator/device |
-| iOS | `iosArm64` and `iosSimulatorArm64` | Build framework; call from Swift in an ARM64 simulator; device check where available |
+| Android | Android/Kotlin target | Load and exercise from an Android x86_64 emulator test app |
+| iOS | `iosArm64` and `iosSimulatorArm64` | Build framework; import and call from Swift in an ARM64 simulator; physical-device run is deferred |
 | Windows | Desktop `jvm()` | Run the same JVM artifact on Windows x64 with the chosen JDK |
 | macOS | Desktop `jvm()` | Run the same JVM artifact on Apple Silicon macOS; Intel macOS if available |
 | Linux | Desktop `jvm()` | Run the same JVM artifact on Linux x64 and record the tested distribution |
@@ -52,14 +62,15 @@ Do not use `mingwX64` or `linuxX64` Kotlin/Native as the initial Windows/Linux r
 
 ### Networking candidate — Ktor
 
-Build a small isolated test that:
+Build an isolated, deterministic loopback-fixture test that:
 - compiles common request/response code;
-- uses an Android-supported client engine;
-- uses the Darwin client engine for iOS;
-- uses a JVM engine (for example CIO) for desktop;
-- serializes/deserializes a local fixture without requiring live network access.
+- sends a fixture HTTP request through the actual Android-selected client engine;
+- sends a fixture HTTP request through the Darwin client engine for iOS;
+- sends a fixture HTTP request through the selected JVM engine (for example CIO) on desktop;
+- parses the fixture response and records the exact engine/dependency version for each target;
+- exercises client creation and disposal on every declared consumer boundary.
 
-Do not make a live provider request. Record the exact client engine and dependency version for each target.
+Do not make a live weather-provider request. A shared MockEngine test or a create/close-only lifecycle probe is not evidence of real platform transport behaviour. Timeout, transport/parse error mapping, consumer-boundary cancellation, and cleanup requirements remain part of the M0.1/M0.2 acceptance gates as allocated by root `PLAN.md`.
 
 ### Storage candidate — SQLDelight/SQLite
 
@@ -113,20 +124,21 @@ Use a results table in the pull request. Distinguish measured facts from estimat
 
 M0.1 is complete only when:
 
-1. The same shared probe is called successfully on Android, iOS, Windows, macOS, and Linux.
+1. The same shared probe is called successfully on the accepted Android x86_64 emulator, iOS ARM64 simulator/Swift consumer, and Windows/macOS/Linux JVM consumer paths.
 2. The iOS framework works through a Swift consumer in an iOS simulator.
 3. The JVM desktop artifact works on Windows, macOS, and Linux with the documented runtime.
-4. Ktor client engine candidates compile for Android, iOS, and JVM desktop.
-5. SQLDelight read/write tests pass with Android, Native iOS, and JVM desktop drivers.
+4. Deterministic requests pass through the actual selected Android, Darwin, and JVM HTTP engines; compilation or MockEngine-only tests are insufficient.
+5. Timeout, transport/parse errors, cancellation, and lifecycle behaviour are tested at the relevant consumer boundaries as required by root `PLAN.md`.
+6. SQLDelight read/write tests pass with Android, Native iOS, and JVM desktop drivers if SQLDelight remains a candidate; this does not approve it as production storage.
 6. The PR lists exact commands, toolchain versions, build hosts, platform outcomes, and artifact sizes.
 7. Desktop runtime requirements and any JRE bundling plan are clearly documented.
 8. The recommendation states whether KMP meets the five-OS requirement and whether any consumer actually needs native desktop libraries.
 9. The project owner approves the production language, driver matrix, and packaging approach before M1 implementation begins.
 
 
-## 9. Current compatibility research (2026-11-25)
+## 9. Compatibility research snapshot (2026-11-25)
 
-This section records a starting point for the spike, not a permanent version lock. Re-check official compatibility tables immediately before implementation and pin the exact versions in the spike branch.
+This is a dated research snapshot for the KMP candidate, not a permanent version lock or a current technology decision. Re-check official compatibility tables immediately before implementation and pin exact versions in the spike branch.
 
 ### Kotlin and Gradle baseline
 
@@ -183,16 +195,18 @@ Official references: [GitHub Actions runner selection](https://docs.github.com/e
 
 The implementation PR must report each cell as **PASS**, **FAIL**, **BLOCKED**, or **NOT TESTED**, with a log/artifact link and exact command. Do not mark a platform PASS from compilation alone.
 
-| Check | Android | iOS | Windows | macOS | Linux |
+| Check | Android x86_64 emulator | iOS ARM64 simulator | Windows JVM | macOS JVM | Linux JVM |
 |---|---|---|---|---|---|
 | Shared probe compiles | | | | | |
 | Artifact/framework produced | | | | | |
 | Real consumer loads it | | | | | |
 | Deterministic operation and typed error | | | | | |
 | Async operation and cancellation | | | | | |
-| Ktor fixture request | | | | | |
-| SQLDelight create/write/read/reopen | | | | | |
+| Actual Ktor fixture request | | | | | |
+| SQLDelight create/write/read/reopen, if retained as candidate | | | | | |
 | Packaged consumer launch | | | | | |
+
+Android ARM64 runtime and physical Android/iOS device execution should be recorded separately as **NOT TESTED** until actually run; they are not silently added to this accepted CI matrix.
 
 For iOS, distinguish framework compilation from successful Swift import and simulator execution. For Android, distinguish Gradle compilation from an instrumented test on the declared ABI. For desktop, test the actual packaged JVM artifact on each OS, not only on the build host.
 
