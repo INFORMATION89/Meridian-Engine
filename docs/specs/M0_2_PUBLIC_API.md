@@ -77,7 +77,7 @@ Prototype semantics:
 - `WeatherQueryResult` represents `COMPLETE`, `PARTIAL`, and `UNAVAILABLE`; construction enforces consistent value/issue/reason combinations and snapshots its collections. Exceptional request failures are thrown, not disguised as an unavailable result.
 - `WeatherDatum` carries value, unit, valid time, optional issue/observation instants, data kind, source/method provenance, freshness, quality, and optional uncertainty.
 - `ComponentIssue` reports per-variable omissions. The prototype returns `NO_DATA_SOURCE` for each requested variable because no production or fixture source is configured.
-- `MeridianEngine.close()` is idempotent; a later query throws `MeridianEngineClosedException`.
+- `MeridianEngine.close()` is idempotent; a later query throws `MeridianEngineClosedException`. An internal-only executor seam allows common tests to inject deterministic results; it is not public API and does not define a provider extension point.
 - Construction and query perform no network, persistent storage, telemetry, location lookup, or background work.
 
 Known design limitations to resolve before accepting this API:
@@ -85,7 +85,7 @@ Known design limitations to resolve before accepting this API:
 - Units are strings for this first prototype; replace or constrain them with a typed unit contract and canonical conversion rules.
 - Epoch-millisecond timestamps are a temporary representation; review a common instant/interval type and timezone semantics.
 - The first query supports a forecast-hour horizon, not arbitrary time ranges/resolutions.
-- The current no-source implementation proves consumer semantics only. It does not validate provider routing, partial-result aggregation, real transport cancellation, in-flight close behaviour, or cache semantics.
+- The current no-source implementation proves consumer semantics only. An internal fake executor verifies partial-result pass-through and caller cancellation, but does not validate provider routing/aggregation, real transport cancellation, in-flight close behaviour, or cache semantics.
 - `close` state is guarded for visibility, but full concurrent lifecycle and in-flight operation guarantees must be implemented and tested when the engine owns cancellable resources.
 - The Swift helper factory is a convenience for this proof; review whether it belongs in the eventual public surface.
 
