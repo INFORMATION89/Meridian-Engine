@@ -241,7 +241,7 @@ Never average severity or rewrite official instructions as if Meridian were the 
 
 ## 12. Learning and correction
 
-MER-7 should start with descriptive, local, bounded statistics. Any later bias correction or skill weighting must be separately enabled, evaluated, and attributable.
+M7 should start with descriptive, local, bounded statistics as part of regional Level 2 intelligence. Any later bias correction or skill weighting must be separately enabled, evaluated, attributable, and activated only after the approved M7 gate.
 
 Requirements before a correction ships:
 
