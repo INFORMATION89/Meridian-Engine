@@ -70,8 +70,9 @@ The formal M0.1 specification asks for a minimal Ktor path. Any additional real-
 ### P1 — optional CI resilience and supply-chain documentation
 
 - [x] Defer the no-KVM TCG/software-emulation fallback for now. Run #152 used KVM successfully, so the fallback remains unverified; this is not a current MER-0.1 blocker and is not proof of Android ARM64.
-- [ ] Complete the direct and transitive dependency licence/notice inventory.
-- [ ] Confirm the correct copyright holder and whether a project NOTICE file is needed before creating it.
+- [ ] Complete the direct and transitive dependency licence/notice inventory. The current MER-0.1 branch has 486 component coordinates in `gradle/verification-metadata.xml`; lockfiles contain 228 engine, 258 Android-consumer, and 73 Desktop-consumer configuration entries. These are not unique-library counts and do not identify licence obligations.
+- [ ] Generate a configuration-aware SPDX/CSV/compliance inventory for runtime, test, and build dependencies; manually supplement native SDK/toolchain components that Gradle metadata cannot identify.
+- [ ] Confirm the correct copyright holder and whether a project NOTICE file is needed before creating it. The current Apache-2.0 `LICENSE` on the MER-0.1 branch still contains the template placeholder `[yyyy] [name of copyright owner]`; do not replace it with a GitHub username without owner confirmation.
 - [ ] Record exact supported runtime/JDK requirements and tested Linux distributions.
 - [ ] Review the Gradle disabled-native-target warnings on Linux/Windows and decide whether they are expected benign target-skips or require an explicit configuration note.
 
