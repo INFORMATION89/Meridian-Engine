@@ -59,7 +59,7 @@ M0.1 proved that a native Swift consumer can import and call the generated Apple
 
 Recommend a coroutine-native Kotlin API and a small Swift-facing facade that presents natural async/await calls and maps public outcomes/errors without exposing awkward generated wrapper types. Verify cancellation in both directions with a real Swift consumer. Do not add a third-party Swift interop plugin until a prototype demonstrates a need and its licence, maintenance, and target support are reviewed.
 
-Keep Flow/streaming out of the first public API unless a concrete consumer requirement proves a batch result insufficient; streaming adds lifecycle, ordering, backpressure, cancellation, and cross-language complexity.
+Keep Flow/streaming out of the first public API unless a concrete consumer requirement proves a batch result insufficient; streaming adds lifecycle, ordering, backpressure, cancellation, and cross-language complexity. The current Apple framework uses Kotlin's Objective-C export path. Kotlin 2.4.0 introduced Swift Export in Alpha; do not switch the production framework to that path until its stability and target compatibility are acceptable. First test suspend-to-Swift async through the existing framework. If direct interop is insufficient, compare KMP-NativeCoroutines and SKIE against the exact Kotlin toolchain before adding either.
 
 ## 5. Optional storage architecture
 
@@ -139,3 +139,9 @@ Present these with a working standalone sample and evidence, not as abstract tec
 ## 10. Out of scope
 
 No live provider adapters, production forecast algorithms, source blending, adaptive weights, official-alert ingestion, radar/nowcasting, local learning, telemetry, hosted services, accounts, remote sync, MCP/LLM runtime, UI, or Solstice changes.
+
+## Sources consulted
+
+- Kotlin 2.4.0 release notes, including Swift Export status: https://kotlinlang.org/docs/whatsnew24.html
+- Kotlin/Native Swift and Objective-C interoperability, including suspend-function mapping and Swift wrapper annotations: https://kotlinlang.org/docs/native-objc-interop.html
+- Kotlin Multiplatform FAQ on calling coroutines from Swift and the current KMP-NativeCoroutines/SKIE options: https://kotlinlang.org/docs/multiplatform/faq.html
