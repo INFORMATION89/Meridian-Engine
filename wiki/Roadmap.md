@@ -4,7 +4,7 @@
 **Current stage:** M0.2 — Public API and storage contracts  
 **Product direction:** Owner-approved independent, local-first, multiplatform meteorological engine.
 
-This page presents the complete milestone sequence, its purpose, and the completion gates. It is an orientation and progress view; the repository's [`PLAN.md`](https://github.com/INFORMATION89/Meridian-Engine/blob/main/PLAN.md) remains the master source for product scope, architecture boundaries, detailed acceptance criteria, and implementation authority. Milestone specifications provide the scoped details for each stage.
+This page presents the complete milestone sequence, its purpose, and the completion gates. It is an orientation and progress view; the repository's [`PLAN.md`](https://github.com/INFORMATION89/Meridian-Engine/blob/main/PLAN.md) remains the master source for product scope, architecture boundaries, detailed acceptance criteria, and implementation authority. Milestone specifications provide the scoped details for each stage. A documentation reconciliation is currently tracked in [PR #23](https://github.com/INFORMATION89/Meridian-Engine/pull/23); until it is merged, some status and technology-decision wording in `PLAN.md` on `main` may lag the latest owner-approved direction reflected here.
 
 ## Product destination
 
