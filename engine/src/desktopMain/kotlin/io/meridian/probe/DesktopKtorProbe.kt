@@ -22,6 +22,11 @@ object DesktopKtorProbe {
         }
     }
 
+    suspend fun verifyFixtureCancellation(url: String): Boolean {
+        val client = HttpClient(CIO)
+        try { return FixtureHttpProbe.verifyCancellation(client, url) } finally { client.close() }
+    }
+
     fun verifyClientLifecycle(): Boolean {
         val client = HttpClient(CIO)
         try { return true } finally { client.close() }
