@@ -2,7 +2,7 @@
 
 - **Status:** Draft — design and deterministic contract-proof milestone; owner review required before production weather implementation.
 - **Baseline:** Owner-approved Kotlin Multiplatform shared core, Ktor networking, SQLDelight as an optional persistence implementation, and JVM-first desktop distribution.
-- **Parent evidence:** [MER-0.1 platform validation](../evidence/MER-0.1-platform-validation.md), CI #222.
+- **Parent evidence:** [MER-0.1 platform validation](../evidence/MER-0.1-platform-validation.md), original platform proof CI #222 and latest M0.1 PR-head validation [CI #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103). CI #224 is not M0.2 validation.
 - **Product authority:** [PLAN.md](../../PLAN.md), [ADR-0001](../decisions/ADR-0001-jvm-first-desktop.md), and [ADR-0002](../decisions/ADR-0002-application-owned-recommendations.md), and [ADR-0003](../decisions/ADR-0003-approved-production-technology-direction.md).
 
 ## 1. Purpose
