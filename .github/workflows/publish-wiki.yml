@@ -39,15 +39,14 @@ jobs:
         env:
           WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
         run: |
-          AUTH="$(printf 'x-access-token:%s' "$WIKI_TOKEN" | base64 | tr -d '\n')"
-          git -c http.extraheader="AUTHORIZATION: basic $AUTH" clone \
+          AUTH="$(printf 'x-access-token:%s' "$WIKI_TOKEN" | base64 | tr -d '\\n')"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH" clone \\
             "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-repo
 
       - name: Copy managed pages without replacing Home
         run: |
-          # Home.md is intentionally user-managed in the native Wiki.
-          cp -R wiki/. wiki-repo/
-          rm -f wiki-repo/README.md
+          # Home.md and README.md are intentionally not managed by this publisher.
+          find wiki -maxdepth 1 -type f ! -name 'README.md' -exec cp {} wiki-repo/ \\;
 
       - name: Commit and publish changes
         working-directory: wiki-repo
