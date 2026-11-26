@@ -48,7 +48,7 @@ Meridian is local-first. Its normal use should not require the project owner or 
 
 Weather requests go directly from the user's device to eligible providers when their terms and technical requirements permit it. Local cache and learning data remain on the device by default.
 
-Telemetry and data contribution are off by default. Any future sharing must be optional and require clear, separate consent. Before a person opts in, the app must explain what information is collected, why it is needed, where it is sent, who receives it, and how long it is kept. Users must be able to inspect an example of the data and withdraw consent.
+Telemetry and data contribution are off by default. Any future sharing must be optional and require clear, separate consent. Before a person opts in, the app must explain what information is collected, why it is needed, where it is sent, who receives it, and how long it is kept. Users must be able to inspect an example of the data, withdraw consent, and delete eligible local data.
 
 AI may help contributors build the project, but the released engine must not need an AI model, AI account, credential, inference service, or token budget.
 
