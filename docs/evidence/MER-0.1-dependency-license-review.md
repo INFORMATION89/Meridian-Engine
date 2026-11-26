@@ -70,3 +70,19 @@ The Linux and Windows desktop app-image artifacts from [platform-proof run #4578
 This inspection identified a distribution-notice gap: the original app-image artifact did not include Meridian's root LICENSE or THIRD-PARTY-NOTICES.md, even though SLF4J's MIT text was already documented in the repository. The build now stages both documents in the Gradle desktop distribution and copies them into each Linux, Windows, and macOS app-image root. The third-party notice inventory now records SQLite JDBC's additional embedded license and the runtime component families observed in the actual packages.
 
 The current package evidence covers Linux and Windows app images. The macOS job is configured to stage the same notices, but its resulting artifact must still be inspected after the updated workflow runs. Android and iOS application package distribution remains outside the artifacts produced by this workflow. This follow-up does not close the full cross-platform license review until those platform packages and the updated artifacts are inspected.
+
+## Updated desktop package verification (2026-11-26)
+
+The updated artifacts from [platform-proof run #45787834464](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45787834464), built from commit `e377096cf2491918fbb960ceff04d89e44ce2677`, were inspected directly:
+
+- Linux app-image: contains root `LICENSE` and `THIRD-PARTY-NOTICES.md`.
+- Windows app-image: contains root `LICENSE` and `THIRD-PARTY-NOTICES.md`.
+- macOS app-image: contains root `LICENSE` and `THIRD-PARTY-NOTICES.md`.
+- Gradle `installDist` output on all three desktop operating systems also contains both documents.
+- Bundled OpenJDK runtime legal directories remain present in all three app-images. The platform-specific legal-file counts differ, as expected for the different runtime images; none were stripped by the packaging changes.
+
+This closes the previously open desktop app-image notice-staging check for Linux, Windows, and macOS on the inspected commit. The artifacts are experimental CI app-images, not release installers.
+
+The iOS artifact contains the built XCFramework and Swift consumer build output, but no Android or iOS application release package is produced by this workflow. Android's artifact is test/report output only. Therefore, legal packaging for an eventual Android APK/AAB and a distributable iOS app/framework package remains unverified and must not be inferred from the desktop results.
+
+**Updated status:** desktop app-image notice inclusion is verified on all three desktop operating systems. The SBOM metadata audit passed with zero third-party coordinates missing license metadata. The five multi-license entries have been traced to lint/test/build-tool configurations rather than desktop runtime packages and their declared upstream license alternatives have been reviewed. Full mobile release-package notice verification remains open.
