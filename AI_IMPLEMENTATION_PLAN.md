@@ -56,6 +56,7 @@ Before repository work, follow the order and requirements in AGENTS.md. At minim
 4. AI_POLICY.md and AI_COST_POLICY.md.
 5. The approved specification for the active milestone.
 6. The exact code, tests, build files, and relevant research required for the task.
+7. If a relevant provider/model guide exists under docs/agent-guides/, use it only as supplementary operational guidance; project policies and PLAN.md remain authoritative.
 
 Do not infer repository state from an older conversation, issue description, plan, generated summary, or an unmerged branch. Inspect the current branch and exact commit.
 
@@ -358,7 +359,12 @@ Track status by OS, architecture, artifact type, runtime, consumer language, and
 AI_COST_POLICY.md is mandatory and governs AI-model use, context, repository/search requests, CI, weather-provider calls, datasets, and compute.
 
 - Use the least expensive method that gives sufficient evidence.
+- A second-model review is an independent source of findings, not proof. Verify findings with code, tests, and evidence; it does not replace owner approval or required acceptance gates.
 - Reuse prior evidence only if commit, source, toolchain, environment, and inputs remain identical.
+- Keep sessions bounded to a coherent task. Use concise handoffs with the current commit, objective, decisions, files changed, verification, limitations, and next action; start a fresh session for an independent task when prior context is no longer needed.
+- For subscription-based tools, monitor the actual plan usage meter and preserve the included allowance. Do not mistake a large context window for unlimited plan usage or activate paid overages without owner approval.
+- Use provider-supported context inspection, compaction, and reset controls when needed. Cached input may lower API billing but still occupies context; large context can also harm retrieval quality.
+- When ChatGPT or another reviewer has already planned the task, give the coding agent the handoff rather than asking it to repeat full-repository exploration unless the code state changed.
 - Avoid large file reads, repetitive polling, redundant searches, unnecessary agent fan-out, and repeated CI runs.
 - Prefer deterministic scripts, local fixtures, and cached approved artifacts.
 - Never use live weather-provider requests in routine automated tests.
@@ -371,6 +377,12 @@ AI_COST_POLICY.md is mandatory and governs AI-model use, context, repository/sea
 - Security, licensing, compatibility, and release gates remain mandatory when affected. Do not trade correctness for cost.
 - Ask before any paid model/tool/API, subscription, hosted service, new recurring cost, or large out-of-scope dataset download.
 - If a required check is unavailable, report the blocker and leave the gate open. Never label it passed.
+
+
+### Optional advanced second review for code
+
+**Opus is recommended for tasks that benefit from an advanced second review, not as a requirement to begin work and not as automatic authorization to spend more.** For high-impact or difficult code changes, Opus may be used as a second reviewer after the first implementation or technical analysis exists. It is not a requirement to start a coding task and does not authorize extra paid usage. The review should receive a focused diff, relevant specification, test evidence, and explicit questions—not a full conversation or repository dump by default. Findings must be independently verified. Use it only when it fits the already approved usage allowance and is likely to reduce meaningful risk.
+
 
 ## 12. Pull request and milestone reporting template
 

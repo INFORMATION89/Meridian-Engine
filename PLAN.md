@@ -479,6 +479,7 @@ Maintain one source of truth per topic.
 | AGENTS.md | Operational instructions for coding agents; must point to the master plan and current milestone |
 | AI_POLICY.md | Contributor AI use and the prohibition on runtime AI requirements |
 | AI_COST_POLICY.md | Approved policy for cost-aware AI, tools, CI, providers, datasets, and compute without weakening verification |
+| `docs/agent-guides/CLAUDE_CODE_USAGE.md` | Optional operational guide for managing Claude Code subscription usage, context, and bounded sessions; not a model requirement |
 | AI_IMPLEMENTATION_PLAN.md | Detailed, task-oriented execution guide for coding agents; subordinate to this master plan and its approved milestone gates |
 | PROJECT_OVERVIEW.md | Concise human-readable explanation of Meridian's purpose, scope, roadmap, and status; derived from this master plan, not an independent authority |
 | CLEAN_ROOM.md | Independent research and implementation policy |
@@ -497,7 +498,8 @@ Before the first production weather milestone:
 2. Ensure Solstice's copy of the Meridian specification remains an integration reference only and does not become Meridian's source of truth.
 3. Clarify that a Git submodule or composite build may be a developer convenience, not the official distribution requirement.
 4. Replace stale implementation instructions that conflict with current milestones or owner decisions.
-5. Reconcile RULES.md, AGENTS.md, and AI_POLICY.md with technical autonomy, strategic approval boundaries, current PR/CI workflow, and cost-aware testing.
+5. Reconcile RULES.md, AGENTS.md, and AI_POLICY.md with technical autonomy, strategic approval boundaries, current PR/CI workflow, and cost-aware testing/context management.
+6. Keep provider/model-specific guides under docs/agent-guides/ optional, concise, and dated; update or retire them when the provider's product, usage meter, context controls, model, or pricing changes.
 6. Keep `AI_IMPLEMENTATION_PLAN.md` and `PROJECT_OVERVIEW.md` synchronized with this master plan. They are derived views for different audiences, not independent sources of requirements; update them whenever an approved master-plan change affects their content.
 
 Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application and consumer-integration plan.
