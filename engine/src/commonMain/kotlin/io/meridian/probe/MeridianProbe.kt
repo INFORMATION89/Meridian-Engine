@@ -32,6 +32,8 @@ enum class ProbeErrorCode {
     HTTP_STATUS,
     TRANSPORT,
     MALFORMED_RESPONSE,
+    EMPTY_RESPONSE,
+    PARTIAL_RESPONSE,
     TIMEOUT,
 }
 
