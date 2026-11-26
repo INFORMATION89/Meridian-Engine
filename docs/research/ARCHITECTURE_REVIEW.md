@@ -1,7 +1,8 @@
 # Meridian architecture review
 
-**Status:** design review and recommendations for owner approval  
+**Status:** historical design review snapshot; recommendations were proposals, not implementation authorization  
 **Prepared:** 2026-11-25  
+**Status addendum:** 2026-11-26; current status is governed by root `PLAN.md` and the live repository/PR state.  
 **Scope:** repository architecture, M0.1 evidence, MER-0.2 API/storage decisions, MER-0.3 verification design  
 **Authority:** `PLAN.md`, `RULES.md`, `CLEAN_ROOM.md`, `AGENTS.md`, and approved milestone specifications remain authoritative.
 
@@ -15,7 +16,7 @@ Any additional Ktor transport/integration tests are CI work using local determin
 
 The recommended direction is coherent: Meridian should remain an independent, local-first weather engine embedded in the consuming application. Its core should own weather semantics, provider coordination, normalization, freshness, provenance, and deterministic result assembly. The consuming application should own UI, saved places, permissions, scheduling, settings, secure credential storage, and presentation.
 
-The current Kotlin Multiplatform proposal is a reasonable way to meet the five-OS requirement with the least architectural complexity:
+The recommendation at the time this review was prepared was to evaluate Kotlin Multiplatform as a way to meet the five-OS requirement:
 
 - Android: Kotlin/Android target.
 - iOS: Kotlin/Native framework consumed by Swift.
@@ -58,7 +59,7 @@ A green workflow does not close every acceptance criterion:
 6. **The dependency/licence inventory and the decision about a project `NOTICE` remain open.** Confirm the copyright holder and notice obligations before adding one.
 7. The tested dependency versions and driver choices remain spike candidates until the owner approves the M0.1 recommendation.
 
-PR #2 remains open and Draft. The owner has now accepted CI-only validation for MER-0.1 and deferred physical-device testing. The remaining gate is review of the actual CI evidence, any required CI-level Ktor checks, dependency/licence findings, and the production language/target/driver/packaging recommendation; this does not imply that untested ARM64 or physical-device paths passed. See the [MER-0.1 pull request](https://github.com/INFORMATION89/Meridian-Engine/pull/2) and its [verification record on the spike branch](https://github.com/INFORMATION89/Meridian-Engine/blob/spike/m0.1-kmp-platform-proof/docs/verification/MER-0_1_RESULTS.md).
+At the time this review was prepared, PR #2 was open and Draft. Its later status is recorded in the dated addendum below.
 
 ### Run #152 package measurements
 
@@ -224,3 +225,13 @@ MER-1 should begin only after:
 **Recommended:** continue MER-0.1 stabilization; approve no production provider or algorithm yet. Prepare the MER-0.2 and MER-0.3 owner decisions using the registers and invariants in this review. Then implement the smallest independent contract consumer before starting MER-1.
 
 This document is a review aid. It does not itself approve any recommendation.
+
+## 10. Current status addendum (2026-11-26)
+
+PR #2 was closed while still Draft on 2026-11-26 to clear unfinished open PRs. It was **not merged**. The owner comment states that the source branch is preserved and that the MER-0.1 CI, dependency licence/NOTICE, and production-stack approval gates are not waived.
+
+The preserved branch `spike/m0.1-kmp-platform-proof` currently points to `bd395b5fd3a8eb03c96528eb429b183125eaf007`. The latest recorded six-job success for that exact SHA is [workflow run 45736878709](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45736878709). This validates only the declared CI cells: Android x86_64 emulator, iOS ARM64 simulator/Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS execution remain **NOT TESTED** and are deferred under the accepted CI-only scope.
+
+The remaining M0.1 evidence/gates include actual deterministic HTTP requests through the selected Android, Darwin, and JVM/CIO engines; timeout and transport/parse error mapping; cancellation and client lifecycle at the consumer boundaries; full direct/transitive dependency licence inventory and NOTICE decision; and owner approval of the production language/runtime, drivers, and packaging strategy. The PR's administrative closure did not satisfy or waive these gates. Reopen or create a replacement implementation PR only when the outstanding evidence and review package are ready.
+
+The earlier run chronology, package-size measurements, and proposed architecture in this review remain historical evidence. They must not be treated as the current repository state or as approval of KMP, Rust, a database, or a public API.

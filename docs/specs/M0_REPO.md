@@ -1,9 +1,9 @@
 # M0 — Repository foundation checklist
 
-**Status:** partially complete  
+**Status:** partially complete; reconciled with the approved master plan on 2026-11-26  
 **Master plan:** [`/PLAN.md`](../../PLAN.md)  
 **Agent instructions:** [`/AGENTS.md`](../../AGENTS.md)  
-**Current status:** documentation and repository identity exist; no production engine code has been authorized.
+**Current status:** the master plan is approved and merged. The root Apache-2.0 LICENSE and public README are still absent from `main`; copies on the preserved MER-0.1 spike branch have not been merged. No production weather-engine implementation has been authorized.
 
 ## 1. Repository and governance
 
@@ -12,9 +12,9 @@
 - [x] Root `RULES.md` exists.
 - [x] Root `CLEAN_ROOM.md` exists as a separate authoritative policy.
 - [x] Root `AI_POLICY.md` governs AI-assisted engineering and AI-enabled product features.
-- [ ] Review and approve the root `PLAN.md`.
-- [ ] Add Apache-2.0 `LICENSE` and `NOTICE`.
-- [ ] Add a project `README.md` that says the project is early and not yet usable.
+- [x] Review and approve the root `PLAN.md` (integrated in PR #5 on 2026-11-26).
+- [ ] Add the root Apache-2.0 `LICENSE` before the first public release; the copy on the closed PR #2 branch has not been merged. Complete the direct/transitive dependency licence inventory and determine whether a third-party `NOTICE` is legally required; do not add one by assumption.
+- [ ] Add a root `README.md` that says the project is experimental and not production-ready; the draft on the closed PR #2 branch has not been merged and must be reconciled with the unresolved production-stack decision.
 - [ ] Add a cross-platform `.gitignore` for IDE files, build outputs, local configuration, native artifacts, and secrets.
 - [ ] Configure branch protection for `main` after the first CI build is green.
 

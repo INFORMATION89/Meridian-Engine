@@ -1,9 +1,6 @@
 # Meridian M3: official alerts (CAP, WMO, FOSS Public Alert Server)
 
-Status: **spec, clean room step 1** (2026-11-23), from the OASIS CAP 1.2 standard, WMO's Severe Weather
-Information Centre pages and source list, Google's public CAP guidance, KDE's public pages, and the FOSS
-Public Alert Server's OpenAPI description (read from KDE's GitHub mirror; only the API description, not
-the server's code).
+**Status:** historical alert-normalization proposal (2026-11-23), based on CAP 1.2 and public WMO/KDE/FPAS documentation. It does not approve an alert provider or an integration. Re-check current feed availability, official issuing authority, schema, terms, licence, attribution, service status, and privacy before implementation. Do not use a third-party aggregator's code as an implementation template.
 
 ## Scope
 
@@ -40,7 +37,7 @@ Meridian's alert type keeps all of these, plus the source and provenance.
    (`sourceIsOfficial`), registered, its CAP feed (`capAlertFeed`, an RSS list) and the feed's status
    (`capAlertFeedStatus`).
 2. For a place: the authorities of the place's country that are official, registered and operating.
-3. Read each feed (RSS), every refresh interval from configuration (start at 15 minutes). Each item
+3. Read each eligible feed at an interval permitted by its current terms and cadence. The 15-minute interval in the original research is a candidate only, not an approved global polling default. Each item
    links to one CAP message.
 4. Fetch only messages not already cached (by link and identifier); parse; keep those that pass the
    area test below.

@@ -151,11 +151,11 @@ The canonical proof is PR #2, not the closed duplicate PR #3. Its current head a
 
 That evidence demonstrates an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux. It does not demonstrate Android ARM64 runtime or physical Android/iOS device execution. CI-only coverage is accepted for this M0.1 stage; retain those limitations in the compatibility matrix and do not imply that they passed.
 
-PR #2 currently contains a root Apache License 2.0 file and a draft README, but those files are not on main unless and until the PR is merged. The README's proposed KMP/JVM description must be reconciled with the open technology decision before it becomes authoritative.
+PR #2's preserved source branch contains a root Apache License 2.0 file and a draft README, but neither file is on `main` because the PR was closed unmerged. The README's proposed KMP/JVM description must be reconciled with the still-open production-stack decision before it becomes authoritative.
 
 ### Required work
 
-1. Re-read PR #2 at its exact current head. Confirm the latest run belongs to that SHA; do not reuse older CI results after a relevant commit changes.
+1. Inspect the preserved PR #2 source branch at its exact current head. Confirm the latest run belongs to that SHA; do not reuse older CI results after a relevant commit changes. Reopen or create a replacement PR only after the evidence package is ready.
 2. Verify every declared target and artifact type. Distinguish Android runtime, iOS framework/simulator, JVM desktop, and any native desktop ABI claims.
 3. Exercise the actual Ktor engine intended for Android, Darwin, and JVM/CIO. A common MockEngine test does not prove platform transport behaviour.
 4. Add deterministic, offline fixture requests through each real engine. Cover success, empty/partial data, malformed payload, transport error, timeout, cancellation, and client/resource cleanup as applicable.
@@ -407,14 +407,14 @@ At the latest recorded review on 2026-11-26:
 
 - The revised master plan is merged into main and is authoritative.
 - AI_COST_POLICY.md is merged and approved.
-- PR #2 remains the open Draft MER-0.1 platform proof. Six CI jobs passed on head bd395b5fd3a8eb03c96528eb429b183125eaf007, but the proof is not yet complete.
+- PR #2 was closed unmerged while still Draft on 2026-11-26 to clear unfinished open PRs; its source branch `spike/m0.1-kmp-platform-proof` is preserved at head bd395b5fd3a8eb03c96528eb429b183125eaf007. Six CI jobs passed for that exact head in run 45736878709, but the proof is not complete and none of its remaining gates were waived.
 - PR #2 carries a root Apache License 2.0 LICENSE and README.md on its branch; these are not yet on main. Reconcile the README's KMP/JVM proposal with the unresolved stack decision before merging.
 - No production weather provider, production forecast pipeline, stable public API, or production storage contract is authorized merely by the current platform proof.
 - Root LICENSE/README bootstrap and complete direct/transitive licensing/NOTICE decisions remain part of M0.
 
 ### Next bounded task
 
-Finish the outstanding MER-0.1 evidence on the current PR #2 head:
+Continue the preserved MER-0.1 source branch and open/recreate its PR when the evidence and review package are ready. Finish the outstanding evidence on the exact current branch head:
 
 1. Confirm latest checks still match the exact head SHA.
 2. Exercise actual Android, Darwin, and JVM Ktor engines using deterministic fixtures.

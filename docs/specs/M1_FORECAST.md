@@ -1,13 +1,10 @@
-# Meridian M1: first forecast (Open-Meteo)
+# Meridian M1: first forecast (first eligible provider; Open-Meteo candidate)
 
-Status: **spec, clean room step 1** (2026-11-23), written only from Open-Meteo's public documentation.
-The build session works from this file alone. Context: ENGINE_SPEC.md, MERIDIAN_PLAN.md section 9.
+**Status:** provider-specific implementation proposal based on a 2026-11-23 Open-Meteo documentation snapshot. It is not provider approval or authorization to start M1. Root `PLAN.md` controls the milestone order and provider eligibility. Re-check exact endpoint behaviour, terms, licensing, attribution, coverage, request weights, commercial eligibility, and credential distribution for the intended consumer deployment immediately before implementation.
 
 ## Scope
 
-Given a place, return hourly, daily and current weather from Open-Meteo's best-match forecast, as
-Meridian's own types, with provenance. One source, one model, no blending (that's M5), no storage
-beyond an in-memory cache (M2).
+This document describes a candidate first-provider path using Open-Meteo as an example. M1 must select one provider only after the provider eligibility and terms gate in root `PLAN.md` and `docs/research/PROVIDER_RESEARCH.md` is satisfied. Return normalized hourly, daily, and current data with Meridian-owned types and provenance. No blending in this first slice; multi-model work belongs to M5. Storage/cache behaviour remains behind the approved M2/M0.2 contract.
 
 ## Request
 
@@ -113,16 +110,14 @@ fetch time, and the request's call weight.
 
 ## Errors
 
-- HTTP 400 returns `{ "error": true, "reason": "..." }`: a problem with the reason, no values.
-- HTTP 429 or other limits: a problem, and Meridian backs off (time from configuration).
-- Timeouts and network failures: a problem; cached values are returned if still fresh, marked stale.
-- Never an exception across the API.
+- HTTP/provider errors map to stable, machine-readable problems; preserve partial success for unrelated features.
+- HTTP 429 or other limits: respect provider retry guidance and a bounded backoff policy.
+- Timeouts and network failures: return the defined feature outcome; cached values retain their original timestamp and explicit freshness.
+- Cancellation remains cancellation and must not be converted into a successful response or ordinary provider failure.
 
 ## Limits and caching
 
-- Free tier: under 10,000 calls a day, 5,000 an hour, 600 a minute; long ranges, many variables or many
-  models count as more than one call. Meridian keeps a running call-weight estimate and refuses to exceed
-  a configured share of each limit.
+- Request limits and call weights in this document are a historical research snapshot, not a live quota guarantee. Before integration, re-check the provider's current terms and request-accounting rules for the selected endpoints, variables, time range, models, and consumer deployment. Meridian must use a bounded request budget and never assume one HTTP request equals one billable/request-weight unit.
 - Cache by rounded coordinates (precision from configuration) and the request's parameters; time to
   live from configuration (a model updates every few hours, so a short TTL buys nothing).
 
@@ -145,8 +140,7 @@ Sydney (southern summer), Tromsø in June (no sunset), a response with `null`s, 
 
 ## Done when
 
-The CLI prints Mexico City's forecast and it matches Open-Meteo's own page for the same point; all
-tests pass on CI.
+The independent fixture-backed consumer obtains the normalized result through the public API, preserves source/time/unit/freshness/provenance semantics, and passes the scoped tests on the approved target matrix. A comparison with the provider's web display is a sanity check only, not proof of forecast accuracy or licensing/availability.
 
 ## Consulted
 

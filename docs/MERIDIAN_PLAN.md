@@ -1,15 +1,12 @@
 # Meridian: research and build plan
 
-Status: **supporting research draft** (originally written 2026-11-23). The root [PLAN.md](../PLAN.md) is now the master architecture and delivery plan. This document preserves earlier source, library, and algorithm research; it is not authority for the implementation language, toolchain, module layout, database, or release strategy. The old dependency and storage choices below are historical research and must not be treated as adopted decisions. Root PLAN.md currently recommends KMP with Desktop JVM for the five-OS target matrix. Revalidate provider terms and technical details before implementation.
+**Status:** historical supporting research snapshot (originally written 2026-11-23). The root [PLAN.md](../PLAN.md) is the sole master product and delivery plan. This document preserves source, library, and algorithm research; it is not authority for implementation language, toolchain, module layout, database, API, storage, or release strategy. The KMP platform proof is evidence for one candidate only; the master plan still requires an M0.1 evidence gate and owner approval before choosing the production stack. Revalidate all provider terms and technical details before implementation.
 
 Clean-room research (CLEAN_ROOM.md): the original research was written from public docs and papers listed at the end, not from Breezy's implementation code.
 
 ## 1. In one paragraph
 
-Meridian is a cross-platform weather library in its own repo (`INFORMATION89/Meridian-Engine`, Apache 2.0). Its technical stack is governed by the root PLAN.md; the older Kotlin/Gradle module and Room proposals below are not binding. It starts with four researched source candidates (Open-Meteo, aviationweather.gov, WMO, FOSS Public Alert Server),
-returns every value with where it came from, blends models, merges alerts, and later learns a local
-correction on the phone. Solstice uses it as a git submodule, like Motion. It's built in nine
-milestones, each with a spec section first, then a build session, then a check against real data.
+Meridian is an independent cross-platform weather engine (`INFORMATION89/Meridian-Engine`, Apache 2.0). The old Kotlin/Gradle module and Room proposals below are not binding. The listed providers and algorithms are research candidates, not approvals. Meridian must preserve provenance, combine sources only after the relevant gate, and add local learning only after reproducible verification. An earlier idea to consume Meridian in Solstice as a Git submodule was an integration convenience proposal, not the official distribution strategy. The current milestone order is defined by root `PLAN.md`; the historical sequence below is superseded.
 
 ## 2. Earlier dependency candidates (not adopted without M0.1/M0.2 validation)
 
@@ -26,7 +23,9 @@ milestones, each with a spec section first, then a build session, then a check a
 
 Everything above is Apache 2.0 or compatible.
 
-## 3. Earlier module-layout candidate (superseded by root PLAN.md)
+## 3. Earlier module-layout candidate (historical only; superseded by root PLAN.md)
+
+The following layout is preserved as research context. Do not create these modules or treat this directory structure as an approved architecture.
 
 ```
 Meridian-Engine/
@@ -40,14 +39,14 @@ Meridian-Engine/
   cli/                  JVM tool: print a place's result; run the verification against archives
 ```
 
-- **Consumed by Solstice like Motion:** git submodule plus a Gradle composite build, so a change in
-  Meridian shows up in Solstice at once with no publishing step.
-- **Publishing later**, when another app needs it: Maven Central with a verified namespace (JitPack
-  doesn't handle multiplatform well). GitHub Packages works but needs a token even to read.
+- **Historical Solstice integration idea:** a Git submodule plus Gradle composite build was considered for local development. Root `PLAN.md` says this may remain a developer convenience, not the official distribution requirement.
+- **Historical publishing ideas:** Maven Central and GitHub Packages were considered; artifact and release strategy are governed by root `PLAN.md` and remain subject to M0.1 evidence.
 - **CI:** JVM and Android tests on Linux for every pull request; a macOS build once that target
   starts; the verification job runs by hand (it needs open internet, see Saturday step 3).
 
-## 4. Public API (sketch, names to agree)
+## 4. Public API (historical sketch; not an approved contract)
+
+M0.2 currently prefers a batch-first request/result API. Do not treat the Flow/streaming sketch below as adopted. Any streaming contract requires interop evidence and a concrete consumer need.
 
 ```kotlin
 class Meridian(config: MeridianConfig, storage: MeridianStorage, http: HttpClient)
@@ -71,7 +70,9 @@ class MeridianResult(
 Solstice converts these to its UI models in one place (a small bridge in the app), so the UI never
 depends on Meridian's types directly.
 
-## 5. Sources
+## 5. Sources (historical research snapshot; terms must be rechecked)
+
+All provider limits, prices, coverage, endpoint details, licences, and access conditions below were researched on or around 2026-11-23. They are not current guarantees or integration approvals. Before each adapter, re-check official documentation and terms for the exact consumer deployment.
 
 ### Open-Meteo (forecast, models, spread, air quality, archives)
 - **Endpoints:** `/v1/forecast` (best match, or chosen models with `models=`), `/v1/ensemble` and the
@@ -108,7 +109,9 @@ depends on Meridian's types directly.
 About 4 to 6: forecast (multi-model), ensemble mean, air quality, one METAR call, plus alerts every
 15 minutes or so (WMO feed and FPAS). Well within every limit above for a person's handful of places.
 
-## 6. Methods (all from published work)
+## 6. Methods (research hypotheses, not approved algorithms)
+
+The following methods are candidates for evaluation, not implementation instructions. Root `PLAN.md` and the approved milestone specification determine which method, if any, may be implemented.
 
 **Blending models**
 - Start with **equal weights**: simple and hard to beat until there's local data. A comparison of
@@ -138,16 +141,20 @@ Mean absolute error and RMSE for temperature, Brier score for rain chance, per m
 before and after, on Mexico City's rainy season first (Saturday's model test is the first run). Results
 go in the pull request.
 
-## 7. What Meridian stores on the phone
+## 7. Historical storage proposal (superseded)
 
-- Forecasts: place, source, model, issue time, valid time, variable, value.
-- Observations: station, time, variable, value.
-- Statistics: place, source, variable, lead-time bucket, hour bucket, bias, error, count.
-- Cache: the last responses with their expiry.
+The old proposal to retain all forecast, observation, statistics, and cache data for 30 days is superseded. The current design distinguishes:
 
-All kept 30 days (decided), then deleted; cleared from Settings › Privacy.
+- Response cache, governed by source expiry, freshness, and provider terms.
+- Recent local forecast/observation verification and learning records, initially a bounded 30-day rolling window where the M7 gate permits it.
+- Historical forecast archives and climatological datasets, with separate provenance, licensing, access, and retention rules.
+- Saved places, settings, permissions, and deletion UI, which remain consumer-application responsibilities.
 
-## 8. How it reaches Solstice (decided 2026-11-23: switch directly)
+Do not interpret the historical schema below as an approved storage contract. M0.2 defines the consumer-neutral storage boundary and deletion behaviour.
+
+## 8. Historical Solstice integration sketch (not binding)
+
+Solstice is one consumer, not an architectural authority or required dependency. Root `PLAN.md` and the current Solstice integration plan govern any migration sequence. This old proposal does not authorize feature migration or make a Git submodule the official distribution path.
 
 1. Solstice switches to Meridian **feature by feature**, with no side-by-side comparison step: alerts
    first (where Meridian adds the most), then current conditions, then the forecast. Each switch is
@@ -161,8 +168,7 @@ Specs written so far: M1 `docs/specs/M1_FORECAST.md`, M2 `M2_PROVENANCE.md`, M3 
 (complete, including the FOSS Public Alert Server), M4 `M4_OBSERVATIONS.md`, M5 `M5_BLEND.md`, M6
 `M6_ALERTS_IN_SOLSTICE.md`, M7 `M7_LEARNING.md`; M0's checklist `M0_REPO.md`. M8 has none yet.
 
-Each one: a spec section written from public sources, a separate build session (clean room), then a
-check with real data. Nothing starts without Marco's OK.
+Each substantive capability needs an independently written specification, relevant public sources, and acceptance criteria before implementation. Agents may decide routine technical details within an approved milestone and specification; owner review is required for product scope, privacy, legal/licensing, paid costs, public contracts, strategic compatibility, or changes to the approved scientific method. Follow `PLAN.md` and `RULES.md`.
 
 | # | Milestone | Done when |
 |---|---|---|
@@ -188,10 +194,9 @@ check with real data. Nothing starts without Marco's OK.
 - **Clean-room discipline over many sessions:** the spec-then-build rule and "consulted" lists in each
   pull request.
 
-## Decided (Marco, 2026-11-23)
+## Historical decisions (superseded where they conflict with the master plan)
 
-Room for the database; switch directly, feature by feature; M0 starts at the end of Saturday's
-session if time is left (CONTINUE.md, step 10).
+The 2026-11-23 preference for Room is not an adopted storage decision. M0.2 leaves concrete storage optional and subject to target/consumer proof. The old feature-by-feature Solstice migration sequence and original M0 start date are historical notes, not current instructions.
 
 ## Consulted
 

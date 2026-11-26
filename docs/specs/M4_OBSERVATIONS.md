@@ -1,22 +1,15 @@
-# Meridian M4: observations (nearest airport)
+# Meridian M4: observations and station representativeness
 
-Status: **spec, clean room step 1** (2026-11-23), from aviationweather.gov's public Data API page and
-the METAR format as published by WMO and ICAO. No other engine's code read.
+**Status:** historical provider-specific design proposal (2026-11-23), based on aviationweather.gov API documentation and published METAR standards. It does not approve a provider or fixed station-selection thresholds. Re-check provider schema, terms, coverage, update cadence, quality flags, and history availability before implementation.
 
 ## Scope
 
-Find the airports near a place, fetch their latest reports, and use them for current conditions when
-they're fresh and close enough. Keep observations for M7 (correcting forecasts) and verification.
+Find candidate observing stations for an explicit consumer request, assess the quality and spatial/temporal representativeness of their measurements, and use an observation only when it meets the variable-specific criteria. Airports are one observation source type, not a universal proxy for local conditions. Verification/learning use remains gated by M7.
 
 ## Stations
 
-- Stations from aviationweather.gov's `GET /api/data/stationinfo?bbox=lat0,lon0,lat1,lon1&format=json`
-  (OpenAPI version 3.12): one call when a place is added, for a box around it, cached on the phone
-  and refreshed weekly. No worldwide list needed (the bulk `stations.cache.json.gz` updates once a
-  day and stays as a fallback). Kept: id, name, latitude, longitude, elevation, country.
-- For a place: the stations within the search radius (configuration, default 30 km), nearest first,
-  at most 3. Distance is great-circle; an elevation difference over a limit (configuration, default
-  300 m) counts against a station (temperature changes about 6.5 °C per km of height).
+- The aviationweather.gov station-info endpoint is one researched candidate for station metadata. Query it only in response to host-controlled operations; the engine must not infer app saved-place lifecycle or start background place tracking. Re-check endpoint version, coverage, refresh cadence, and terms before use. Keep only station identity and the minimum metadata needed for quality/representativeness.
+- For a requested point, gather a bounded set of candidates by geography, then evaluate each measurement by source quality, age, distance, elevation, exposure, terrain/urban/coastal context, and variable. The 30 km search radius and 300 m elevation difference in this draft are candidate parameters only, not universal thresholds; validate by region and variable.
 
 ## Request
 
@@ -29,7 +22,7 @@ they're fresh and close enough. Keep observations for M7 (correcting forecasts) 
   adapter sends nothing else.
 - `hours` from configuration (3 gives the last few reports, for trend and gaps). Most endpoints return
   at most 400 entries.
-- History up to 30 days is available; M7 uses `hours` larger once a day, not every refresh.
+- The provider's historical endpoint/retention information is a dated research note. Re-check current availability, terms, update behaviour, and request accounting before using it for M7 verification.
 
 ## Mapping
 
@@ -66,7 +59,7 @@ Missing values stay missing; never filled from the forecast.
 
 ## The current conditions rule
 
-Current conditions use the observation when **all** are true (thresholds in configuration):
+Current conditions may use an observation only when the documented, variable-specific quality and representativeness criteria are met. The following values are initial candidates for evaluation, not universal meteorological truths:
 - the report is younger than 75 minutes (reports are normally hourly, plus specials);
 - the station is within 15 km and within 300 m of the place's elevation;
 - the value isn't missing and passes a sanity check (temperature −90 to 60 °C, a jump of more than
@@ -81,12 +74,11 @@ night, not sunny) follow the place's sun times.
 - Fixture for MMMX (and one with `VRB`, gusts, missing temperature, a special report, `CAVOK`).
 - Unit changes against hand-worked values.
 - Rule: a 2-hour-old report isn't used; a station 40 km away isn't; mixed per variable works.
-- Station picker: a place between two airports picks the nearer; one at 2,240 m skips a station at
-  sea level.
+- Station picker: choose among eligible candidates using quality and variable-specific representativeness, not distance alone; material elevation or exposure differences must be reflected in the selection/rejection rationale.
 
 ## Done when
 
-Current conditions in CDMX come from MMMX when fresh (MERIDIAN_PLAN.md section 9).
+For the Mexico City fixture, a fresh MMMX METAR may be selected when it passes the approved quality and representativeness criteria; the nearest airport is not guaranteed to be the correct source for every CDMX point or variable.
 
 ## Consulted
 
