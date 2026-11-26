@@ -128,9 +128,11 @@ The owner selected the JVM-packaged desktop path for the initial desktop distrib
 
 This decision prioritizes shared implementation, lower initial build and maintenance cost, and reuse of the validated desktop JVM path. It does **not** mean every desktop integration must use JVM forever. Native `.dll`, `.dylib`, and `.so` artifacts, C ABI, Rust bindings, and direct native-language integration remain future options if concrete consumer requirements justify their cost. Do not build or promise those native artifacts in M0.1.
 
-### Production language and shared-core strategy remain evidence-gated
+### Production language and shared-core strategy: owner-approved
 
-Kotlin Multiplatform remains a credible candidate because the current M0.1 work validates Android, iOS/Swift, and JVM desktop paths. It must not be selected merely because Solstice uses Kotlin. Rust remains a credible alternative for a future native interoperability layer or if measured requirements justify replacing the managed desktop route. The owner's JVM-first desktop decision narrows the desktop distribution target; it does not alone approve the complete production language, networking, storage, public API, or provider stack.
+The owner has approved **Kotlin Multiplatform (KMP)** as Meridian's shared-core technology direction after reviewing the M0.1 evidence. This decision is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-direction.md). It is an independent product/engineering choice, not a consequence of Solstice using Kotlin. Rust remains a possible future interoperability or replacement option only if a concrete consumer requirement or measured blocker justifies revisiting the decision.
+
+The owner also approved **Ktor** as the initial HTTP implementation behind Meridian-owned networking contracts. **SQLDelight/SQLite** is the preferred optional persistence candidate, not a mandatory core dependency or a final irreversible storage commitment. Exact engine configuration, public contracts, storage schema, drivers, migrations, and retention remain subject to M0.2 design and evidence. The JVM-first desktop route remains governed by ADR-0001.
 
 ### What the current M0.1 evidence establishes
 
@@ -138,9 +140,9 @@ The active canonical M0.1 proof is [PR #15](https://github.com/INFORMATION89/Mer
 
 Run [#222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210) passed all five jobs on commit `91996fb7c190f80899261eb2ff21630b5e564209`: Android x86_64, Apple/iOS, Linux desktop, Windows desktop, and dependency-license audit. It is the first complete green matrix after the expanded real-engine timeout, transport, empty/partial-response, and cancellation tests. Android's artifact confirms 8/8 instrumentation tests; iOS confirms 9/9 common simulator tests and 10/10 native Swift consumer tests; macOS desktop confirms 11/11 common/storage tests. The real Android, Darwin, and CIO fixture requests and consumer-boundary cancellation checks all passed.
 
-This is strong KMP candidate evidence, not production-stack approval. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED** and are deferred under the owner's CI-only M0.1 acceptance. The exact platform results, package sizes, artifact contents, and distribution limits are recorded in [MER-0.1 platform validation](docs/evidence/MER-0.1-platform-validation.md).
+This is the platform and dependency evidence baseline supporting the owner's subsequent KMP direction approval recorded in ADR-0003. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED** and are deferred under the owner's CI-only M0.1 acceptance. The exact platform results, package sizes, artifact contents, and distribution limits are recorded in [MER-0.1 platform validation](docs/evidence/MER-0.1-platform-validation.md).
 
-### Candidate A — Kotlin Multiplatform
+### KMP implementation considerations
 
 Potential advantages:
 - shared Kotlin domain and engine logic;
@@ -155,7 +157,7 @@ Costs and limitations:
 - every dependency must support the exact Android/iOS/JVM target matrix;
 - KMP platform support does not automatically guarantee third-party driver or package compatibility.
 
-### Candidate B — Rust native core
+### Deferred alternative — Rust native core
 
 Potential advantages:
 - native libraries can be produced for supported target architectures;
@@ -170,7 +172,9 @@ Costs and limitations:
 
 ### Decision criteria
 
-The final choice must compare:
+The original M0.1 comparison criteria are retained as historical rationale; the production direction is now approved. Reopen the choice only if new evidence meets a revisit trigger in ADR-0003. Do not run a Rust comparator by default.
+
+Historical decision criteria:
 1. all five OS targets and declared architectures;
 2. the types of applications expected to consume Meridian, not only Solstice;
 3. integration from Kotlin, Swift, and at least one non-Kotlin desktop consumer where required;
@@ -181,16 +185,23 @@ The final choice must compare:
 8. API ergonomics, cancellation, threading, and failure isolation;
 9. release automation and long-term maintainability.
 
-Do not build a Rust comparator by default if the KMP path meets the actual consumer requirements. Build a small like-for-like comparator if the evidence exposes a concrete interoperability or runtime blocker. Owner approval is required before locking the production stack.
+Do not build a Rust comparator by default. If evidence exposes a concrete interoperability or runtime blocker, document it and seek owner review before changing the approved direction.
 
-### Storage and networking candidates
+### Approved M0.2 technology baseline
 
-- Keep persistence behind an engine-owned contract.
-- SQLDelight with SQLite is the current cross-platform storage candidate, not a final irreversible dependency.
-- Do not make Android Room a Meridian core dependency. Solstice may continue using Room for Solstice-owned app data.
-- Host-provided storage should remain possible if the API and lifecycle can be made stable and testable.
-- Ktor is the current networking candidate; test Android, Darwin, and JVM engines separately, including timeout, resource lifecycle, cancellation, and typed error mapping.
-- Resolve exact serializers, date/time libraries, drivers, and bindings only after target evidence and dependency/licence review.
+- KMP is the approved shared-core direction (ADR-0003).
+- Ktor is the approved initial HTTP implementation, hidden behind Meridian-owned contracts.
+- SQLDelight/SQLite is the preferred optional storage candidate; the core must remain storage-independent and no-storage is the default.
+- Android Room is not a Meridian core dependency. Solstice may use Room for Solstice-owned app data.
+- Host-provided storage remains possible if the contract and lifecycle can be proven.
+- Desktop consumers use the JVM artifact under ADR-0001; native desktop ABI is not promised.
+- Exact Ktor engines, storage drivers, serializers, date/time libraries, public API signatures, schema, and retention policy are resolved through M0.2 evidence and applicable owner review.
+
+### M0.2 current execution status
+
+M0.2 is authorized for contract design and deterministic independent-consumer validation. The initial design documents are `docs/specs/M0_2_CONTRACT_DESIGN.md` and `docs/specs/M0_2_PUBLIC_API.md`; lifecycle/networking, storage/cache, and compatibility/versioning contracts are maintained as separate specifications. The evidence ledger is `docs/evidence/MER-0.2-contract-validation.md`.
+
+M0.2 is not production weather implementation. It must not add live provider integrations, forecast algorithms, background scheduling, automatic location, telemetry, accounts, hosted services, or consumer recommendations. Completion requires contract tests and independent consumer evidence, followed by owner review before M1.
 
 ## 6. Proposed architecture
 
