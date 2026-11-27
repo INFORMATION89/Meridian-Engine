@@ -240,10 +240,7 @@ class WeatherContractEngine(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                cacheReadProblem = WeatherProblem(
-                    WeatherProblemCode.STORAGE_READ_FAILED,
-                    failure.message,
-                )
+                cacheReadProblem = WeatherProblem(WeatherProblemCode.STORAGE_READ_FAILED)
             }
             val now = clock.nowEpochMillis()
             val fresh = cached?.takeIf {
@@ -260,7 +257,7 @@ class WeatherContractEngine(
             throw cancelled
         } catch (failure: Exception) {
             FeatureOutcome.Failed(
-                WeatherProblem(WeatherProblemCode.TRANSPORT_FAILURE, failure.message),
+                WeatherProblem(WeatherProblemCode.TRANSPORT_FAILURE),
             )
         }
 
@@ -279,10 +276,7 @@ class WeatherContractEngine(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                val problem = WeatherProblem(
-                    WeatherProblemCode.STORAGE_WRITE_FAILED,
-                    failure.message,
-                )
+                val problem = WeatherProblem(WeatherProblemCode.STORAGE_WRITE_FAILED)
                 return FeatureOutcome.Partial(
                     sourceOutcome.data,
                     listOf(problem),
