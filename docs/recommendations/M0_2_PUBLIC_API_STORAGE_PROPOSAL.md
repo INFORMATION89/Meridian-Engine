@@ -105,6 +105,8 @@ Specify atomic writes, idempotency/deduplication, concurrent refresh, corruption
 
 Ktor is an implementation detail behind the transport boundary. Recommend one appropriately scoped client per engine instance, reused across requests, with deterministic test injection. Do not expose Ktor types in public API.
 
+Map untrusted exceptions to typed problem codes; never copy raw `Throwable.message`, request URLs, query parameters, response snippets, or coordinate-bearing strings into public diagnostics. Such messages can contain credentials or private location data. Optional problem detail must be explicitly sanitized and allowlisted before it crosses the public boundary.
+
 M0.2 must specify client creation/disposal, connect/request/socket timeout budgets, cancellation, TLS, redirects, proxy/user-agent policy, typed transport/status/parse/rate-limit failures, request concurrency, provider minimum intervals, and redaction of credentials/sensitive location data. The host owns secure credential storage. Never embed developer keys in distributed artifacts.
 
 ## 7. Versioning and compatibility
