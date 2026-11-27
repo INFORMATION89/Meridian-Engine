@@ -45,7 +45,7 @@ final class ProbeUseTests: XCTestCase {
 
     func testSuspendOperationCompletesForSwiftConsumer() {
         let finished = expectation(description: "Kotlin suspend operation completes")
-        MeridianProbe().transformAsync(input: "Swift", seed: 4) { value, error in
+        MeridianProbe().transformAsyncDirect(input: "Swift", seed: 4) { value, error in
             XCTAssertNil(error)
             XCTAssertEqual(value, "swift:4")
             finished.fulfill()
