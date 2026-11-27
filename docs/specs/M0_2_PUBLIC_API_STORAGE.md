@@ -33,7 +33,7 @@ Design and document a minimal API around these concepts:
 5. **Cancellation:** cancellation must stop work where practical, propagate predictably across Kotlin/JVM/Swift boundaries, and never leave partially written cache records marked complete.
 6. **Versioning:** public types and serialized persistence records need explicit compatibility/versioning rules. Provider response schemas must remain internal to adapters.
 
-Recommend a batch-oriented suspend request/response API for the first release. M0.1 demonstrated that a native Swift consumer can import and call the generated framework, but it did not prove the ergonomics of the final asynchronous weather API or cancellation semantics. M0.2 must prototype a narrow Swift-friendly facade and verify cancellation across Kotlin and Swift. Do not add streaming, Flow, callback, or multiple overlapping API styles unless a concrete consumer requirement justifies them.
+Recommend a batch-oriented suspend request/response API for the first release. M0.1 demonstrated that a native Swift consumer can import and call the generated framework, but it did not prove the ergonomics of the final asynchronous weather API or cancellation semantics. M0.2 must prototype a narrow Swift-friendly facade and verify cancellation across Kotlin and Swift. PR #24 subsequently demonstrated Swift Task cancellation into a Kotlin suspend coroutine with KMP-NativeCoroutines 1.0.7, Kotlin 2.4.21, and the async-only SwiftPM product; see the updated M0.2 proposal and [CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825). This is an experimental interoperability proof, not an automatic production dependency decision. Do not add streaming, Flow, callback, or multiple overlapping API styles unless a concrete consumer requirement justifies them.
 
 Errors should be typed and distinguish invalid input, unsupported feature, no eligible source, provider failure, rate limiting, storage failure, cancellation, and stale/unavailable data. Do not collapse a partial feature failure into a total request failure when other requested features succeeded. Never fabricate missing weather values.
 
@@ -83,7 +83,17 @@ The sample should:
 
 The sample is a compatibility test, not a user-facing weather application.
 
-## 8. Decisions required from the owner
+## 8. Current prototype evidence (not approval)
+
+- [PR #20, CI #247](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45912885533) passed all five platform/audit jobs for the experimental API contract and independent desktop, Android, and Swift consumers. All public-shape code remains under the experimental opt-in package.
+- [PR #24, CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs. Native Swift XCTest passed 12/12, including the explicit Swift Task to Kotlin suspend cancellation probe; Android host and eight emulator instrumentation tests passed.
+- The exact upstream KMP-NativeCoroutines v1.0.7 source tag has an MIT license. The experimental plugin and SwiftPM integration are documented in PR #24 and must remain separate from stable production dependencies until M0.2 owner review.
+- The current storage proof is only no-persistence plus an in-memory test store. It does not implement or validate the SQLDelight schema, a supported host storage SPI, persistent transactions/migrations, or archive recovery.
+- Additional deterministic contract tests now cover explicit stale-age rejection, refresh of expired cache, cache read/write failures, and cancellation during cache read/write. Their new PR #20 head must pass CI before those cases count as verified.
+
+These results demonstrate prototype behaviour only. They do not validate forecast accuracy, live provider terms, production storage, public API compatibility, or the complete M0.2 acceptance gate.
+
+
 
 M0.2 must present explicit recommendations and obtain approval for:
 
@@ -91,12 +101,12 @@ M0.2 must present explicit recommendations and obtain approval for:
 2. Confirm the exact host-supplied storage extension contract and its supported guarantees, while preserving the approved requirement that persistence remains optional.
 3. The official cache/history record boundary and retention defaults.
 4. The error and partial-result model.
-5. The cancellation and Swift interoperability shape based on M0.1 evidence.
+5. The cancellation and Swift interoperability shape based on the direct-bridge failure and the successful NativeCoroutines prototype evidence.
 6. The initial public API stability/versioning policy.
 
 Do not begin M1 provider or forecast implementation until these decisions are approved.
 
-## 9. Acceptance criteria
+## 10. Acceptance criteria
 
 M0.2 is complete only when:
 
@@ -108,6 +118,6 @@ M0.2 is complete only when:
 - Android, iOS/Swift, and JVM desktop interop constraints are recorded against the M0.1 results.
 - The owner approves the public API, storage boundary, error model, and versioning policy before M1.
 
-## 10. Out of scope
+## 11. Out of scope
 
 Do not implement live weather providers, forecast algorithms, blending, official alert ingestion, production SQLite schemas, automatic forecast learning, radar, remote sync, telemetry, hosted services, MCP, LLMs, or UI. Do not create a Meridian server to make the local library easier to consume.
