@@ -33,6 +33,20 @@ Design and document a minimal API around these concepts:
 5. **Cancellation:** cancellation must stop work where practical, propagate predictably across Kotlin/JVM/Swift boundaries, and never leave partially written cache records marked complete.
 6. **Versioning:** public types and serialized persistence records need explicit compatibility/versioning rules. Provider response schemas must remain internal to adapters.
 
+### Temporal series and per-value provenance
+
+A requested feature can contain a time series, not just one scalar payload. The public contract must therefore represent time at sample/value granularity:
+
+- Each sample carries its own valid instant or explicit valid interval. Interval quantities such as precipitation must preserve their exact accumulation window and declared boundary semantics.
+- Preserve issue/run time, observation/measurement time, fetch time, and valid time as distinct facts. A feature-level timestamp must not be reused as the valid time for every sample in a forecast series.
+- Preserve native source cadence and spatial resolution. Gaps remain gaps; interpolation, aggregation, and resampling are explicit transformations, never implicit list-index behaviour.
+- Every meaningful value or sample must resolve to its own provenance, quality, freshness, and uncertainty. Shared metadata may be deduplicated internally only when the relationship remains unambiguous.
+- A blended or corrected sample must retain the contributing source/model identities and versions, relevant contribution weights where the method uses them, and the transformation/algorithm version. One source label for an entire feature is insufficient for Level 2 results assembled from multiple sources.
+- Keep observations, provider forecasts, blends, corrections, estimates, detections, predictions, and official alerts distinguishable. Apparent temperature remains separate from measured air temperature.
+- Use unambiguous UTC instants for data semantics. Local calendar interpretation and daylight-saving behaviour use an explicit IANA time zone; the engine must not silently reinterpret instants as local wall-clock values.
+
+The current M0.2 spike has one `validAt` and one provenance record for an entire `WeatherFeatureData`. This is acceptable as a deliberately narrow experiment, but it does not satisfy the stable-contract requirements above and must not be promoted unchanged.
+
 Recommend a batch-oriented suspend request/response API for the first release. M0.1 demonstrated that a native Swift consumer can import and call the generated framework, but it did not prove the ergonomics of the final asynchronous weather API or cancellation semantics. M0.2 must prototype a narrow Swift-friendly facade and verify cancellation across Kotlin and Swift. PR #24 subsequently demonstrated Swift Task cancellation into a Kotlin suspend coroutine with KMP-NativeCoroutines 1.0.7, Kotlin 2.4.21, and the async-only SwiftPM product; see the updated M0.2 proposal and [CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825). This is an experimental interoperability proof, not an automatic production dependency decision. Do not add streaming, Flow, callback, or multiple overlapping API styles unless a concrete consumer requirement justifies them.
 
 Errors should be typed and distinguish invalid input, unsupported feature, no eligible source, provider failure, rate limiting, storage failure, cancellation, and stale/unavailable data. Do not collapse a partial feature failure into a total request failure when other requested features succeeded. Never fabricate missing weather values.
@@ -67,6 +81,7 @@ The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths
 - The host owns secure storage and supplies credentials to the engine only for providers that legitimately require user-provided credentials.
 - Never embed private developer keys in a distributed application or library.
 - Logs and diagnostics must avoid raw coordinates and secrets unless a narrowly scoped local debug mode explicitly requires them.
+- Never expose raw exception messages, request URLs, query parameters, provider response snippets, or coordinate-bearing strings in public problem details. Optional diagnostic detail must be sanitized and allowlisted; map untrusted exceptions to typed codes.
 - Any optional sharing, sync, hosted proxy, remote MCP endpoint, or telemetry requires a separate design and a distinct, explicit opt-in. Before consent, disclose the exact data fields, purpose, destination, recipients, and retention; provide an inspectable payload example and controls to withdraw consent and delete eligible local data. Declining must not reduce ordinary weather functionality. A hosted proxy/endpoint also requires explicit owner approval and a separate privacy, legal, cost, and security review.
 
 ## 7. Consumer and compatibility proof
@@ -85,11 +100,13 @@ The sample is a compatibility test, not a user-facing weather application.
 
 ## 8. Current prototype evidence (not approval)
 
-- [PR #20, CI #247](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45912885533) passed all five platform/audit jobs for the experimental API contract and independent desktop, Android, and Swift consumers. All public-shape code remains under the experimental opt-in package.
+- [PR #20, CI #266](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45958135944) passed all five jobs for head `b32f5abbf67cfd62d6a7ed410caa3448d303e5cf`: Windows, Linux, Android x86_64 emulator, Apple/iOS simulator with native Swift consumer, and dependency/license audit. Native Swift XCTest passed 11/11. The experimental contract remains under the opt-in package and is not approved as the stable public API.
 - [PR #24, CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs. Native Swift XCTest passed 12/12, including the explicit Swift Task to Kotlin suspend cancellation probe; Android host and eight emulator instrumentation tests passed.
 - The exact upstream KMP-NativeCoroutines v1.0.7 source tag has an MIT license. The experimental plugin and SwiftPM integration are documented in PR #24 and must remain separate from stable production dependencies until M0.2 owner review.
 - The current storage proof is only no-persistence plus an in-memory test store. It does not implement or validate the SQLDelight schema, a supported host storage SPI, persistent transactions/migrations, or archive recovery.
-- Additional deterministic contract tests now cover explicit stale-age rejection, refresh of expired cache, cache read/write failures, and cancellation during cache read/write. Their new PR #20 head must pass CI before those cases count as verified.
+- The current empty-response Swift fixture uses IPv4 loopback because the fixture server binds IPv4. The partial-response fixture still uses `localhost`; it passed CI #266, but normalizing it to IPv4 is a known cleanup item for a future approved Apple CI run.
+- The current prototype still has one feature-level valid time/provenance record. The multi-sample forecast, explicit accumulation interval, and sample-level blended-contributor provenance proof remains outstanding and is required before M0.2 approval.
+- Deterministic contract tests also cover explicit stale-age rejection, expired-cache refresh, cache read/write failures, cancellation during source/cache operations, concurrent request isolation, source/cache feature-identity validation, and redaction of source-supplied problem details. These current-head tests passed CI #266.
 
 These results demonstrate prototype behaviour only. They do not validate forecast accuracy, live provider terms, production storage, public API compatibility, or the complete M0.2 acceptance gate.
 

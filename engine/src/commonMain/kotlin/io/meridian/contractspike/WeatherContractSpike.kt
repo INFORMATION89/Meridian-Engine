@@ -236,14 +236,17 @@ class WeatherContractEngine(
 
         if (request.cachePolicy != CachePolicy.NETWORK_ONLY && store != null) {
             try {
-                cached = store.read(key)
+                val cacheEntry = store.read(key)
+                if (cacheEntry != null && cacheEntry.feature != feature) {
+                    // A store must not satisfy one feature with another feature's record.
+                    cacheReadProblem = WeatherProblem(WeatherProblemCode.STORAGE_READ_FAILED)
+                } else {
+                    cached = cacheEntry
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                cacheReadProblem = WeatherProblem(
-                    WeatherProblemCode.STORAGE_READ_FAILED,
-                    failure.message,
-                )
+                cacheReadProblem = WeatherProblem(WeatherProblemCode.STORAGE_READ_FAILED)
             }
             val now = clock.nowEpochMillis()
             val fresh = cached?.takeIf {
@@ -255,12 +258,12 @@ class WeatherContractEngine(
         }
 
         val sourceOutcome = try {
-            source.fetchFeature(request, feature)
+            validateSourceOutcome(feature, source.fetchFeature(request, feature))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
             FeatureOutcome.Failed(
-                WeatherProblem(WeatherProblemCode.TRANSPORT_FAILURE, failure.message),
+                WeatherProblem(WeatherProblemCode.TRANSPORT_FAILURE),
             )
         }
 
@@ -279,10 +282,7 @@ class WeatherContractEngine(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                val problem = WeatherProblem(
-                    WeatherProblemCode.STORAGE_WRITE_FAILED,
-                    failure.message,
-                )
+                val problem = WeatherProblem(WeatherProblemCode.STORAGE_WRITE_FAILED)
                 return FeatureOutcome.Partial(
                     sourceOutcome.data,
                     listOf(problem),
@@ -317,6 +317,47 @@ class WeatherContractEngine(
         }
         return sourceOutcome
     }
+
+    private fun validateSourceOutcome(
+        requestedFeature: WeatherFeature,
+        outcome: FeatureOutcome,
+    ): FeatureOutcome {
+        val returnedData = when (outcome) {
+            is FeatureOutcome.Available -> outcome.data
+            is FeatureOutcome.Partial -> outcome.data
+            is FeatureOutcome.Unavailable,
+            is FeatureOutcome.Failed -> null
+        }
+        return if (returnedData != null && returnedData.feature != requestedFeature) {
+            FeatureOutcome.Failed(
+                WeatherProblem(
+                    WeatherProblemCode.SOURCE_FAILURE,
+                    "Source returned data for a different feature.",
+                ),
+            )
+        } else {
+            sanitizeSourceOutcome(outcome)
+        }
+    }
+
+    /**
+     * Source adapters are an untrusted boundary. Do not forward free-form problem
+     * details because provider messages can contain coordinates, request URLs, or
+     * credentials. Public details must be authored and allowlisted by the engine.
+     */
+    private fun sanitizeSourceOutcome(outcome: FeatureOutcome): FeatureOutcome =
+        when (outcome) {
+            is FeatureOutcome.Available -> outcome
+            is FeatureOutcome.Partial -> outcome.copy(
+                problems = outcome.problems.map { it.copy(detail = null) },
+            )
+            is FeatureOutcome.Unavailable -> outcome.copy(
+                problem = outcome.problem.copy(detail = null),
+            )
+            is FeatureOutcome.Failed -> outcome.copy(
+                problem = outcome.problem.copy(detail = null),
+            )
+        }
 }
 
 /**
