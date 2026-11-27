@@ -38,7 +38,7 @@ The design target includes:
 - Android
 - iOS
 
-The goal is a consistent weather API and shared meteorological behaviour across those platforms. The exact technology and packaging strategy is still being evaluated. Kotlin Multiplatform and Rust are both candidates; neither is approved as the final production stack yet.
+The goal is a consistent weather API and shared meteorological behaviour across those platforms. The approved initial technology is Kotlin Multiplatform for the shared core, Ktor for HTTP, and optional SQLDelight/SQLite behind a storage contract. Desktop uses JVM-first distribution on Windows, macOS, and Linux; iOS is consumed through a Swift-friendly framework facade. Rust/UniFFI and native desktop libraries are deferred unless real consumer requirements justify them.
 
 A platform is not considered supported just because the code compiles. Its actual library or framework must be loaded and exercised by the kind of application expected to use it.
 
@@ -59,8 +59,8 @@ The roadmap is staged so that each capability is supported by evidence before it
 | Stage | What it establishes |
 |---|---|
 | M0 — Foundation | Repository governance, licensing, documentation, and CI |
-| M0.1 — Platform proof | Confirm a viable way to build and integrate Meridian across the target platforms |
-| M0.2 — Public API and storage | Define how applications request weather data and how local cache/history are handled |
+| M0.1 — Platform proof (complete) | Confirmed the KMP/Ktor/SQLDelight candidate path across the CI-tested targets; production baseline approved |
+| M0.2 — Public API and storage (active) | Define how applications request weather data and how optional local cache/history are handled |
 | M0.3 — Verification foundation | Build reliable ways to compare forecasts with later observations |
 | M1 — First forecast | Deliver a narrow forecast path from one eligible provider |
 | M2 — Source resilience | Add source selection, provenance, cache, fallbacks, and clear failure reporting |
@@ -83,19 +83,21 @@ Meridian must not copy Solstice's UI or application-specific behaviour into the 
 
 ## Current project status
 
-**Meridian is still experimental and is not ready for production use.**
+**Meridian is experimental and is not ready for production use.**
 
-The current work has established a cross-platform compatibility proof, not a complete weather engine. The canonical platform-proof PR #2 has six successful CI jobs on its recorded head, covering an Android x86_64 emulator, an iOS simulator/Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux.
+M0.1 platform proof is complete for the approved CI-only acceptance, and the production technology baseline has been approved. The five-job CI run #224 passed, covering an Android x86_64 emulator, an iOS ARM64 simulator with a native Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux, plus dependency/license auditing.
 
-That evidence does not finish the platform decision. Actual platform-specific network behaviour, timeout and cancellation handling, packaging implications, and the complete dependency licence review still need to be completed. Android ARM64 runtime and physical Android/iOS device execution were not part of the accepted CI-only M0.1 proof.
+The approved baseline is Kotlin Multiplatform + Ktor + optional SQLDelight/SQLite, with JVM-first desktop distribution and a Swift-friendly iOS framework facade. Rust/UniFFI and native desktop ABIs are deferred unless concrete consumer requirements justify reconsideration. See [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md).
 
-There is not yet an authorized production weather-provider pipeline, stable public API, or production storage contract. The Apache-2.0 LICENSE and draft README are currently present on the PR #2 branch but have not yet been merged into main.
+Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion remain explicitly unverified. Mobile notice inclusion must be staged and verified before public mobile distribution.
+
+There is not yet an authorized production weather-provider pipeline, final public API, or production storage schema. **M0.2 public API and storage contract design is now the active milestone.** The engine remains independent of Solstice and must prove its public contract with a standalone consumer.
 
 ## What happens next?
 
-The immediate priority is to finish and review the platform proof, choose the production integration strategy using evidence, define the public API and local storage boundaries, and build a reproducible forecast-verification foundation.
+The active priority is M0.2: define and verify Meridian's public API, lifecycle, cancellation, typed errors, partial results, freshness semantics, optional storage boundary, cache/history records, and versioning. A standalone consumer must prove the contracts without Solstice.
 
-Only after those gates are satisfied should production weather providers and forecast intelligence be implemented. This keeps Meridian independent, portable, scientifically honest, and privacy-preserving as it grows.
+After M0.2, M0.3 will establish reproducible forecast/observation verification and scientific safeguards. Production weather providers and forecast algorithms remain gated until both milestones are completed and approved.
 
 ## Project documents
 
