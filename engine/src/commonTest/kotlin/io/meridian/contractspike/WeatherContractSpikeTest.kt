@@ -138,6 +138,10 @@ class WeatherContractSpikeTest {
         val result = engine.fetch(request.copy(features = setOf(WeatherFeature.CURRENT_CONDITIONS)))
         val partial = assertIs<FeatureOutcome.Partial>(result.outcomes[WeatherFeature.CURRENT_CONDITIONS])
         assertEquals(DataFreshness.STALE, partial.data.freshness)
+        assertEquals(400L, partial.data.issuedAtEpochMillis)
+        assertEquals(500L, partial.data.fetchedAtEpochMillis)
+        assertEquals(800L, partial.data.validAtEpochMillis)
+        assertEquals(1_000L, partial.data.expiresAtEpochMillis)
         assertTrue(partial.problems.any { it.code == WeatherProblemCode.STALE_CACHE_USED })
     }
 
