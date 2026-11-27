@@ -82,12 +82,14 @@ final class ProbeUseTests: XCTestCase {
     func testDarwinEngineMapsEmptyAndPartialResponses() async throws {
         // Keep the same localhost origin used by the passing Apple fixture run.
         let emptyCode = try await IosKtorProbe.shared.fixtureFailureCode(
-            url: "http://localhost:8765/empty.json"
+            url: "http://localhost:8765/empty.json",
+            timeoutMillis: 5_000
         )
         XCTAssertEqual(emptyCode, "EMPTY_RESPONSE", "Unexpected mapping for an empty HTTP body")
 
         let partialCode = try await IosKtorProbe.shared.fixtureFailureCode(
-            url: "http://localhost:8765/partial.json"
+            url: "http://localhost:8765/partial.json",
+            timeoutMillis: 5_000
         )
         XCTAssertEqual(partialCode, "PARTIAL_RESPONSE", "Unexpected mapping for a partial fixture body")
     }
