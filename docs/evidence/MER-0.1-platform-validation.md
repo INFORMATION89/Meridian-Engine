@@ -1,6 +1,7 @@
 # MER-0.1 platform validation evidence
 
-**Latest green run:** [GitHub Actions #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210)  
+**Latest code-validation run:** [GitHub Actions #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210)  
+**Final PR-head matrix:** [GitHub Actions #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103) — all five jobs passed on PR head `009e5979ce63f8b169c542d24c654fa64b59c363`.  
 **Code commit validated:** `91996fb7c190f80899261eb2ff21630b5e564209`  
 **Validation date:** 2026-11-26  
 **Scope:** Compatibility and dependency-evidence spike only; not a production-stack approval or release certification.

@@ -1,9 +1,9 @@
 # MER-0.1 production-stack recommendation
 
-**Status:** Proposed — awaiting owner approval  
+**Status:** Accepted — owner approved 2026-11-26  
 **Prepared:** 2026-11-26  
 **Evidence baseline:** [CI run #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210), code commit `91996fb7c190f80899261eb2ff21630b5e564209`  
-**Authority:** Recommendation only. This document does not authorize production implementation or change the owner-approved JVM-first desktop direction.
+**Authority:** Owner decision recorded in [ADR-0003](../decisions/ADR-0003-approved-production-technology-baseline.md). This approval authorizes M0.2 contract design, not production weather features or an unreviewed public API/schema.
 
 ## Executive recommendation
 
@@ -138,9 +138,9 @@ Not recommended for the engine core because the product targets iOS and desktop 
 5. Complete M0.3 scientific verification/archive/matching safeguards before authorizing the first production forecast provider.
 6. Begin production features only after the relevant milestone specifications and acceptance criteria are approved.
 
-## Owner decision requested
+## Owner decision recorded
 
-Approve or reject this candidate baseline:
+The owner approved this baseline on 2026-11-26:
 
 - **Shared core:** Kotlin Multiplatform.
 - **Networking:** Ktor with Android, Darwin, and CIO engines.
@@ -148,4 +148,4 @@ Approve or reject this candidate baseline:
 - **Desktop:** JVM-first for Windows, macOS, and Linux; consumers may bundle a compatible minimized JRE.
 - **Deferred:** Rust/UniFFI and native desktop libraries unless real consumer evidence justifies them.
 
-Approval would authorize detailed M0.2 contract design on this baseline. It would not waive M0.2/M0.3 acceptance gates or authorize immediate production provider/forecast implementation.
+The approval authorizes detailed M0.2 contract design on this baseline. It does not waive M0.2/M0.3 acceptance gates or authorize immediate production provider/forecast implementation.

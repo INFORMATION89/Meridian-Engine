@@ -50,6 +50,8 @@ jobs:
 
       - name: Commit and publish changes
         working-directory: wiki-repo
+        env:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -59,4 +61,5 @@ jobs:
             exit 0
           fi
           git commit -m "docs(wiki): sync pages from main repository"
-          git push origin HEAD
+          AUTH="$(printf 'x-access-token:%s' "$WIKI_TOKEN" | base64 | tr -d '\n')"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH" push origin HEAD
