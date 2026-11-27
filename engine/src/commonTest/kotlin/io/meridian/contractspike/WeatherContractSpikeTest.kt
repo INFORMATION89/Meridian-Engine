@@ -354,6 +354,7 @@ class WeatherContractSpikeTest {
         )
 
         assertFailsWith<CancellationException> { engine.fetch(request) }
+        Unit
     }
 
     @Test
@@ -387,6 +388,7 @@ class WeatherContractSpikeTest {
         )
 
         assertFailsWith<CancellationException> { engine.fetch(request) }
+        Unit
     }
 
     private fun cacheKey(request: WeatherRequest) = FeatureCacheKey(
