@@ -20,24 +20,23 @@ Meridian is an independent library. Solstice is only its first reference consume
 
 ## Current assignment
 
-The currently authorized implementation milestone is **M0.1: platform and production-stack proof**, as described in `PLAN.md` sections 5 and 16 and specified in `docs/specs/M0_1_PLATFORM_SPIKE.md`. The existing KMP spike is evidence for one candidate, not approval of the final production stack. Kotlin Multiplatform and Rust remain candidates until the M0.1 evidence gate and owner review are complete.
+The owner has approved the production technology baseline: Kotlin Multiplatform shared core, Ktor networking, optional SQLDelight/SQLite behind a storage contract, JVM-first desktop for Windows/macOS/Linux, and a Swift-friendly iOS framework facade. Rust/UniFFI and native desktop ABIs are deferred. See `PLAN.md` section 5 and `docs/decisions/ADR-0003-approved-production-technology-baseline.md`.
 
-Do not implement the production weather engine until the project owner has approved the M0.1 recommendation and the resulting toolchain decision.
+The active milestone is **M0.2: public API and storage contracts**. Define and verify consumer-neutral API semantics, lifecycle, cancellation, typed errors, storage boundaries, cache/history categories, offline/partial-result behaviour, and versioning. Use the approved baseline but do not treat the technology decision as approval of a final public API, schema, provider list, or weather algorithm.
 
-M0.1 is a bounded technical validation, not the start of production weather implementation. The current proof exercises the KMP candidate on Android and iOS, and through a Desktop JVM artifact on Windows, macOS, and Linux. It must establish actual consumer and runtime behaviour, target limitations, packaging implications, and dependency evidence; a successful compile alone does not select the production stack. Follow the M0.1 specification and the acceptance gate in PLAN.md exactly.
+M0.1 platform proof is complete for its CI-only acceptance. Keep Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion explicitly unverified. Mobile notice inclusion and verification remain required before public distribution. M0.2 must prove contracts with a standalone consumer that does not depend on Solstice.
 
 ## Scope discipline
 
-During M0.1, do not implement:
+During M0.2, focus on contracts and their minimal executable proofs. Do not implement:
 
-- weather-provider adapters or live API calls;
-- production weather domain models or forecast algorithms;
-- source blending, alert processing, observations, local learning, or radar;
-- production storage/cache;
-- app UI, user settings, or Solstice feature integration;
-- a complete production workspace or all planned modules.
+- live weather-provider adapters or production provider integrations;
+- production forecast algorithms, source blending, adaptive weights, or local learning;
+- official-alert ingestion, radar, or nowcasting features;
+- app UI, user settings, notification policy, or Solstice feature integration;
+- a complete production workspace or every planned module.
 
-Validate only the networking and storage candidate paths listed in the M0.1 specification. Do not choose a production stack or final public API merely because it makes the proof easier. Record alternatives and trade-offs. Make routine technical choices independently within the approved proof scope and document them. If a task crosses a product, privacy, legal, licensing, paid-cost, public-contract, or strategic architecture boundary, stop and request owner review through the pull request.
+You may implement minimal domain types, interfaces, fake implementations, deterministic contract tests, and a standalone sample consumer where required to prove the M0.2 contracts. Keep persistence optional and prove a non-persistent mode. Do not silently expand M0.2 into M1 weather-provider implementation. Make routine technical choices independently within the approved scope and document them. If a task crosses a product, privacy, legal, licensing, paid-cost, public-contract, or strategic architecture boundary, stop and request owner review through the pull request.
 
 ## Platform validation
 

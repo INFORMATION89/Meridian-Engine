@@ -120,77 +120,51 @@ A platform is **Supported** only when the artifact is built, loaded, exercised t
 
 A successful JVM test on Windows does not prove that an arbitrary native Windows application can embed Meridian. A successful iOS framework build does not prove physical-device compatibility. Publish a compatibility matrix by OS, architecture, artifact type, runtime requirement, and tested consumer language.
 
-## 5. Technology and interoperability decision
+## 5. Approved production technology baseline
 
-### Desktop distribution direction: JVM-first (owner-approved)
+**Owner decision: approved on 2026-11-26.** The production baseline is Kotlin Multiplatform (KMP) for the shared meteorological core, Ktor for HTTP networking, and SQLDelight/SQLite as an optional local persistence implementation behind an engine-owned storage contract. Desktop distribution is JVM-first for Windows, macOS, and Linux. iOS consumers use the generated Apple framework through a deliberately Swift-friendly public facade where needed.
 
-The owner selected the JVM-packaged desktop path for the initial desktop distribution direction. Windows, macOS, and Linux desktop consumers will use the JVM artifact. Meridian's application-level distribution guidance should support bundling a compatible Java runtime (for example, a minimized runtime image) so end users of an application do not need to install Java separately. A generic Meridian library artifact does not itself contain or impose an application runtime; the consuming application controls its final packaging.
+This approval closes the M0.1 production-stack decision gate and authorizes detailed M0.2 contract design on this baseline. It does **not** approve a final public API, storage schema, provider list, forecast algorithm, telemetry system, or production weather feature. Those remain subject to their own specifications, evidence, and approval gates.
 
-This decision prioritizes shared implementation, lower initial build and maintenance cost, and reuse of the validated desktop JVM path. It does **not** mean every desktop integration must use JVM forever. Native `.dll`, `.dylib`, and `.so` artifacts, C ABI, Rust bindings, and direct native-language integration remain future options if concrete consumer requirements justify their cost. Do not build or promise those native artifacts in M0.1.
+### Shared core — Kotlin Multiplatform
 
-### Production language and shared-core strategy remain evidence-gated
+- Put shared meteorological semantics, domain contracts, orchestration, validation, and platform-neutral algorithms in KMP common code wherever practical.
+- Keep Android, iOS, and desktop-specific capabilities behind narrow platform interfaces/source sets.
+- Keep public contracts free of Android, JVM, Swift, UI, provider DTO, and database-generated types.
+- Treat Swift interoperability as a first-class design constraint. Add a small Swift-friendly facade where generated Kotlin wrappers would otherwise make the consumer API awkward.
+- Preserve Meridian's independence: no Solstice dependency, no Solstice-specific types, and no requirement to check out Solstice to build, test, or consume the engine.
 
-Kotlin Multiplatform remains a credible candidate because the current M0.1 work validates Android, iOS/Swift, and JVM desktop paths. It must not be selected merely because Solstice uses Kotlin. Rust remains a credible alternative for a future native interoperability layer or if measured requirements justify replacing the managed desktop route. The owner's JVM-first desktop decision narrows the desktop distribution target; it does not alone approve the complete production language, networking, storage, public API, or provider stack.
+### Desktop distribution — JVM first
 
-### What the current M0.1 evidence establishes
+- Windows, macOS, and Linux use the Desktop JVM artifact as the initial supported integration path, subject to the explicit support matrix and tested runtime/architecture cells.
+- Meridian's reusable library artifact does not bundle or impose an application runtime. A consuming application may require a compatible JVM or bundle a minimized runtime image for self-contained installation.
+- The M0.1 probe app-images measured Linux 183.0 MiB, Windows 169.7 MiB, and macOS 171.7 MiB with bundled JDKs. These are probe measurements, not release-size guarantees.
+- Native desktop shared libraries, C ABI, Rust bindings, and native Windows/Linux targets are deferred. Reconsider them only when a named consumer or measured interoperability, performance, or footprint requirement justifies the added maintenance and packaging cost.
 
-The active canonical M0.1 proof is [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15), targeting `main` from `work/m0.1-platform-proof-refresh`. Earlier PRs were superseded during reconstruction; their evidence must not be confused with the current branch's final validation.
+### Networking — Ktor
 
-Run [#222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210) passed all five jobs on commit `91996fb7c190f80899261eb2ff21630b5e564209`: Android x86_64, Apple/iOS, Linux desktop, Windows desktop, and dependency-license audit. It is the first complete green matrix after the expanded real-engine timeout, transport, empty/partial-response, and cancellation tests. Android's artifact confirms 8/8 instrumentation tests; iOS confirms 9/9 common simulator tests and 10/10 native Swift consumer tests; macOS desktop confirms 11/11 common/storage tests. The real Android, Darwin, and CIO fixture requests and consumer-boundary cancellation checks all passed.
+- Ktor is the approved cross-platform HTTP client baseline. M0.1 validated Ktor 3.6.1 with Android, Darwin, and CIO engines on the tested targets.
+- Select the platform engine through the appropriate source set; do not leak engine types into public contracts.
+- M0.2 must specify client ownership/lifecycle, connect/request/socket timeouts, cancellation, redirects, proxy behaviour, TLS policy, typed error mapping, user-agent policy, and provider-specific limits.
+- Keep one appropriately scoped client rather than constructing a new client per weather request. Reassess version upgrades through normal dependency maintenance and target verification; the approval is not a ban on future compatible updates.
 
-This is strong KMP candidate evidence, not production-stack approval. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED** and are deferred under the owner's CI-only M0.1 acceptance. The exact platform results, package sizes, artifact contents, and distribution limits are recorded in [MER-0.1 platform validation](docs/evidence/MER-0.1-platform-validation.md).
+### Local persistence — SQLDelight/SQLite
 
-### Candidate A — Kotlin Multiplatform
+- SQLDelight 2.4.1 is the approved initial implementation baseline behind an engine-owned, consumer-neutral storage contract.
+- Persistence remains optional. Meridian must provide a useful non-persistent mode and must not require a database merely to perform weather calculations.
+- Do not expose SQLDelight-generated types or SQLite implementation details in the public API.
+- M0.2 must specify schema ownership, migrations, transactions, concurrency, deletion/export, retention, cache expiry, verification-history retention, host-provided storage extension points, and failure behaviour.
+- Preserve the reviewed dependency and licence notices, including SQLite JDBC/native components for desktop packaging.
 
-Potential advantages:
-- shared Kotlin domain and engine logic;
-- Android and iOS framework integration;
-- JVM desktop execution across Windows, macOS, and Linux;
-- direct fit for Kotlin consumers such as Solstice.
+### Platform evidence and explicit limitations
 
-Costs and limitations:
-- a desktop JVM artifact is not a native library for arbitrary C, C++, Swift, C#, or Rust desktop applications;
-- desktop runtime packaging and size must be evaluated;
-- Swift interoperability, asynchronous calls, cancellation, and native resource lifecycle need consumer-boundary tests;
-- every dependency must support the exact Android/iOS/JVM target matrix;
-- KMP platform support does not automatically guarantee third-party driver or package compatibility.
+The five-job M0.1 matrix passed in [CI run #224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103) on the merged platform-proof branch; the underlying code validation is documented in [MER-0.1 platform validation](docs/evidence/MER-0.1-platform-validation.md). The proof exercised Android x86_64 emulator, iOS ARM64 simulator with a native Swift consumer, macOS desktop JVM, Windows desktop JVM, and Linux desktop JVM. The actual Android, Darwin, and CIO HTTP engines and the tested SQLDelight drivers were exercised through deterministic local fixtures.
 
-### Candidate B — Rust native core
+The following remain **NOT TESTED** and must not be advertised as verified: Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final Android/iOS release-package inclusion of project and third-party notices. These are tracked as platform/release limitations, not reasons to reopen the selected baseline. Mobile release packaging and notice verification are required before public mobile distribution.
 
-Potential advantages:
-- native libraries can be produced for supported target architectures;
-- a clearer common native boundary for non-JVM consumers;
-- generated bindings can help Kotlin and Swift integration.
+### Rust position
 
-Costs and limitations:
-- native packaging, FFI, memory ownership, async/cancellation, threading, and cross-language error mapping;
-- separate build and test environments for platform ABIs;
-- additional language/toolchain and dependency maintenance;
-- third-party crate support must be validated rather than inferred from Rust target availability.
-
-### Decision criteria
-
-The final choice must compare:
-1. all five OS targets and declared architectures;
-2. the types of applications expected to consume Meridian, not only Solstice;
-3. integration from Kotlin, Swift, and at least one non-Kotlin desktop consumer where required;
-4. native versus managed runtime requirements;
-5. artifact size, startup, CPU, memory, battery, and packaging;
-6. build reliability and CI cost;
-7. dependency support, licences, maintenance, security, and supply-chain risk;
-8. API ergonomics, cancellation, threading, and failure isolation;
-9. release automation and long-term maintainability.
-
-Do not build a Rust comparator by default if the KMP path meets the actual consumer requirements. Build a small like-for-like comparator if the evidence exposes a concrete interoperability or runtime blocker. Owner approval is required before locking the production stack.
-
-### Storage and networking candidates
-
-- Keep persistence behind an engine-owned contract.
-- SQLDelight with SQLite is the current cross-platform storage candidate, not a final irreversible dependency.
-- Do not make Android Room a Meridian core dependency. Solstice may continue using Room for Solstice-owned app data.
-- Host-provided storage should remain possible if the API and lifecycle can be made stable and testable.
-- Ktor is the current networking candidate; test Android, Darwin, and JVM engines separately, including timeout, resource lifecycle, cancellation, and typed error mapping.
-- Resolve exact serializers, date/time libraries, drivers, and bindings only after target evidence and dependency/licence review.
+Rust/UniFFI is not part of the initial production implementation. It is deferred because the validated KMP path meets the currently approved five-OS integration objective with fewer languages, toolchains, bindings, and packaging paths. This is a pragmatic scope decision, not a claim that Rust is inferior. Reconsider only with concrete consumer evidence that KMP/JVM cannot meet a required native ABI, runtime, performance, footprint, or interoperability constraint; any proposed strategic replacement requires owner review.
 
 ## 6. Proposed architecture
 
@@ -405,7 +379,7 @@ Every milestone follows the same cycle: **research → written specification →
 | Milestone | Scope | Completion gate |
 |---|---|---|
 | M0 — Repository foundation | Governance, Apache-2.0 licence and notices, README, CI, coding-agent instructions, documentation hierarchy | Repository identity, licence file, rules, and CI baseline are consistent and verifiable |
-| M0.1 — Platform proof | KMP five-OS proof, Ktor engines, SQLDelight drivers, consumer interoperability and packaging evidence | Complete evidence and remaining gaps reviewed; owner approves or rejects the production stack |
+| M0.1 — Platform proof | KMP five-OS proof, Ktor engines, SQLDelight drivers, consumer interoperability and packaging evidence | **Complete:** CI #224 passed all five jobs, limitations are documented, and the owner approved the production baseline in ADR-0003. Mobile release-package notices and untested device/ABI cells remain explicit pre-release or future validation items. |
 | M0.2 — Public API and storage | Consumer-neutral API for meteorological facts/events only (no application recommendations), storage boundary, caching, history, offline states, partial results, errors, cancellation, versioning | Independent consumer contract tests pass; API/storage decisions approved before weather-feature implementation |
 | M0.3 — Verification foundation | Forecast/observation records, matching, data quality, archived datasets, metrics, leakage controls, reproducible reports and human-reviewed improvement workflow | A forecast evaluation can be reproduced from versioned data/code; AI is not required |
 | M1 — First forecast path | Normalized current, hourly, and daily forecast from one eligible provider; 10-day default where supported | CLI and independent consumer return correct units, time semantics, source, freshness, and typed problems |
@@ -539,91 +513,71 @@ Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application
 - AI may assist engineering and research but is not a runtime dependency.
 - Application-specific recommendations and user-facing action policies belong to consumers, not Meridian ([ADR-0002](docs/decisions/ADR-0002-application-owned-recommendations.md)).
 
-### Technical decisions not yet locked
+### Approved technical baseline
 
-These are evidence gates, not reasons to interrupt the owner with routine programming questions:
-- production language and shared-core strategy;
-- final production language/shared-core strategy and non-JVM consumer bindings; desktop distribution direction is owner-approved as JVM-first with a bundled-runtime option for applications that need self-contained delivery; native desktop libraries remain a future interoperability option, not a M0.1 requirement;
-- platform artifact and packaging matrix;
-- storage implementation and host-provided storage contract;
-- exact public API shape, cancellation, errors, and compatibility rules;
-- HTTP engine matrix, timeouts, lifecycle, and error mapping;
-- exact provider/model list and provider eligibility by region;
-- historical archive formats, datasets, licence, and retention;
-- event representation and validated detection algorithms;
-- radar sources and regional processing methods.
+- Shared core: Kotlin Multiplatform.
+- Networking: Ktor, with Android, Darwin, and CIO engines selected by target.
+- Optional local persistence: SQLDelight/SQLite behind an engine-owned storage contract.
+- Desktop: JVM-first for Windows, macOS, and Linux; consumers choose whether to bundle a compatible runtime.
+- iOS: Apple framework consumed through a Swift-friendly public facade.
+- Rust/UniFFI and native desktop ABIs: deferred unless concrete consumer evidence justifies reconsideration.
+
+See [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md). These choices authorize M0.2 contract design, not premature production feature implementation.
+
+### Technical decisions still to be specified or validated
+
+- Exact public API shape, cancellation, errors, lifecycle, and compatibility/versioning rules.
+- Platform artifact/architecture matrix and Swift facade ergonomics.
+- Storage schema, migrations, transactions, concurrency, retention, deletion/export, and host-provided storage extension contract.
+- HTTP lifecycle, timeout budgets, TLS/proxy/redirect policy, and typed error mapping.
+- Exact provider/model list and provider eligibility by region.
+- Historical archive formats, datasets, licence, and retention.
+- Event representation and validated detection algorithms.
+- Radar sources and regional processing methods.
 
 The responsible agent should research these, recommend a bounded solution, record trade-offs, run relevant proofs, and ask the owner only when the answer changes product scope, privacy, legal obligations, costs, strategic compatibility, or a fundamental architecture commitment.
 
 ## 16. Immediate next work and implementation gates
 
-### Current repository status at this revision
+### Current repository status
 
-- [PR #4](https://github.com/INFORMATION89/Meridian-Engine/pull/4) merged the architecture and weather research documents as reference material. Their recommendations remain proposals unless adopted here or in an approved milestone.
-- [PR #6](https://github.com/INFORMATION89/Meridian-Engine/pull/6) merged the approved `AI_COST_POLICY.md` into `main`; its requirements apply to all subsequent AI-assisted work and verification.
-- Earlier proof PRs were closed/superseded during reconstruction; their closure did not waive M0.1 acceptance criteria.
-- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) is the active canonical MER-0.1 PR. Its current working branch is `work/m0.1-platform-proof-refresh`; the branch head must be checked against GitHub before any evidence is accepted. Do not merge it until the current-head CI and all evidence/review gates are complete.
-- A completed platform matrix on [run 45777929849](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45777929849), commit `aa5e86ec1cab1d302b9f2165327deddf299f48dc`, passed Linux, Windows, macOS/iOS, and Android. It records an Android x86_64 emulator, an ARM64 iOS simulator with a Swift consumer, and the same desktop JVM consumer on Windows, macOS, and Linux. Android ARM64 runtime and physical Android/iOS device execution remain **NOT TESTED**; CI-only validation is accepted for this M0.1 stage and those cells must stay explicit.
-- The optimized CI removed two serial dependency-metadata jobs, added the pinned open-source Gradle cache path, and avoided duplicate Android emulator downloads. The measured baseline was 21m15s and the first completed optimized run was 12m38s (40.5% lower wall-clock time); this comparison predates the final SBOM and Android SDK cleanup changes and is not a performance guarantee.
-- A preliminary CycloneDX audit completed successfully on [run 45779632538](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45779632538), commit `faaeb43fd08fa0d9f1865b1d8c8a800e484b95d6`. The initial SBOM had zero unresolved module metadata, four project records without license metadata, and 13 distinct license labels; the report still needs Gradle configuration classification and upstream review. A later run on that commit had Linux/Android Gradle plugin-resolution failures; do not treat that run as a green platform matrix.
-- [CI #222](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45872259210) passed all five jobs on code commit `91996fb7c190f80899261eb2ff21630b5e564209`; Android instrumentation passed 8/8, iOS simulator/common passed 9/9, native Swift passed 10/10, and macOS desktop common/storage passed 11/11. See [platform validation evidence](docs/evidence/MER-0.1-platform-validation.md).
-- The latest CycloneDX audit in CI #222 reports 402 unique third-party Maven coordinates, zero missing third-party license metadata, zero unresolved dependency metadata, 54 non-test runtime coordinates (53 Apache-2.0 and one MIT), and five multi-license coordinates. All 58 SBOM-only coordinates were traced to plugin/buildscript dependency graphs; the five multi-license entries were reviewed as lint/test/build tooling rather than desktop runtime.
-- Linux, Windows, and macOS JVM app-images from CI #222 were inspected directly. All contain root `LICENSE` and `THIRD-PARTY-NOTICES.md` and retain their bundled JDK legal directories. Measured app-image sizes: Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB.
-- The CI artifact does not produce an Android APK/AAB or an iOS app distribution package. The iOS XCFramework is built and tested, but its current test artifact does not yet stage root `LICENSE` and `THIRD-PARTY-NOTICES.md` alongside the framework; mobile release-package notice inclusion remains a release-packaging requirement, not a claim established by the desktop checks.
+- [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) merged the MER-0.1 platform proof into main. CI [#224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103) passed all five jobs.
+- The owner approved KMP + Ktor + optional SQLDelight/SQLite, JVM-first desktop, and a Swift-friendly iOS facade. The decision is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md).
+- [PR #19](https://github.com/INFORMATION89/Meridian-Engine/pull/19) records the formal approval, reconciles project instructions, and updates the M0.2 handoff. It is open for review; do not claim it is merged until GitHub confirms.
+- [PR #16](https://github.com/INFORMATION89/Meridian-Engine/pull/16) was closed as superseded after its branch became stale. Its accepted meteorological-versus-consumer responsibility boundary has been preserved in ADR-0002 and the current master-plan/PR #19 changes.
+- Android x86_64 emulator, ARM64 iOS simulator with Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux were exercised. The dependency/license audit passed.
+- Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion remain **NOT TESTED**. Mobile notice staging and verification are mandatory before public mobile distribution.
+- The probe app-image sizes (Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB) are not release-size guarantees.
+- [PR #17](https://github.com/INFORMATION89/Meridian-Engine/pull/17) remains a separate draft concerning AI model-routing guidance. It has not received its optional advanced review and is not a blocker for M0.2.
+- [PR #18](https://github.com/INFORMATION89/Meridian-Engine/pull/18) concerns the versioned GitHub Wiki publisher and its one-time WIKI_TOKEN setup; it is separate from the engine architecture decision.
+- [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) proposes the M0.2 public API and optional storage contract; all API/storage details in it remain subject to owner review.
+- [PR #21](https://github.com/INFORMATION89/Meridian-Engine/pull/21) adds a focused Swift async/coroutine-cancellation proof using the existing probe. CI run #226 is in progress; do not accept the proof until the Apple/iOS job passes.
 
-### Next task: finish MER-0.1 evidence, not weather features
+### Active task: M0.2 public API and storage contracts
 
-1. Keep CI #222 as the current green platform proof for code commit `91996fb7c190f80899261eb2ff21630b5e564209`; any later code change must be statically reviewed first and validated on its exact final head.
-2. Keep the Android ARM64 runtime, physical Android/iOS devices, and native desktop ABIs explicitly **NOT TESTED**; do not expand the M0.1 scope unless a real consumer requirement justifies it.
-3. Before any public mobile distribution, stage and verify the required project and third-party license/notice files alongside the iOS XCFramework and in the Android AAR/APK/AAB release packaging. Current M0.1 CI does not create those mobile release packages.
-4. Present the production language/shared-core, Ktor, SQLDelight, consumer interoperability, and packaging recommendation to the owner with the evidence and trade-offs. Do not merge PR #15 or begin M1 until the owner approves the production direction.
+1. Define a small, consumer-neutral batch request/result API. Keep provider DTOs, database rows, platform-specific types, and application advice out of public contracts.
+2. Specify request configuration, lifecycle ownership, cancellation propagation, typed errors, partial results, source diagnostics, and freshness semantics.
+3. Specify the optional storage boundary: host-supplied implementation expectations, SQLDelight-backed implementation boundary, in-memory/no-persistence operation, schema/versioning, atomicity, concurrency, retention, deletion, and recovery.
+4. Specify response-cache, issued-forecast archive, observation history, and longer-term meteorological datasets as separate categories. Preserve provenance and issue/measurement/fetch/valid times.
+5. Design and test a Swift-friendly facade for async operations and cancellation; M0.1 proved basic framework consumption, not the ergonomics of the final weather API.
+6. Build a standalone consumer that imports only Meridian's public API. It must not check out or depend on Solstice.
+7. Run deterministic contract tests using fake clocks, fake transports, in-memory storage, and fixture sources. Verify offline, stale, unavailable, partial failure, and cancellation behaviour.
+8. Prepare explicit recommendations for public API stability/versioning, host-supplied storage extension guarantees, and retention defaults. Request owner review only for those genuine contract decisions.
 
-### After MER-0.1 approval
+M0.2 must not implement live weather providers, production forecast algorithms, source blending, official-alert ingestion, local learning, radar, remote services, telemetry, or UI.
 
-1. Complete M0 repository/legal bootstrap and reconcile stale documentation.
-2. Approve M0.2 public API and storage contracts with an independent consumer test; do not make Solstice a required dependency.
-3. Complete M0.3 reproducible forecast/observation verification and research safeguards.
-4. Only then authorize the first production weather feature specification and implementation.
-5. Add each later capability through its own milestone, evidence, and acceptance gate. Do not create a large all-at-once production workspace or enable every planned feature prematurely.
+### After M0.2
+
+1. Complete M0.3 reproducible forecast/observation verification and scientific safeguards.
+2. Obtain the required M0.2 and M0.3 approvals before authorizing M1.
+3. Implement the first forecast path only after its provider rights, credentials, API, source semantics, and acceptance criteria are approved.
+4. Add later capabilities through their own milestones and evidence gates.
 
 ### Prohibited until the corresponding gate is approved
 
-- Do not begin production weather providers, blending, local learning, alerts, radar, or application UI as part of the M0.1 spike.
-- Do not merge PR #15 or authorize M1 based solely on a green CI run for an earlier commit.
-- Do not assume KMP, Rust, SQLDelight, Room, Ktor, streaming APIs, MCP, or a hosted service is finally selected merely because it appears in a proposal or research document.
-- Do not change Solstice, Motion, or another consumer repository as part of this Meridian master-plan revision.
+- Do not begin production weather providers, blending, local learning, alerts, radar, or application UI as part of M0.2.
+- Do not claim Android ARM64, physical-device, native desktop ABI, or final mobile release-package notice verification based on the current CI evidence.
+- Do not add Rust/UniFFI or native desktop libraries without a concrete consumer requirement, comparative evidence, and owner approval.
+- Do not treat the technology approval as approval of the final public API, storage schema, provider list, forecast algorithms, telemetry, hosted services, or AI runtime.
+- Do not change Solstice, Motion, or another consumer repository as part of Meridian work unless a separate task explicitly authorizes it.
 
-## 17. Research references
-
-Re-check official documentation, terms, compatibility tables, and licence status immediately before implementation; these links are research entry points, not permanent version locks.
-
-### Platform and tooling
-
-- [Kotlin Multiplatform compatibility guide](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html)
-- [Kotlin Multiplatform supported platforms](https://kotlinlang.org/docs/multiplatform/supported-platforms.html)
-- [Kotlin/Native target support](https://kotlinlang.org/docs/native-target-support.html)
-- [Ktor client engines](https://ktor.io/docs/client-engines.html)
-- [SQLDelight documentation](https://sqldelight.github.io/sqldelight/)
-- [Rust target platform support](https://doc.rust-lang.org/stable/rustc/platform-support.html)
-- [UniFFI user guide](https://mozilla.github.io/uniffi-rs/latest/)
-- [GitHub Actions runner selection](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job)
-
-### Meteorology, observations, alerts, and data
-
-- [WMO Guide to Instruments and Methods of Observation](https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/instruments-and-methods-of-observation-programme-imop/guide-instruments-and-methods-of-observation-wmo-no-8-0)
-- [OASIS Common Alerting Protocol](https://www.oasis-open.org/standard/cap/)
-- [Open-Meteo forecast API](https://open-meteo.com/en/docs)
-- [Open-Meteo Previous Runs API](https://open-meteo.com/en/docs/previous-runs-api)
-- [Open-Meteo Single Runs API](https://open-meteo.com/en/docs/single-runs-api)
-- [AviationWeather.gov Data API](https://aviationweather.gov/data/api/)
-- [WMO Severe Weather Information Centre](https://severeweather.wmo.int/)
-
-### Internal research baselines
-
-- [Architecture review](docs/research/ARCHITECTURE_REVIEW.md)
-- [Weather data model](docs/research/WEATHER_DATA_MODEL.md)
-- [Weather intelligence strategy](docs/research/WEATHER_INTELLIGENCE.md)
-- [Provider research](docs/research/PROVIDER_RESEARCH.md)
-- [Remaining-work checklist](docs/research/REMAINING_WORK.md)
-
-Research references and internal notes must be refreshed when an implementation milestone begins. Do not claim that a dataset, model, service, endpoint, licence, or platform is currently available without rechecking its current terms and status.
