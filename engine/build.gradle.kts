@@ -4,10 +4,15 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kmp.nativecoroutines)
 }
 
 kotlin {
     jvmToolchain(21)
+
+    sourceSets.all {
+        languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+    }
 
     android {
         namespace = "io.meridian.engine"

@@ -1,5 +1,6 @@
 import XCTest
 import MeridianShared
+import KMPNativeCoroutinesAsync
 @testable import MeridianSwiftConsumer
 
 final class ProbeUseTests: XCTestCase {
@@ -12,9 +13,39 @@ final class ProbeUseTests: XCTestCase {
         XCTAssertThrowsError(try MeridianProbe().requireNonEmpty(input: "  "))
     }
 
+    func testNativeCoroutinesCanAwaitSharedKotlinSuspendFunction() async throws {
+        let result = try await asyncFunction(
+            for: MeridianProbe().transformAsync(input: "Swift native bridge", seed: 42)
+        )
+        XCTAssertEqual(result, "swift native bridge:42")
+    }
+
+    func testNativeCoroutinesPropagatesSwiftTaskCancellation() async throws {
+        let cancellationObserved = expectation(
+            description: "Swift task cancellation reaches Kotlin through KMP-NativeCoroutines"
+        )
+
+        let operation = Task {
+            do {
+                _ = try await asyncFunction(for: MeridianProbe().awaitCancellation())
+                XCTFail("Expected native coroutine cancellation to reach Kotlin")
+                cancellationObserved.fulfill()
+            } catch is CancellationError {
+                cancellationObserved.fulfill()
+            } catch {
+                XCTFail("Expected CancellationError, received: \(error)")
+                cancellationObserved.fulfill()
+            }
+        }
+
+        try await Task.sleep(for: .milliseconds(50))
+        operation.cancel()
+        await fulfillment(of: [cancellationObserved], timeout: 5)
+    }
+
     func testSuspendOperationCompletesForSwiftConsumer() {
         let finished = expectation(description: "Kotlin suspend operation completes")
-        MeridianProbe().transformAsync(input: "Swift", seed: 4) { value, error in
+        MeridianProbe().transformAsyncDirect(input: "Swift", seed: 4) { value, error in
             XCTAssertNil(error)
             XCTAssertEqual(value, "swift:4")
             finished.fulfill()

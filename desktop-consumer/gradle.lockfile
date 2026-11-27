@@ -1,11 +1,16 @@
-# This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
+# This is a Gradle generated file for dependency locking.
 # To regenerate this file, run: ./gradlew :desktop-consumer:dependencies --write-locks
 app.cash.sqldelight:jdbc-driver:2.4.1=runtimeClasspath,testRuntimeClasspath
 app.cash.sqldelight:runtime-jvm:2.4.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 app.cash.sqldelight:runtime:2.4.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 app.cash.sqldelight:sqlite-driver:2.4.1=runtimeClasspath,testRuntimeClasspath
+com.rickclephas.kmp:kmp-nativecoroutines-annotations-jvm:1.0.7=runtimeClasspath,testRuntimeClasspath
+com.rickclephas.kmp:kmp-nativecoroutines-annotations:1.0.7=runtimeClasspath,testRuntimeClasspath
+com.rickclephas.kmp:kmp-nativecoroutines-core-jvm:1.0.7=runtimeClasspath,testRuntimeClasspath
+com.rickclephas.kmp:kmp-nativecoroutines-core:1.0.7=runtimeClasspath,testRuntimeClasspath
+empty=annotationProcessor,implementationDependenciesMetadata,kotlinCompilerPluginClasspath,kotlinNativeCompilerPluginClasspath,kotlinScriptDefExtensions,testAnnotationProcessor,testImplementationDependenciesMetadata,testKotlinScriptDefExtensions
 io.ktor:ktor-client-cio-jvm:3.6.1=runtimeClasspath,testRuntimeClasspath
 io.ktor:ktor-client-cio:3.6.1=runtimeClasspath,testRuntimeClasspath
 io.ktor:ktor-client-core-jvm:3.6.1=runtimeClasspath,testRuntimeClasspath
@@ -32,6 +37,8 @@ io.ktor:ktor-websocket-serialization-jvm:3.6.1=runtimeClasspath,testRuntimeClass
 io.ktor:ktor-websocket-serialization:3.6.1=runtimeClasspath,testRuntimeClasspath
 io.ktor:ktor-websockets-jvm:3.6.1=runtimeClasspath,testRuntimeClasspath
 io.ktor:ktor-websockets:3.6.1=runtimeClasspath,testRuntimeClasspath
+org.jetbrains:annotations:13.0=compileClasspath,kotlinAbiValidationCompatClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinCompilerPluginClasspathMain,kotlinCompilerPluginClasspathTest,kotlinKlibCommonizerClasspath,testCompileClasspath
+org.jetbrains:annotations:23.0.0=runtimeClasspath,testRuntimeClasspath
 org.jetbrains.kotlin:kotlin-build-tools-api:2.4.0=kotlinAbiValidationCompatClasspath
 org.jetbrains.kotlin:kotlin-build-tools-api:2.4.21=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinKlibCommonizerClasspath
 org.jetbrains.kotlin:kotlin-build-tools-compat:2.4.21=kotlinAbiValidationCompatClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
@@ -70,8 +77,5 @@ org.jetbrains.kotlinx:kotlinx-io-core:0.9.1=runtimeClasspath,testRuntimeClasspat
 org.jetbrains.kotlinx:kotlinx-serialization-bom:1.11.0=runtimeClasspath,testRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0=runtimeClasspath,testRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0=runtimeClasspath,testRuntimeClasspath
-org.jetbrains:annotations:13.0=compileClasspath,kotlinAbiValidationCompatClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinCompilerPluginClasspathMain,kotlinCompilerPluginClasspathTest,kotlinKlibCommonizerClasspath,testCompileClasspath
-org.jetbrains:annotations:23.0.0=runtimeClasspath,testRuntimeClasspath
 org.slf4j:slf4j-api:2.0.19=runtimeClasspath,testRuntimeClasspath
 org.xerial:sqlite-jdbc:3.53.4.0=runtimeClasspath,testRuntimeClasspath
-empty=annotationProcessor,implementationDependenciesMetadata,kotlinCompilerPluginClasspath,kotlinNativeCompilerPluginClasspath,kotlinScriptDefExtensions,testAnnotationProcessor,testImplementationDependenciesMetadata,testKotlinScriptDefExtensions

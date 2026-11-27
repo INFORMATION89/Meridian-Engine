@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.sqldelight) apply false
+    alias(libs.plugins.kmp.nativecoroutines) apply false
 }
 
 // Lock every resolvable configuration so platform CI consumes the committed lockfiles.
