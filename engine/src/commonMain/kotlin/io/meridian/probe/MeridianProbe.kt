@@ -25,6 +25,10 @@ class MeridianProbe {
     suspend fun transformAsync(input: String, seed: Int): String =
         withContext(Dispatchers.Default) { transform(input, seed) }
 
+    // Kept unannotated as a control for Kotlin/Native's direct completion-handler bridge.
+    suspend fun transformAsyncDirect(input: String, seed: Int): String =
+        withContext(Dispatchers.Default) { transform(input, seed) }
+
     @NativeCoroutines
     suspend fun awaitCancellation(): String =
         withContext(Dispatchers.Default) { awaitCancellationSuspension() }
