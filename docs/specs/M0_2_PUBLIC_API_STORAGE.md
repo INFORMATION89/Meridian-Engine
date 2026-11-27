@@ -100,11 +100,13 @@ The sample is a compatibility test, not a user-facing weather application.
 
 ## 8. Current prototype evidence (not approval)
 
-- [PR #20, CI #247](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45912885533) passed all five platform/audit jobs for the experimental API contract and independent desktop, Android, and Swift consumers. All public-shape code remains under the experimental opt-in package.
+- [PR #20, CI #266](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45958135944) passed all five jobs for head `b32f5abbf67cfd62d6a7ed410caa3448d303e5cf`: Windows, Linux, Android x86_64 emulator, Apple/iOS simulator with native Swift consumer, and dependency/license audit. Native Swift XCTest passed 11/11. The experimental contract remains under the opt-in package and is not approved as the stable public API.
 - [PR #24, CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs. Native Swift XCTest passed 12/12, including the explicit Swift Task to Kotlin suspend cancellation probe; Android host and eight emulator instrumentation tests passed.
 - The exact upstream KMP-NativeCoroutines v1.0.7 source tag has an MIT license. The experimental plugin and SwiftPM integration are documented in PR #24 and must remain separate from stable production dependencies until M0.2 owner review.
 - The current storage proof is only no-persistence plus an in-memory test store. It does not implement or validate the SQLDelight schema, a supported host storage SPI, persistent transactions/migrations, or archive recovery.
-- Additional deterministic contract tests now cover explicit stale-age rejection, refresh of expired cache, cache read/write failures, and cancellation during cache read/write. Their new PR #20 head must pass CI before those cases count as verified.
+- The current empty-response Swift fixture uses IPv4 loopback because the fixture server binds IPv4. The partial-response fixture still uses `localhost`; it passed CI #266, but normalizing it to IPv4 is a known cleanup item for a future approved Apple CI run.
+- The current prototype still has one feature-level valid time/provenance record. The multi-sample forecast, explicit accumulation interval, and sample-level blended-contributor provenance proof remains outstanding and is required before M0.2 approval.
+- Deterministic contract tests also cover explicit stale-age rejection, expired-cache refresh, cache read/write failures, cancellation during source/cache operations, concurrent request isolation, source/cache feature-identity validation, and redaction of source-supplied problem details. These current-head tests passed CI #266.
 
 These results demonstrate prototype behaviour only. They do not validate forecast accuracy, live provider terms, production storage, public API compatibility, or the complete M0.2 acceptance gate.
 
