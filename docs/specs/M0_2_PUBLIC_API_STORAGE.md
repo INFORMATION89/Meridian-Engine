@@ -1,6 +1,6 @@
 # M0.2 — Public API and local storage contract
 
-**Status:** active design specification. The production technology baseline is approved by ADR-0003; the public API and detailed storage contract remain subject to their M0.2 acceptance and owner review. No production weather feature or production database schema is authorized by this document.  
+**Status:** active design specification. The production technology baseline is approved by ADR-0003. The v1 storage visibility decision is owner-approved in ADR-0004: storage SPI remains internal; no host-supplied storage adapter is part of the v1 public API. The remaining public API, data semantics, and persistence implementation details remain subject to M0.2 acceptance and owner review. No production weather feature or production database schema is authorized by this document.  
 **Parent plan:** [`/PLAN.md`](../../PLAN.md), sections 6–8, 11–16.  
 **Depends on:** completed M0.1 platform proof and the owner-approved KMP + Ktor + optional SQLDelight/SQLite baseline in ADR-0003.  
 **Purpose:** define a small, consumer-neutral API and local persistence boundary before implementing weather providers or algorithms.  
@@ -53,17 +53,30 @@ Errors should be typed and distinguish invalid input, unsupported feature, no el
 
 ## 4. Local storage boundary
 
-Define storage as optional interfaces owned by the engine contract, with implementations injected by the host or supplied by an optional storage module.
+**Owner decision — 2026-11-27:** Keep the Storage SPI internal to Meridian for v1. Consumers use the stable Meridian weather API; they do not implement or inject a storage adapter. This decision is recorded in [ADR-0004](../decisions/ADR-0004-internal-storage-spi-v1.md).
 
-### Required storage concepts
+### v1 architecture
 
-- **Response cache:** provider response or normalized feature data, source identity, fetch time, expiry/freshness metadata, schema version, and integrity metadata needed to avoid treating corrupt or incompatible data as valid.
-- **Forecast snapshot history:** preserve what a model/provider forecast said at issue time so later verification is scientifically valid. Record issue/run time, fetch time, valid time, lead time, location/grid reference, variable, unit, provider/model/product identity, and source version where available.
-- **Observation history:** source/station identity, measurement time, fetch time, variable, unit, quality flags, and spatial/elevation context at the minimum precision required for matching.
-- **Retention and deletion:** configurable retention, bounded storage, explicit deletion/clear operations, and documented defaults. The host must be able to disable history while retaining ordinary in-memory or response-cache operation.
-- **Transactions and concurrency:** define atomic write boundaries, duplicate handling, concurrent refresh behaviour, and recovery from interrupted writes.
+- The public engine API is independent of storage technology and remains usable without persistent storage.
+- Meridian owns its internal storage ports, cache identity, record lifecycle, migrations, and consistency guarantees.
+- The initial persistent implementation may be provided by an optional official SQLDelight/SQLite module, subject to M0.2 schema and transaction design approval.
+- An internal in-memory implementation remains available for deterministic tests and explicitly ephemeral operation; it is not a supported external extension point.
+- A consumer cannot supply a custom database, SQLDelight driver, file path, or storage adapter through the v1 public API.
+- No persistence configured means no persistent cache or history is implied. The engine must still execute supported requests without storage.
 
-The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths, or database row types. SQLDelight/SQLite is the approved initial optional implementation behind the storage contract; the exact schema, driver lifecycle, and migrations remain M0.2 design work. A custom host-provided store remains an option to evaluate and specify without making database implementation types public.
+### Required internal storage concepts
+
+- **Response cache:** provider response or normalized feature data, source/configuration identity, fetch time, expiry/freshness metadata, schema version, and integrity metadata.
+- **Forecast snapshot history:** preserve issued forecasts independently from observations for later verification. Record issue/run time, fetch time, per-sample valid instant/interval, lead time, location/grid reference, variable, unit, provider/model/product identity, and source version where available.
+- **Observation history:** source/station identity, measurement time, fetch time, variable, unit, quality flags, and only the spatial/elevation context needed for matching.
+- **Retention and deletion:** separately bounded policies for response cache, forecast archive, observation history, verification records, and licensed datasets. Define explicit deletion/clear semantics and defaults before enabling persistence.
+- **Transactions and concurrency:** define atomic write boundaries, idempotency/deduplication, concurrent refresh behaviour, and recovery from interrupted writes. Cancellation must never leave a record marked complete.
+
+The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths, database row types, or internal storage interfaces. SQLDelight/SQLite is the approved initial optional implementation behind Meridian's internal storage boundary; schema, driver lifecycle, migrations, and transaction guarantees remain M0.2 design work.
+
+### Future reconsideration
+
+A public storage extension point is not ruled out permanently. It requires a concrete independent-consumer requirement, a separate owner-approved decision, compatibility/versioning policy, conformance tests, and a security/privacy review. Do not design v1 around a hypothetical public SPI or promise that one will be added.
 
 ## 5. Offline and freshness semantics
 
@@ -103,7 +116,7 @@ The sample is a compatibility test, not a user-facing weather application.
 - [PR #20, CI #266](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45958135944) passed all five jobs for head `b32f5abbf67cfd62d6a7ed410caa3448d303e5cf`: Windows, Linux, Android x86_64 emulator, Apple/iOS simulator with native Swift consumer, and dependency/license audit. Native Swift XCTest passed 11/11. The experimental contract remains under the opt-in package and is not approved as the stable public API.
 - [PR #24, CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs. Native Swift XCTest passed 12/12, including the explicit Swift Task to Kotlin suspend cancellation probe; Android host and eight emulator instrumentation tests passed.
 - The exact upstream KMP-NativeCoroutines v1.0.7 source tag has an MIT license. The experimental plugin and SwiftPM integration are documented in PR #24 and must remain separate from stable production dependencies until M0.2 owner review.
-- The current storage proof is only no-persistence plus an in-memory test store. It does not implement or validate the SQLDelight schema, a supported host storage SPI, persistent transactions/migrations, or archive recovery.
+- The current storage proof is only no-persistence plus an internal in-memory test store. The v1 Storage SPI is internal by owner decision (ADR-0004). No SQLDelight schema, persistent transactions/migrations, or archive recovery has been implemented or validated.
 - The current empty-response Swift fixture uses IPv4 loopback because the fixture server binds IPv4. The partial-response fixture still uses `localhost`; it passed CI #266, but normalizing it to IPv4 is a known cleanup item for a future approved Apple CI run.
 - The current prototype still has one feature-level valid time/provenance record. The multi-sample forecast, explicit accumulation interval, and sample-level blended-contributor provenance proof remains outstanding and is required before M0.2 approval.
 - Deterministic contract tests also cover explicit stale-age rejection, expired-cache refresh, cache read/write failures, cancellation during source/cache operations, concurrent request isolation, source/cache feature-identity validation, and redaction of source-supplied problem details. These current-head tests passed CI #266.
@@ -115,7 +128,7 @@ These results demonstrate prototype behaviour only. They do not validate forecas
 M0.2 must present explicit recommendations and obtain approval for:
 
 1. The minimal public request/result API and batch-first approach.
-2. Confirm the exact host-supplied storage extension contract and its supported guarantees, while preserving the approved requirement that persistence remains optional.
+2. Confirm the internal storage boundary and optional official SQLDelight/SQLite implementation guarantees; host-supplied storage adapters are not part of v1 (ADR-0004).
 3. The official cache/history record boundary and retention defaults.
 4. The error and partial-result model.
 5. The cancellation and Swift interoperability shape based on the direct-bridge failure and the successful NativeCoroutines prototype evidence.

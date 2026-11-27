@@ -1,6 +1,6 @@
-# M0.2 proposal: public API and optional storage contract
+# M0.2 proposal: public API and internal storage architecture
 
-**Status:** Proposed for owner review; not an approved public contract.  
+**Status:** Proposed for owner review; storage visibility for v1 is owner-approved by ADR-0004. The public weather API and detailed persistence contract are not yet approved.  
 **Milestone:** M0.2 — Public API and storage contract.  
 **Authority:** PLAN.md, RULES.md, ADR-0002, and ADR-0003.
 
@@ -81,43 +81,49 @@ The proof establishes Swift `Task` cancellation into a Kotlin suspend coroutine 
 
 Keep Flow/streaming out of the first public API unless a concrete consumer requirement proves a batch result insufficient; streaming adds lifecycle, ordering, backpressure, cancellation, and cross-language complexity. The current Apple framework uses Kotlin's Objective-C export path. Kotlin Swift Export remains a separate path and must not be adopted until its stability and target compatibility are acceptable.
 
-## 5. Optional storage architecture
+## 5. Internal storage architecture — v1 owner decision
 
-Keep storage contracts in a small engine-owned abstraction. Core must not depend on SQLDelight or SQLite types.
+**Decision:** The Storage SPI remains internal to Meridian for v1. Consumers use Meridian's public weather API and cannot implement or inject their own storage adapter. See [ADR-0004](../decisions/ADR-0004-internal-storage-spi-v1.md).
 
-- No storage configured: requests still execute; no persistent cache/history is implied.
-- In-memory store: deterministic tests and explicitly ephemeral use.
-- Optional SQLDelight/SQLite module: default local persistent implementation, depending on the core storage contract.
-- Host-provided store: support only through a documented stable contract with explicit guarantees; no database-specific types leak into core.
+This does not make persistence mandatory. The public API remains independent of storage and supports a no-persistence engine. Meridian owns all storage adapters and their lifecycle.
+
+- **No storage configured:** requests still execute; no persistent cache/history is implied.
+- **Internal in-memory store:** deterministic tests and explicitly ephemeral use only.
+- **Optional official SQLDelight/SQLite module:** the initial persistent implementation, depending on Meridian's internal storage contract. It is not required by the core and is not yet a production schema.
+- **No host-supplied store in v1:** no public adapter interface, driver injection, file-path injection, or database-specific extension contract.
 
 Recommended dependency direction:
 
 ```text
 consumer application
        |
-public Meridian API
+public Meridian weather API
        |
    engine core  <------ provider adapters
        |
-storage contract
+internal storage ports
        ^
-optional SQLDelight module
+optional official SQLDelight module
        |
   SQLite drivers
 ```
 
-The M0.1 probe groups proof dependencies in one Gradle module. That validates target compatibility, not the final module boundary. M0.2 should define contracts first and split implementation modules only where it improves dependency direction and packaging.
+The M0.1 probe groups proof dependencies in one Gradle module. That validates target compatibility, not the final module boundary. M0.2 should define internal contracts first and split implementation modules only where this improves dependency direction and packaging.
 
 ### Separate data categories
 
-1. **Response cache:** short-lived data with source identity, fetch time, expiry, freshness, schema version, and integrity metadata.
-2. **Issued forecast archive:** immutable forecast snapshots keyed by provider/model, issue time, valid time, location/grid, variable, and source version.
+1. **Response cache:** short-lived data with source/configuration identity, fetch time, expiry, freshness, schema version, and integrity metadata.
+2. **Issued forecast archive:** immutable forecast snapshots keyed by provider/model, issue time, per-sample valid time/interval, location/grid, variable, and source version.
 3. **Observation history:** measurement/fetch times, station/source identity, variable/unit, quality flags, and only the spatial precision needed for matching.
 4. **Verification/learning records:** forecast-observation pairs and regional statistics with bounded configurable retention; the current plan's initial recent window is 30 days.
 5. **Long-term historical/climatological datasets:** separately licensed and versioned, not subject to the short learning-window limit.
 6. **Derived summaries:** reproducible statistics with input dataset and calculation-version provenance.
 
-Specify atomic writes, idempotency/deduplication, concurrent refresh, corruption recovery, schema migrations, retention, deletion, and export/restore. Cache expiry is separate from archive retention. A cancelled/failed write must never leave a record marked complete. The host owns saved places, preferences, and refresh scheduling.
+Specify atomic writes, idempotency/deduplication, concurrent refresh, corruption recovery, schema migrations, retention, deletion, and export/restore. Cache expiry is separate from archive retention. A cancelled/failed write must never leave a record marked complete. The host owns saved places, preferences, credential storage, and refresh scheduling.
+
+### Future public extension gate
+
+A public storage SPI may be reconsidered only when an independent consumer demonstrates a concrete need that the official implementation cannot reasonably satisfy. Any proposal must include API/versioning guarantees, conformance tests, concurrency and transaction semantics, failure/cancellation behaviour, data deletion/retention requirements, and a privacy/security review. This is a future option, not a v1 commitment.
 
 ## 6. Networking boundary
 
@@ -158,7 +164,7 @@ The current proof covers the no-storage/in-memory paths, deterministic cache and
 The technology baseline is already approved by ADR-0003. Remaining decisions:
 1. Minimal public request/result shape and batch-first approach.
 2. Public error and per-feature partial-result semantics.
-3. Whether/how host-supplied storage is supported in v1.
+3. Internal storage visibility for v1 (decided: no host-supplied SPI; see ADR-0004).
 4. Cache/history boundaries and retention defaults.
 5. Swift facade/cancellation contract after the prototype.
 6. Pre-1.0 API stability and persistent-schema versioning policy.
@@ -178,7 +184,7 @@ The following defaults make the proposal testable and give the owner a concrete 
 | Cancellation | Propagate coroutine cancellation unchanged. Cancellation is not a weather-provider failure and must not produce a successful/persisted result for work that did not finish. | Keeps Kotlin and Swift task cancellation predictable. |
 | Freshness | Prefer fresh cache/network results. Use stale-but-usable data only when the request explicitly allows it and supplies a maximum age. Never relabel stale data as current; preserve original issue, observation, and fetch times. | Makes offline fallback useful without hiding age or uncertainty. |
 | Persistence | No persistent store is required or silently created. Support a no-persistence engine and deterministic in-memory test store. SQLDelight/SQLite is an explicit optional module. | Makes privacy, storage footprint, and migration ownership visible to the host. |
-| Host-supplied storage | Keep the internal storage port narrow, but defer a supported third-party storage SPI from the first stable API unless an independent consumer demonstrates a real requirement. Add it only with conformance tests for atomicity, concurrency, deletion, and migrations. | A public storage SPI is a long-lived compatibility promise and can constrain future schema evolution. |
+| Host-supplied storage | Not supported in v1. Keep the SPI internal; reconsider only through a separate owner-approved ADR backed by a concrete consumer requirement. | Avoids a premature compatibility promise and keeps transaction, concurrency, retention, and migration guarantees under Meridian's control. |
 | Retention | Do not apply one global retention period. Cache expiry follows provider cadence/HTTP metadata and terms; the agreed initial local learning/verification window is a configurable, bounded 30 days; forecast archives and licensed climatological datasets have separate explicit policies. | Prevents the learning window from deleting scientific archives or long-term datasets. |
 | Swift integration | Keep the Kotlin suspend API canonical; expose a narrow Swift async facade using KMP-NativeCoroutines 1.0.7 and its async-only SwiftPM product for the tested Kotlin 2.4.21 toolchain. | The direct completion-handler bridge failed Task cancellation; the NativeCoroutines path passed the 12-test Apple consumer suite. Keep it experimental until owner review and compatibility coverage. |
 | Versioning | Use pre-1.0 semantic versions while public semantics are still being validated. Version persisted-record schemas independently from library/API versions and require explicit migrations. | Allows controlled contract evolution without silently reinterpreting stored historical data. |
@@ -191,7 +197,7 @@ The proof should also establish that closing an engine releases its owned client
 
 #### Decision emphasis
 
-The highest-impact owner choice is whether a third-party host-supplied storage implementation is a first-release promise. The safest initial recommendation is to keep the internal abstraction from day one, ship the no-storage and official SQLDelight paths, and defer the public SPI until a real consumer and a complete conformance contract justify it. This does not prevent revisiting the choice before 1.0.
+The highest-impact storage visibility decision is now settled: keep the abstraction internal for v1, preserve no-persistence operation, and provide an optional official SQLDelight path when its implementation is approved. A public SPI is not promised and requires a separate owner decision if a concrete independent consumer later needs it.
 
 ## 10. Out of scope
 

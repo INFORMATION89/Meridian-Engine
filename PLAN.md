@@ -153,7 +153,7 @@ This approval closes the M0.1 production-stack decision gate and authorizes deta
 - SQLDelight 2.4.1 is the approved initial implementation baseline behind an engine-owned, consumer-neutral storage contract.
 - Persistence remains optional. Meridian must provide a useful non-persistent mode and must not require a database merely to perform weather calculations.
 - Do not expose SQLDelight-generated types or SQLite implementation details in the public API.
-- M0.2 must specify schema ownership, migrations, transactions, concurrency, deletion/export, retention, cache expiry, verification-history retention, host-provided storage extension points, and failure behaviour.
+- M0.2 must specify schema ownership, migrations, transactions, concurrency, deletion/export, retention, cache expiry, verification-history retention, internal storage interfaces, and failure behaviour. Host-supplied storage adapters are excluded from v1 by ADR-0004.
 - Preserve the reviewed dependency and licence notices, including SQLite JDBC/native components for desktop packaging.
 
 ### Platform evidence and explicit limitations
@@ -189,7 +189,7 @@ The architecture is logical and modular. It does not require creating every modu
 - The domain/core owns normalized contracts and does not depend on providers, databases, UI frameworks, or consuming apps.
 - Provider adapters depend on core contracts; core never depends on provider DTOs.
 - Processing and algorithms receive validated normalized data and do not perform direct network requests.
-- Storage implementations depend on storage contracts; core does not depend on a database vendor.
+- Official storage implementations depend on Meridian's internal storage contracts; core does not depend on a database vendor. Consumers cannot implement storage adapters through the v1 public API.
 - Platform-specific drivers are injected or selected through narrow factories.
 - Consumer applications use the public API only. They must not import private adapter or persistence types.
 - Tests and verification tools must run without checking out or building Solstice.
@@ -211,7 +211,7 @@ Meridian must distinguish different kinds of stored data instead of applying one
 
 ### Storage rules
 
-- Local storage is the default. No remote database or synchronization is mandatory.
+- Local storage is the default when the optional official persistence module is enabled. No remote database or synchronization is mandatory. Persistence remains optional; the Storage SPI is internal in v1 (ADR-0004).
 - The host owns saved places and application settings; Meridian must not become a location-history tracker.
 - Every dataset records provenance, licence, source, time coverage, geographic coverage, resolution, quality, and restrictions.
 - Cache expiry follows provider cadence, HTTP metadata, terms, and rate limits.
@@ -560,12 +560,12 @@ The responsible agent should research these, recommend a bounded solution, recor
 
 1. Define a small, consumer-neutral batch request/result API. Keep provider DTOs, database rows, platform-specific types, and application advice out of public contracts.
 2. Specify request configuration, lifecycle ownership, cancellation propagation, typed errors, partial results, source diagnostics, and freshness semantics.
-3. Specify the optional storage boundary: host-supplied implementation expectations, SQLDelight-backed implementation boundary, in-memory/no-persistence operation, schema/versioning, atomicity, concurrency, retention, deletion, and recovery.
+3. Specify the internal optional storage boundary: official SQLDelight-backed implementation, internal in-memory/no-persistence operation, schema/versioning, atomicity, concurrency, retention, deletion, and recovery. Do not expose a host-supplied storage adapter in v1 (ADR-0004).
 4. Specify response-cache, issued-forecast archive, observation history, and longer-term meteorological datasets as separate categories. Preserve provenance and issue/measurement/fetch/valid times.
 5. Keep the Kotlin suspend API canonical and design a narrow Swift-friendly async facade. PR #24 proves a KMP-NativeCoroutines 1.0.7 path for Swift Task cancellation on the tested toolchain; evaluate that experiment for the facade without silently adopting the dependency into production.
 6. Build a standalone consumer that imports only Meridian's public API. It must not check out or depend on Solstice.
 7. Run deterministic contract tests using fake clocks, fake transports, in-memory storage, and fixture sources. Verify offline, stale-age limits, expired-cache refresh, unavailable, partial failure, cache read/write faults, and cancellation behaviour.
-8. Prepare explicit recommendations for public API stability/versioning, host-supplied storage extension guarantees, and retention defaults. Request owner review only for those genuine contract decisions.
+8. Prepare explicit recommendations for public API stability/versioning and retention defaults. Storage SPI visibility is decided: internal for v1 (ADR-0004). Request owner review only for remaining genuine contract decisions.
 
 M0.2 must not implement live weather providers, production forecast algorithms, source blending, official-alert ingestion, local learning, radar, remote services, telemetry, or UI.
 

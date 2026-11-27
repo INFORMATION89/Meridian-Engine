@@ -157,7 +157,7 @@ data class WeatherResult(
 )
 
 @ExperimentalWeatherContractSpike
-data class FeatureCacheKey(
+internal data class FeatureCacheKey(
     val latitude: Double,
     val longitude: Double,
     val feature: WeatherFeature,
@@ -181,14 +181,14 @@ interface WeatherSource {
  * The first implementation is intentionally in-memory and test-oriented.
  */
 @ExperimentalWeatherContractSpike
-interface WeatherStore {
+internal interface WeatherStore {
     suspend fun read(key: FeatureCacheKey): WeatherFeatureData?
     suspend fun write(key: FeatureCacheKey, data: WeatherFeatureData)
     suspend fun clear()
 }
 
 @ExperimentalWeatherContractSpike
-class InMemoryWeatherStore : WeatherStore {
+internal class InMemoryWeatherStore : WeatherStore {
     private val mutex = Mutex()
     private val entries = mutableMapOf<FeatureCacheKey, WeatherFeatureData>()
 
@@ -209,11 +209,24 @@ class InMemoryWeatherStore : WeatherStore {
  * background scheduler, or consumer-application dependency.
  */
 @ExperimentalWeatherContractSpike
-class WeatherContractEngine(
+class WeatherContractEngine private constructor(
     private val source: WeatherSource,
     private val clock: WeatherClock,
-    private val store: WeatherStore? = null,
+    private val store: WeatherStore?,
+    @Suppress("UNUSED_PARAMETER") internalStorageMarker: Unit,
 ) {
+    /** Public spike constructor: no persistent storage is exposed to consumers. */
+    constructor(
+        source: WeatherSource,
+        clock: WeatherClock,
+    ) : this(source, clock, null, Unit)
+
+    /** Internal test/implementation constructor; not part of the consumer API. */
+    internal constructor(
+        source: WeatherSource,
+        clock: WeatherClock,
+        store: WeatherStore,
+    ) : this(source, clock, store, Unit)
     suspend fun fetch(request: WeatherRequest): WeatherResult {
         val outcomes = linkedMapOf<WeatherFeature, FeatureOutcome>()
         for (feature in request.features.sortedBy { it.name }) {

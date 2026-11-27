@@ -117,7 +117,7 @@ Before adding or changing a source:
 
 1. The core defines storage contracts; it does not depend on a concrete database.
 2. An optional SQLDelight/SQLite implementation may provide the official local storage backend. It depends on the core contract, never the reverse. Do not make Android Jetpack Room a required engine dependency.
-3. A consuming application may use Meridian's supported storage implementation or provide an adapter only through an extension mechanism proven and documented in M0.2. The choice must not change the meaning of the core API.
+3. For v1, the Storage SPI is internal to Meridian. Consumers cannot inject or implement storage adapters. The public weather API must remain independent of storage technology and support no-persistence operation. An optional official SQLDelight/SQLite implementation depends on the internal storage contract. Reconsider a public extension point only through a separate owner-approved decision backed by a concrete consumer need.
 4. Document what is stored, why it is needed, where it is stored, how long it is retained, and how it is deleted.
 5. Do not store saved-place history or introduce location tracking into Meridian. Persist only the minimum data required by explicitly approved engine functions.
 6. Apply the approved retention period to forecasts, observations, statistics, and cached responses. Do not extend retention silently.
