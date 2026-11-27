@@ -53,6 +53,24 @@ Keep actual air temperature separate from apparent/feels-like temperature, inclu
 
 Meridian may expose neutral meteorological indicators (for example, a likely precipitation window or elevated heat-stress conditions). It must not produce clothing, umbrella, sunscreen, activity, packing, personal-routine, or other lifestyle advice; those remain consumer-owned under ADR-0002.
 
+### Time series and sample-level provenance
+
+The current spike's `WeatherFeatureData` groups several `WeatherValue` items under one `validAtEpochMillis` and one `SourceProvenance`. That shape is intentionally small, but it is not sufficient for an hourly/daily forecast series or Meridian's Level 2 objective.
+
+The recommended logical model is:
+
+- A **feature outcome** groups the result for a requested capability (for example, current conditions, hourly forecast, daily forecast, or official alerts).
+- A **series** identifies a variable and its spatial/temporal interpretation and contains explicitly time-indexed samples. It may be irregular; the timestamp is never inferred from the sample's array index.
+- A **sample** carries its own valid instant or interval, normalized value and unit, data nature, quality state, freshness, and uncertainty representation.
+- A **provenance trace** resolves for each sample/value. It records the source/operator and product/model version, relevant issue/run and fetch times, and any transformations. A blended/corrected value also retains its contributing source/model inputs and the algorithm/configuration version; contribution weights are recorded when the method uses them.
+- **Observation metadata** preserves measurement time and station/platform identity independently of issue and fetch time. **Forecast metadata** preserves the exact issued run independently of each sample's valid instant.
+- **Interval data** preserves the exact accumulation/validity interval. Instantaneous temperature, interval precipitation, wind gust maxima, and daily extrema must not be collapsed into an indistinguishable timestamp/value pair.
+- **Quality and uncertainty** attach at the narrowest level at which they can differ. Model spread, ensemble distribution, provider probability, calibrated probability, and qualitative confidence remain distinct concepts.
+
+Names above describe semantic responsibilities, not final public type names. Keep any shared series/run metadata compact, but make every sample's time and provenance unambiguous. Do not copy one provider/source label to a blended series when the samples have different contributors.
+
+Before M0.2 approval, extend the deterministic contract proof with a multi-sample forecast fixture, a time-bounded accumulation example, and a sample whose blend provenance identifies multiple inputs and the transformation version. Assert that timestamps, intervals, and contributor traces survive result assembly and serialization/cache round-trips where applicable.
+
 ## 4. Swift and coroutine interoperability
 
 M0.1 proved that a native Swift consumer can import and call the generated Apple framework, but it did **not** prove Swift `Task` cancellation through Kotlin's generated completion-handler bridge. PR #21's direct bridge cancellation test failed. PR #24 then tested KMP-NativeCoroutines 1.0.7 with the exact Kotlin 2.4.21 toolchain and the async-only Swift Package product. The final [CI #251, attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs. Native Swift XCTest passed 12/12, including `testNativeCoroutinesPropagatesSwiftTaskCancellation`; the cancelled Swift `Task` reached Kotlin's suspending cancellation probe and completed with `CancellationError` in 0.076 seconds.
@@ -105,7 +123,7 @@ Specify atomic writes, idempotency/deduplication, concurrent refresh, corruption
 
 Ktor is an implementation detail behind the transport boundary. Recommend one appropriately scoped client per engine instance, reused across requests, with deterministic test injection. Do not expose Ktor types in public API.
 
-Map untrusted exceptions to typed problem codes; never copy raw `Throwable.message`, request URLs, query parameters, response snippets, or coordinate-bearing strings into public diagnostics. Such messages can contain credentials or private location data. Optional problem detail must be explicitly sanitized and allowlisted before it crosses the public boundary.
+Map untrusted exceptions to typed problem codes; never copy raw `Throwable.message`, request URLs, query parameters, response snippets, or coordinate-bearing strings into public diagnostics. Such messages can contain credentials or private location data. Optional problem detail must be explicitly sanitized and allowlisted before it crosses the public boundary. Apply this rule both to thrown exceptions and to `WeatherProblem` values returned by source adapters; a typed `Failed`, `Unavailable`, or `Partial` result is not automatically safe just because the adapter constructed it. Prefer no free-form detail by default, with only reviewed static/allowlisted diagnostics crossing the public API.
 
 M0.2 must specify client creation/disposal, connect/request/socket timeout budgets, cancellation, TLS, redirects, proxy/user-agent policy, typed transport/status/parse/rate-limit failures, request concurrency, provider minimum intervals, and redaction of credentials/sensitive location data. The host owns secure credential storage. Never embed developer keys in distributed artifacts.
 
