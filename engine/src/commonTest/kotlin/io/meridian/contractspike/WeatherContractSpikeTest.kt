@@ -105,6 +105,87 @@ class WeatherContractSpikeTest {
     }
 
     @Test
+    fun sourceOutcomesMustMatchTheRequestedFeature() = runBlocking {
+        val request = WeatherContractDemo.sampleRequest()
+            .copy(features = setOf(WeatherFeature.CURRENT_CONDITIONS))
+        val mismatchedData = cachedCurrent(
+            fetchedAt = 1_500,
+            expiresAt = 3_000,
+            sourceId = "fixture-wrong-feature",
+        ).copy(feature = WeatherFeature.HOURLY_FORECAST)
+        val invalidOutcomes = listOf(
+            FeatureOutcome.Available(mismatchedData),
+            FeatureOutcome.Partial(
+                mismatchedData,
+                listOf(WeatherProblem(WeatherProblemCode.SOURCE_FAILURE)),
+            ),
+        )
+
+        for (invalidOutcome in invalidOutcomes) {
+            val engine = WeatherContractEngine(
+                source = object : WeatherSource {
+                    override suspend fun fetchFeature(
+                        request: WeatherRequest,
+                        feature: WeatherFeature,
+                    ): FeatureOutcome = invalidOutcome
+                },
+                clock = fixedClock(1_500),
+            )
+
+            val failure = assertIs<FeatureOutcome.Failed>(
+                engine.fetch(request).outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+            )
+            assertEquals(WeatherProblemCode.SOURCE_FAILURE, failure.problem.code)
+            assertEquals("Source returned data for a different feature.", failure.problem.detail)
+        }
+    }
+
+    @Test
+    fun cacheEntryForAnotherFeatureIsRejectedAndReported() = runBlocking {
+        val request = WeatherContractDemo.sampleRequest(CachePolicy.PREFER_FRESH)
+            .copy(features = setOf(WeatherFeature.CURRENT_CONDITIONS))
+        val store = object : WeatherStore {
+            override suspend fun read(key: FeatureCacheKey): WeatherFeatureData =
+                cachedCurrent(
+                    fetchedAt = 1_000,
+                    expiresAt = 3_000,
+                    sourceId = "fixture-corrupt-cache",
+                ).copy(feature = WeatherFeature.HOURLY_FORECAST)
+
+            override suspend fun write(key: FeatureCacheKey, data: WeatherFeatureData) = Unit
+            override suspend fun clear() = Unit
+        }
+        var sourceCalls = 0
+        val engine = WeatherContractEngine(
+            source = object : WeatherSource {
+                override suspend fun fetchFeature(
+                    request: WeatherRequest,
+                    feature: WeatherFeature,
+                ): FeatureOutcome {
+                    sourceCalls += 1
+                    return FeatureOutcome.Available(
+                        cachedCurrent(
+                            fetchedAt = 1_500,
+                            expiresAt = 3_000,
+                            sourceId = "fixture-network",
+                        ),
+                    )
+                }
+            },
+            clock = fixedClock(1_500),
+            store = store,
+        )
+
+        val partial = assertIs<FeatureOutcome.Partial>(
+            engine.fetch(request).outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+        )
+        assertEquals(1, sourceCalls)
+        assertEquals(WeatherFeature.CURRENT_CONDITIONS, partial.data.feature)
+        assertEquals("fixture-network", partial.data.provenance.sourceId)
+        assertTrue(partial.problems.any { it.code == WeatherProblemCode.STORAGE_READ_FAILED })
+    }
+
+    @Test
     fun staleDataIsExplicitAndOnlyUsedWhenAllowed() = runBlocking {
         val store = InMemoryWeatherStore()
         val request = WeatherContractDemo.sampleRequest(

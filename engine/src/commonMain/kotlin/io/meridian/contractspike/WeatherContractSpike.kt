@@ -236,7 +236,13 @@ class WeatherContractEngine(
 
         if (request.cachePolicy != CachePolicy.NETWORK_ONLY && store != null) {
             try {
-                cached = store.read(key)
+                val cacheEntry = store.read(key)
+                if (cacheEntry != null && cacheEntry.feature != feature) {
+                    // A store must not satisfy one feature with another feature's record.
+                    cacheReadProblem = WeatherProblem(WeatherProblemCode.STORAGE_READ_FAILED)
+                } else {
+                    cached = cacheEntry
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
@@ -252,7 +258,7 @@ class WeatherContractEngine(
         }
 
         val sourceOutcome = try {
-            source.fetchFeature(request, feature)
+            validateSourceOutcome(feature, source.fetchFeature(request, feature))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -310,6 +316,28 @@ class WeatherContractEngine(
             }
         }
         return sourceOutcome
+    }
+
+    private fun validateSourceOutcome(
+        requestedFeature: WeatherFeature,
+        outcome: FeatureOutcome,
+    ): FeatureOutcome {
+        val returnedData = when (outcome) {
+            is FeatureOutcome.Available -> outcome.data
+            is FeatureOutcome.Partial -> outcome.data
+            is FeatureOutcome.Unavailable,
+            is FeatureOutcome.Failed -> null
+        }
+        return if (returnedData != null && returnedData.feature != requestedFeature) {
+            FeatureOutcome.Failed(
+                WeatherProblem(
+                    WeatherProblemCode.SOURCE_FAILURE,
+                    "Source returned data for a different feature.",
+                ),
+            )
+        } else {
+            outcome
+        }
     }
 }
 

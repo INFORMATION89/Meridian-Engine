@@ -11,12 +11,20 @@ object IosKtorProbe {
     }
 
     suspend fun verifyFixtureFailure(url: String, expectedCode: ProbeErrorCode, timeoutMillis: Long = 5_000): Boolean {
+        return fixtureFailureCode(url, timeoutMillis) == expectedCode.name
+    }
+
+    /**
+     * Returns the actual mapped code so native consumer tests can diagnose
+     * platform-specific transport and response handling failures.
+     */
+    suspend fun fixtureFailureCode(url: String, timeoutMillis: Long = 5_000): String {
         val client = HttpClient(Darwin)
         try {
             FixtureHttpProbe.fetch(client, url, timeoutMillis)
-            return false
+            return "NO_FAILURE"
         } catch (failure: ProbeFailure) {
-            return failure.code == expectedCode
+            return failure.code.name
         } finally {
             client.close()
         }
