@@ -337,6 +337,79 @@ class WeatherContractSpikeTest {
     }
 
     @Test
+    fun untrustedExceptionMessagesAreNotExposedInWeatherProblems() = runBlocking {
+        val sensitiveMessage = "token=secret-value&latitude=19.4326"
+        val request = WeatherContractDemo.sampleRequest()
+            .copy(features = setOf(WeatherFeature.CURRENT_CONDITIONS))
+
+        val transportEngine = WeatherContractEngine(
+            source = object : WeatherSource {
+                override suspend fun fetchFeature(
+                    request: WeatherRequest,
+                    feature: WeatherFeature,
+                ): FeatureOutcome = throw IllegalStateException(sensitiveMessage)
+            },
+            clock = fixedClock(1_500),
+        )
+        val transportProblem = assertIs<FeatureOutcome.Failed>(
+            transportEngine.fetch(request).outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+        ).problem
+        assertEquals(WeatherProblemCode.TRANSPORT_FAILURE, transportProblem.code)
+        assertEquals(null, transportProblem.detail)
+
+        val readFailureStore = object : WeatherStore {
+            override suspend fun read(key: FeatureCacheKey): WeatherFeatureData? =
+                throw IllegalStateException(sensitiveMessage)
+
+            override suspend fun write(key: FeatureCacheKey, data: WeatherFeatureData) = Unit
+            override suspend fun clear() = Unit
+        }
+        val readFailureEngine = WeatherContractEngine(
+            source = object : WeatherSource {
+                override suspend fun fetchFeature(
+                    request: WeatherRequest,
+                    feature: WeatherFeature,
+                ): FeatureOutcome = FeatureOutcome.Available(
+                    cachedCurrent(1_500, 3_000, "fixture-network"),
+                )
+            },
+            clock = fixedClock(1_500),
+            store = readFailureStore,
+        )
+        val readFailure = assertIs<FeatureOutcome.Partial>(
+            readFailureEngine.fetch(request.copy(cachePolicy = CachePolicy.PREFER_FRESH))
+                .outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+        ).problems.single { it.code == WeatherProblemCode.STORAGE_READ_FAILED }
+        assertEquals(null, readFailure.detail)
+
+        val writeFailureStore = object : WeatherStore {
+            override suspend fun read(key: FeatureCacheKey): WeatherFeatureData? = null
+
+            override suspend fun write(key: FeatureCacheKey, data: WeatherFeatureData) {
+                throw IllegalStateException(sensitiveMessage)
+            }
+
+            override suspend fun clear() = Unit
+        }
+        val writeFailureEngine = WeatherContractEngine(
+            source = object : WeatherSource {
+                override suspend fun fetchFeature(
+                    request: WeatherRequest,
+                    feature: WeatherFeature,
+                ): FeatureOutcome = FeatureOutcome.Available(
+                    cachedCurrent(1_500, 3_000, "fixture-network"),
+                )
+            },
+            clock = fixedClock(1_500),
+            store = writeFailureStore,
+        )
+        val writeFailure = assertIs<FeatureOutcome.Partial>(
+            writeFailureEngine.fetch(request).outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+        ).problems.single { it.code == WeatherProblemCode.STORAGE_WRITE_FAILED }
+        assertEquals(null, writeFailure.detail)
+    }
+
+    @Test
     fun cancellationDuringCacheReadPropagatesUnchanged() = runBlocking {
         val request = WeatherContractDemo.sampleRequest(CachePolicy.PREFER_FRESH)
         val store = object : WeatherStore {
