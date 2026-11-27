@@ -1,6 +1,6 @@
 ## Meridian
 
-- [Project Overview](Project-Overview)
+- [Home](Home)
 - [Roadmap](Roadmap)
 - [Research & Discoveries](Research-and-Discoveries)
 - [Architecture & Engineering](Architecture-and-Engineering)
