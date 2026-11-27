@@ -55,11 +55,13 @@ Meridian may expose neutral meteorological indicators (for example, a likely pre
 
 ## 4. Swift and coroutine interoperability
 
-M0.1 proved that a native Swift consumer can import and call the generated Apple framework. It did **not** prove the ergonomics of the final asynchronous weather API, cancellation propagation, or stable public error mapping.
+M0.1 proved that a native Swift consumer can import and call the generated Apple framework, but it did **not** prove Swift `Task` cancellation through Kotlin's generated completion-handler bridge. PR #21's direct bridge cancellation test failed. PR #24 then tested KMP-NativeCoroutines 1.0.7 with the exact Kotlin 2.4.21 toolchain and the async-only Swift Package product. The final [CI #251, attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs. Native Swift XCTest passed 12/12, including `testNativeCoroutinesPropagatesSwiftTaskCancellation`; the cancelled Swift `Task` reached Kotlin's suspending cancellation probe and completed with `CancellationError` in 0.076 seconds.
 
-Recommend a coroutine-native Kotlin API and a small Swift-facing facade that presents natural async/await calls and maps public outcomes/errors without exposing awkward generated wrapper types. Verify cancellation in both directions with a real Swift consumer. Do not add a third-party Swift interop plugin until a prototype demonstrates a need and its licence, maintenance, and target support are reviewed.
+**Updated recommendation:** retain the Kotlin `suspend` API as the source of truth and use a narrow Swift-facing facade with KMP-NativeCoroutines-generated async functions for the tested Swift boundary. Pin the proof combination to Gradle plugin/runtime 1.0.7 and SwiftPM tag `1.0.7-spm-async`; use only `KMPNativeCoroutinesAsync`, not Combine or RxSwift. Keep annotations limited to facade methods that genuinely need Swift async exposure. The exact upstream `v1.0.7` source tag contains `LICENSE.txt` under MIT. The experiment adds a Gradle compiler plugin, Kotlin NativeCoroutines artifacts, dependency locks/checksums, and a SwiftPM package dependency; it is not a zero-cost platform feature. Record its target/toolchain and package-footprint implications, and do not add it to the stable production dependency set until the owner reviews this evidence and the M0.2 API decision.
 
-Keep Flow/streaming out of the first public API unless a concrete consumer requirement proves a batch result insufficient; streaming adds lifecycle, ordering, backpressure, cancellation, and cross-language complexity. The current Apple framework uses Kotlin's Objective-C export path. Kotlin 2.4.0 introduced Swift Export in Alpha; do not switch the production framework to that path until its stability and target compatibility are acceptable. First test suspend-to-Swift async through the existing framework. If direct interop is insufficient, compare KMP-NativeCoroutines and SKIE against the exact Kotlin toolchain before adding either.
+The proof establishes Swift `Task` cancellation into a Kotlin suspend coroutine for this exact combination. It does not by itself prove every Kotlin/Swift cancellation direction, every Xcode/Kotlin version, physical-device behaviour, or cancellation through every future provider/storage adapter. Keep those as explicit compatibility tests for the final facade.
+
+Keep Flow/streaming out of the first public API unless a concrete consumer requirement proves a batch result insufficient; streaming adds lifecycle, ordering, backpressure, cancellation, and cross-language complexity. The current Apple framework uses Kotlin's Objective-C export path. Kotlin Swift Export remains a separate path and must not be adopted until its stability and target compatibility are acceptable.
 
 ## 5. Optional storage architecture
 
@@ -119,14 +121,17 @@ Use fake sources, a fake clock, deterministic fixtures, and in-memory storage. D
 - construction without persistent storage;
 - a multi-feature request with one success and one unavailable/failed outcome;
 - explicit freshness and provenance;
-- cancellation through transport/orchestration;
-- offline cached data retaining original timestamps;
+- cancellation through transport/orchestration, including the Swift `Task` to Kotlin suspend bridge;
+- offline cached data retaining original issue/observation/fetch/valid timestamps;
+- explicit stale-age limits and refusal to return older-than-allowed cache entries;
+- source refresh when a cache entry has expired;
 - storage-disabled and storage-enabled paths;
-- atomicity under cancellation/failure;
-- the same public concepts from Kotlin/Android, Swift/iOS, and desktop JVM;
+- cache read/write failures that preserve usable weather data while reporting storage problems;
+- cancellation during cache read/write remaining cancellation rather than becoming a storage error;
+- the same contract concepts from Kotlin/Android, Swift/iOS, and desktop JVM;
 - no Solstice checkout or dependency.
 
-No live weather provider is required or permitted for this contract proof.
+The current proof covers most of these behaviours with fake sources and in-memory storage. It does **not** prove a SQLDelight production schema, host-supplied storage SPI, transaction/atomicity guarantees under a real persistent store, record migrations, archive export/restore, or final public API versioning. Those remain design and acceptance work within M0.2. No live weather provider is required or permitted for this contract proof.
 
 ## 9. Owner decisions still required
 
@@ -155,7 +160,7 @@ The following defaults make the proposal testable and give the owner a concrete 
 | Persistence | No persistent store is required or silently created. Support a no-persistence engine and deterministic in-memory test store. SQLDelight/SQLite is an explicit optional module. | Makes privacy, storage footprint, and migration ownership visible to the host. |
 | Host-supplied storage | Keep the internal storage port narrow, but defer a supported third-party storage SPI from the first stable API unless an independent consumer demonstrates a real requirement. Add it only with conformance tests for atomicity, concurrency, deletion, and migrations. | A public storage SPI is a long-lived compatibility promise and can constrain future schema evolution. |
 | Retention | Do not apply one global retention period. Cache expiry follows provider cadence/HTTP metadata and terms; the agreed initial local learning/verification window is a configurable, bounded 30 days; forecast archives and licensed climatological datasets have separate explicit policies. | Prevents the learning window from deleting scientific archives or long-term datasets. |
-| Swift integration | Keep the Kotlin suspend API as the source of truth; expose a small Swift-friendly async facade. Accept direct suspend-to-async interop only if the native Swift async and cancellation proof passes on the supported toolchain. | Avoids adding a wrapper dependency before it is shown to be necessary. |
+| Swift integration | Keep the Kotlin suspend API canonical; expose a narrow Swift async facade using KMP-NativeCoroutines 1.0.7 and its async-only SwiftPM product for the tested Kotlin 2.4.21 toolchain. | The direct completion-handler bridge failed Task cancellation; the NativeCoroutines path passed the 12-test Apple consumer suite. Keep it experimental until owner review and compatibility coverage. |
 | Versioning | Use pre-1.0 semantic versions while public semantics are still being validated. Version persisted-record schemas independently from library/API versions and require explicit migrations. | Allows controlled contract evolution without silently reinterpreting stored historical data. |
 
 #### Proposed outcome and failure boundary
@@ -177,3 +182,6 @@ No live provider adapters, production forecast algorithms, source blending, adap
 - Kotlin 2.4.0 release notes, including Swift Export status: https://kotlinlang.org/docs/whatsnew24.html
 - Kotlin/Native Swift and Objective-C interoperability, including suspend-function mapping and Swift wrapper annotations: https://kotlinlang.org/docs/native-objc-interop.html
 - Kotlin Multiplatform FAQ on calling coroutines from Swift and the current KMP-NativeCoroutines/SKIE options: https://kotlinlang.org/docs/multiplatform/faq.html
+- KMP-NativeCoroutines v1.0.7 source tag and its MIT `LICENSE.txt`: https://github.com/rickclephas/KMP-NativeCoroutines/tree/v1.0.7
+- KMP-NativeCoroutines v1.0.7 async-only Swift Package tag: https://github.com/rickclephas/KMP-NativeCoroutines/tree/v1.0.7-spm-async
+- Meridian's platform/consumer/cancellation evidence: PR [#24](https://github.com/INFORMATION89/Meridian-Engine/pull/24) and [CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825).
