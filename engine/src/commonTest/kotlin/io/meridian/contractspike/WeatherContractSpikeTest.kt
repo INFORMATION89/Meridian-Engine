@@ -3,7 +3,11 @@
 package io.meridian.contractspike
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -389,6 +393,85 @@ class WeatherContractSpikeTest {
 
         assertFailsWith<CancellationException> { engine.fetch(request) }
         Unit
+    }
+
+    @Test
+    fun concurrentRequestsOnOneEngineKeepLocationAndCacheResultsIsolated() = runBlocking {
+        val bothRequestsStarted = CompletableDeferred<Unit>()
+        var sourceCalls = 0
+        val store = InMemoryWeatherStore()
+        val engine = WeatherContractEngine(
+            source = object : WeatherSource {
+                override suspend fun fetchFeature(
+                    request: WeatherRequest,
+                    feature: WeatherFeature,
+                ): FeatureOutcome {
+                    sourceCalls += 1
+                    if (sourceCalls == 2) {
+                        bothRequestsStarted.complete(Unit)
+                    }
+                    withTimeout(5_000) {
+                        bothRequestsStarted.await()
+                    }
+
+                    val latitude = request.location.latitude
+                    return FeatureOutcome.Available(
+                        WeatherFeatureData(
+                            feature = feature,
+                            values = listOf(
+                                WeatherValue(WeatherVariable.AIR_TEMPERATURE, latitude, WeatherUnit.CELSIUS),
+                            ),
+                            provenance = SourceProvenance("fixture-latitude-$latitude", "concurrency-test"),
+                            issuedAtEpochMillis = null,
+                            observedAtEpochMillis = 1_500,
+                            fetchedAtEpochMillis = 1_500,
+                            validAtEpochMillis = 1_500,
+                            expiresAtEpochMillis = 3_000,
+                        ),
+                    )
+                }
+            },
+            clock = fixedClock(1_500),
+            store = store,
+        )
+        val feature = setOf(WeatherFeature.CURRENT_CONDITIONS)
+        val firstRequest = WeatherContractDemo.sampleRequest()
+            .copy(location = GeoCoordinates(19.0, -99.0), features = feature)
+        val secondRequest = WeatherContractDemo.sampleRequest()
+            .copy(location = GeoCoordinates(20.0, -99.0), features = feature)
+
+        val initialResults = listOf(
+            async { engine.fetch(firstRequest) },
+            async { engine.fetch(secondRequest) },
+        ).awaitAll()
+
+        val firstData = assertIs<FeatureOutcome.Available>(
+            initialResults[0].outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+        ).data
+        val secondData = assertIs<FeatureOutcome.Available>(
+            initialResults[1].outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+        ).data
+        assertEquals(19.0, firstData.values.single().value)
+        assertEquals(20.0, secondData.values.single().value)
+        assertEquals("fixture-latitude-19.0", firstData.provenance.sourceId)
+        assertEquals("fixture-latitude-20.0", secondData.provenance.sourceId)
+        assertEquals(2, sourceCalls)
+
+        val cachedFirst = engine.fetch(firstRequest.copy(cachePolicy = CachePolicy.PREFER_FRESH))
+        val cachedSecond = engine.fetch(secondRequest.copy(cachePolicy = CachePolicy.PREFER_FRESH))
+        assertEquals(
+            19.0,
+            assertIs<FeatureOutcome.Available>(
+                cachedFirst.outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+            ).data.values.single().value,
+        )
+        assertEquals(
+            20.0,
+            assertIs<FeatureOutcome.Available>(
+                cachedSecond.outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS),
+            ).data.values.single().value,
+        )
+        assertEquals(2, sourceCalls)
     }
 
     private fun cacheKey(request: WeatherRequest) = FeatureCacheKey(
