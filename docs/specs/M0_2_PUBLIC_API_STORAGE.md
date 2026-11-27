@@ -67,6 +67,7 @@ The public engine API must not expose SQLDelight, SQLite, Room, JDBC, file paths
 - The host owns secure storage and supplies credentials to the engine only for providers that legitimately require user-provided credentials.
 - Never embed private developer keys in a distributed application or library.
 - Logs and diagnostics must avoid raw coordinates and secrets unless a narrowly scoped local debug mode explicitly requires them.
+- Never expose raw exception messages, request URLs, query parameters, provider response snippets, or coordinate-bearing strings in public problem details. Optional diagnostic detail must be sanitized and allowlisted; map untrusted exceptions to typed codes.
 - Any optional sharing, sync, hosted proxy, remote MCP endpoint, or telemetry requires a separate design and a distinct, explicit opt-in. Before consent, disclose the exact data fields, purpose, destination, recipients, and retention; provide an inspectable payload example and controls to withdraw consent and delete eligible local data. Declining must not reduce ordinary weather functionality. A hosted proxy/endpoint also requires explicit owner approval and a separate privacy, legal, cost, and security review.
 
 ## 7. Consumer and compatibility proof
