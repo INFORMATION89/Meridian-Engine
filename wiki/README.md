@@ -5,9 +5,10 @@ This directory is the version-controlled source for the native [GitHub Wiki](htt
 ## Publishing model
 
 - Edit these Markdown files through normal branches and pull requests in the main repository.
-- After changes are merged to `main`, the workflow at `.github/workflows/publish-wiki.yml` copies them to the native Wiki Git repository.
-- `Home.md` is intentionally not managed here. The existing Wiki Home page is preserved and must be edited directly in GitHub if its content needs changing.
-- The publisher does not delete Wiki pages that are absent from this directory. This prevents accidental removal of pages created directly in the Wiki.
+- After changes are merged to `main`, the workflow at `.github/workflows/publish-wiki.yml` publishes the managed pages to the native Wiki Git repository.
+- `Home.md` is managed here and is the source of truth for the native Wiki Home page. Changes to it are published by the same workflow as the other pages.
+- `README.md` is repository-side publishing documentation and is not copied to the native Wiki.
+- The publisher does not automatically delete every Wiki page absent from this directory. Intentional page removals must be explicit in the publishing workflow; this change removes the old `Project-Overview` page because its content now lives on Home.
 
 ## One-time setup
 
