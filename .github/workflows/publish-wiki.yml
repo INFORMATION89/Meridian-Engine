@@ -43,10 +43,12 @@ jobs:
           git -c http.extraheader="AUTHORIZATION: basic $AUTH" clone \
             "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-repo
 
-      - name: Copy managed pages without replacing Home
+      - name: Copy managed pages and remove moved page
         run: |
-          # Home.md and README.md are intentionally not managed by this publisher.
+          # Markdown pages in wiki/ (including Home.md) are authoritative.
           find wiki -maxdepth 1 -type f ! -name 'README.md' -exec cp {} wiki-repo/ \;
+          # Project Overview has been moved into Home; remove the old native Wiki page.
+          rm -f wiki-repo/Project-Overview.md
 
       - name: Commit and publish changes
         working-directory: wiki-repo
