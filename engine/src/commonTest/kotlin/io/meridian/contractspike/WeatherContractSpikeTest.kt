@@ -491,6 +491,57 @@ class WeatherContractSpikeTest {
     }
 
     @Test
+    fun sourceOutcomeDetailsAreNotExposedToConsumers() = runBlocking {
+        val sensitiveMessage = "token=secret-value&latitude=19.4326"
+        val request = WeatherContractDemo.sampleRequest()
+            .copy(features = setOf(WeatherFeature.CURRENT_CONDITIONS))
+        val sourceOutcomes = listOf(
+            FeatureOutcome.Partial(
+                cachedCurrent(1_500, 3_000, "fixture-partial"),
+                listOf(WeatherProblem(WeatherProblemCode.SOURCE_FAILURE, sensitiveMessage)),
+            ),
+            FeatureOutcome.Unavailable(
+                WeatherProblem(WeatherProblemCode.SOURCE_UNAVAILABLE, sensitiveMessage),
+            ),
+            FeatureOutcome.Failed(
+                WeatherProblem(WeatherProblemCode.SOURCE_FAILURE, sensitiveMessage),
+            ),
+        )
+
+        for (sourceOutcome in sourceOutcomes) {
+            val engine = WeatherContractEngine(
+                source = object : WeatherSource {
+                    override suspend fun fetchFeature(
+                        request: WeatherRequest,
+                        feature: WeatherFeature,
+                    ): FeatureOutcome = sourceOutcome
+                },
+                clock = fixedClock(1_500),
+            )
+
+            val result = engine.fetch(request).outcomes.getValue(WeatherFeature.CURRENT_CONDITIONS)
+            when (sourceOutcome) {
+                is FeatureOutcome.Partial -> {
+                    val sanitized = assertIs<FeatureOutcome.Partial>(result)
+                    assertEquals(WeatherProblemCode.SOURCE_FAILURE, sanitized.problems.single().code)
+                    assertEquals(null, sanitized.problems.single().detail)
+                }
+                is FeatureOutcome.Unavailable -> {
+                    val sanitized = assertIs<FeatureOutcome.Unavailable>(result)
+                    assertEquals(WeatherProblemCode.SOURCE_UNAVAILABLE, sanitized.problem.code)
+                    assertEquals(null, sanitized.problem.detail)
+                }
+                is FeatureOutcome.Failed -> {
+                    val sanitized = assertIs<FeatureOutcome.Failed>(result)
+                    assertEquals(WeatherProblemCode.SOURCE_FAILURE, sanitized.problem.code)
+                    assertEquals(null, sanitized.problem.detail)
+                }
+                is FeatureOutcome.Available -> error("Unexpected available fixture outcome.")
+            }
+        }
+    }
+
+    @Test
     fun cancellationDuringCacheReadPropagatesUnchanged() = runBlocking {
         val request = WeatherContractDemo.sampleRequest(CachePolicy.PREFER_FRESH)
         val store = object : WeatherStore {

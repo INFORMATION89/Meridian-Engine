@@ -336,9 +336,28 @@ class WeatherContractEngine(
                 ),
             )
         } else {
-            outcome
+            sanitizeSourceOutcome(outcome)
         }
     }
+
+    /**
+     * Source adapters are an untrusted boundary. Do not forward free-form problem
+     * details because provider messages can contain coordinates, request URLs, or
+     * credentials. Public details must be authored and allowlisted by the engine.
+     */
+    private fun sanitizeSourceOutcome(outcome: FeatureOutcome): FeatureOutcome =
+        when (outcome) {
+            is FeatureOutcome.Available -> outcome
+            is FeatureOutcome.Partial -> outcome.copy(
+                problems = outcome.problems.map { it.copy(detail = null) },
+            )
+            is FeatureOutcome.Unavailable -> outcome.copy(
+                problem = outcome.problem.copy(detail = null),
+            )
+            is FeatureOutcome.Failed -> outcome.copy(
+                problem = outcome.problem.copy(detail = null),
+            )
+        }
 }
 
 /**

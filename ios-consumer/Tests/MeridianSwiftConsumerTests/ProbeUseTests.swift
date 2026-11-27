@@ -80,9 +80,10 @@ final class ProbeUseTests: XCTestCase {
     }
 
     func testDarwinEngineMapsEmptyAndPartialResponses() async throws {
-        // Keep the same localhost origin used by the passing Apple fixture run.
+        // Use IPv4 loopback, matching the fixture server's bind address.
+        // macOS may resolve localhost to ::1 first, while this CI server is IPv4-only.
         let emptyCode = try await IosKtorProbe.shared.fixtureFailureCode(
-            url: "http://localhost:8765/empty.json",
+            url: "http://127.0.0.1:8765/empty.json",
             timeoutMillis: 5_000
         )
         XCTAssertEqual(emptyCode, "EMPTY_RESPONSE", "Unexpected mapping for an empty HTTP body")
