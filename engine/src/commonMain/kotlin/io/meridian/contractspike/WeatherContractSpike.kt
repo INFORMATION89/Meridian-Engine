@@ -409,7 +409,12 @@ object WeatherContractDemo {
         }
     }
 
-    fun createEngine(store: WeatherStore? = null): WeatherContractEngine =
+    /** Creates an independent fixture engine without exposing storage injection. */
+    fun createEngine(): WeatherContractEngine =
+        WeatherContractEngine(FixtureSource(), FixedClock(1_500))
+
+    /** Internal seam for same-module tests of optional storage behaviour. */
+    internal fun createEngine(store: WeatherStore): WeatherContractEngine =
         WeatherContractEngine(FixtureSource(), FixedClock(1_500), store)
 
     fun sampleRequest(

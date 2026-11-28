@@ -6,9 +6,15 @@ import io.meridian.probe.MeridianProbe
 import io.meridian.probe.ProbeErrorCode
 import io.meridian.contractspike.ExperimentalWeatherContractSpike
 import io.meridian.contractspike.WeatherContractDemo
+import io.meridian.contractspike.WeatherFeature
+import io.meridian.contractspike.FeatureOutcome
 
 @OptIn(ExperimentalWeatherContractSpike::class)
 suspend fun main() {
+    val publicEngine = WeatherContractDemo.createEngine()
+    val publicResult = publicEngine.fetch(WeatherContractDemo.sampleRequest())
+    check(publicResult.outcomes[WeatherFeature.CURRENT_CONDITIONS] is FeatureOutcome.Available)
+
     val contractSummary = WeatherContractDemo.verifySampleRequest()
     check(contractSummary == "current=available;hourly=unavailable;air=18.0C;apparent=21.0C")
     val probe = MeridianProbe()

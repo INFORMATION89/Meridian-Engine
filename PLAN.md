@@ -528,7 +528,7 @@ See [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.m
 
 - Exact public API shape, cancellation, errors, lifecycle, and compatibility/versioning rules.
 - Platform artifact/architecture matrix and Swift facade ergonomics.
-- Storage schema, migrations, transactions, concurrency, retention, deletion/export, and host-provided storage extension contract.
+- Storage schema, migrations, transactions, concurrency, retention, deletion/export, and internal storage guarantees. Host-supplied storage adapters are excluded from v1 by ADR-0004.
 - HTTP lifecycle, timeout budgets, TLS/proxy/redirect policy, and typed error mapping.
 - Exact provider/model list and provider eligibility by region.
 - Historical archive formats, datasets, licence, and retention.
