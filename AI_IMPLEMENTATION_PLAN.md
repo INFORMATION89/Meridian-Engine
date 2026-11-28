@@ -381,16 +381,31 @@ At the latest recorded review on 2026-11-26:
 - No production weather provider, production forecast pipeline, stable public API, or production storage contract is authorized merely by the current platform proof.
 - Root LICENSE/README bootstrap and complete direct/transitive licensing/NOTICE decisions remain part of M0.
 
-### Next bounded task
+### Status update (2026-11-28)
 
-Continue the preserved MER-0.1 source branch and open/recreate its PR when the evidence and review package are ready. Finish the outstanding evidence on the exact current branch head:
+M0.1 is complete, and PRs #17, #18 and #19 are merged. The earlier MER-0.1 "next bounded task" list is superseded. M0.2 work happens on [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) (contract prototype) and draft [PR #24](https://github.com/INFORMATION89/Meridian-Engine/pull/24) (Swift cancellation bridge). See `PLAN.md` section 16 for repository status.
 
-1. Confirm latest checks still match the exact head SHA.
-2. Exercise actual Android, Darwin, and JVM Ktor engines using deterministic fixtures.
-3. Verify timeout, transport/parse errors, cancellation, cleanup, and consumer-boundary behaviour.
-4. Verify the approved SQLDelight/SQLite implementation boundary only as needed to design the M0.2 contract; do not build the production schema during M0.2.
-5. Complete direct/transitive licence inventory and NOTICE decision.
-6. Record package/runtime implications and the exact compatibility matrix.
-7. Record the approved KMP baseline and defer Rust/UniFFI unless concrete consumer evidence exposes a KMP/JVM blocker.
+Do not begin M1 production weather providers or forecast algorithms until the M0.2 and M0.3 gates are completed and approved.
 
-Do not begin M1 production weather providers or forecast algorithms until M0.2 and M0.3 gates have been completed and approved; M0.1 and the production technology decision are complete.
+### M0.2 remaining work and model routing
+
+Routing follows the tiers in `AI_COST_POLICY.md` section 6. Each task has one primary owner agent. Sonnet and a balanced ChatGPT coding model are interchangeable for Sonnet-tier tasks. Opus-tier tasks are design or review work on public contracts, cross-platform cancellation, or decisions the owner must approve, where a stronger pass is likely to prevent rework. If Opus is unavailable within the approved allowance, a Sonnet-tier agent may do the task and the handoff is marked **"Opus review pending"**. No routing here authorizes paid overages.
+
+| ID | Task | Owner tier | Depends on | Done when |
+|---|---|---|---|---|
+| S1 | Stabilize PR #20 CI: point the Darwin partial-response fixture at IPv4 loopback, diagnose the intermittent Darwin transport-error assertion, and confirm the visibility fix compiles on every target | Sonnet | — | One full green matrix on the PR #20 head; the root cause is recorded. Escalate to Opus after two failed diagnoses. |
+| O1 | Design sample-level time and provenance: a feature result as a series of samples, each with its own valid time or interval, issue/fetch time, lead time, source, contributors and transformation. Must cover instantaneous, interval, accumulation and min/max semantics without implementing blending | Opus | — | Short design note plus revised public type sketch in the M0.2 spec, with the trade-offs recorded |
+| S2 | Implement O1 in the experimental contract code and all three standalone consumers (JVM, Android, Swift), with deterministic contract tests | Sonnet | O1 | Contract tests pass on the full matrix; no provider DTO or database type is public |
+| O2 | Specify engine lifecycle and cancellation: create/close idempotence, in-flight work on close, concurrent requests, and the rule that a cancelled or interrupted write is never committed as complete. Include the Swift facade shape and a recommendation on adopting KMP-NativeCoroutines (dependency footprint, licence metadata caveat, toolchain pinning) using PR #21 and PR #24 evidence | Opus | — | Spec section plus an owner-facing recommendation; any new dependency is flagged as an owner decision |
+| S3 | Implement and test the O2 semantics: close/idempotence and cancelled-write tests on the in-memory store, and Swift/Android/JVM consumer-boundary cancellation tests through the chosen facade | Sonnet | O2 | Deterministic tests pass on every target; per-target results reported separately |
+| S4 | Freshness and offline contract tests with a fake clock: fresh, stale-but-usable, expired and unavailable outcomes, plus offline return of cached values with their original times | Sonnet | — | One strong contract test per outcome; no duplicate assertions across layers |
+| S5 | Acceptance evidence: a dependency diagram showing core has no dependency on Solstice, UI, hosted services or AI (generated from Gradle where possible), and a record of Android/iOS/JVM interop constraints against M0.1 results | Sonnet | — | Doc committed alongside the generated output it was derived from |
+| O3 | Owner decision package for the six decisions in `docs/specs/M0_2_PUBLIC_API_STORAGE.md` section 8: request/result shape, error and partial-result boundary, cache/history categories and retention defaults (no single global retention), pre-1.0 API stability and versioning, persistence-schema versioning independent of the API, and the cancellation/Swift shape from O2 | Opus | O1, O2 | One concise decision register with a recommendation, alternatives and consequences for each item |
+| O4 | Independent final review of the PR #20 diff before the owner is asked to approve: correctness, hidden assumptions, missing boundary tests, privacy (no coordinates or secrets in problems or logs), compatibility | Opus | S1–S5 | Findings verified by the primary agent; each one fixed or answered |
+| H1 | Status hygiene: keep `PLAN.md` section 16, `PROJECT_OVERVIEW.md` and the Wiki drafts in sync after merges | Haiku or Sonnet | merges | Status statements match live GitHub |
+
+**Suggested order:** S1, O1 and O2 can run at the same time because they are independent; give each a separate session with a concise handoff. Then S2, S3 and S4, then S5, O3, O4, and finally owner review. Do not run two agents on the same implementation task.
+
+**Escalation inside a Sonnet task:** move to Opus, or mark "Opus review pending", when a fix touches a public type, cancellation or concurrency semantics, or persistence atomicity, or when a failure survives two evidence-based diagnoses.
+
+**Owner-only decisions (no agent decides):** final public API approval, adopting KMP-NativeCoroutines or any other new production dependency, retention defaults, the versioning policy, and merging any PR.

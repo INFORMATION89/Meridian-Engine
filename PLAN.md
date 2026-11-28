@@ -487,7 +487,7 @@ Before the first production weather milestone:
 4. Replace stale implementation instructions that conflict with current milestones or owner decisions.
 5. Reconcile RULES.md, AGENTS.md, and AI_POLICY.md with technical autonomy, strategic approval boundaries, current PR/CI workflow, and cost-aware testing/context management.
 6. Keep provider/model-specific guides under docs/agent-guides/ optional, concise, and dated; update or retire them when the provider's product, usage meter, context controls, model, or pricing changes.
-6. Keep `AI_IMPLEMENTATION_PLAN.md` and `PROJECT_OVERVIEW.md` synchronized with this master plan. They are derived views for different audiences, not independent sources of requirements; update them whenever an approved master-plan change affects their content.
+7. Keep `AI_IMPLEMENTATION_PLAN.md` and `PROJECT_OVERVIEW.md` synchronized with this master plan. They are derived views for different audiences, not independent sources of requirements; update them whenever an approved master-plan change affects their content.
 
 Do not copy Solstice's UI plan into Meridian. Solstice keeps its own application and consumer-integration plan.
 
@@ -543,15 +543,19 @@ The responsible agent should research these, recommend a bounded solution, recor
 
 - [PR #15](https://github.com/INFORMATION89/Meridian-Engine/pull/15) merged the MER-0.1 platform proof into main. CI [#224](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45874428103) passed all five jobs.
 - The owner approved KMP + Ktor + optional SQLDelight/SQLite, JVM-first desktop, and a Swift-friendly iOS facade. The decision is recorded in [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.md).
-- [PR #19](https://github.com/INFORMATION89/Meridian-Engine/pull/19) records the formal approval, reconciles project instructions, and updates the M0.2 handoff. It is open for review; do not claim it is merged until GitHub confirms.
+- [PR #19](https://github.com/INFORMATION89/Meridian-Engine/pull/19) (formal baseline approval) merged on 2026-11-27.
 - [PR #16](https://github.com/INFORMATION89/Meridian-Engine/pull/16) was closed as superseded after its branch became stale. Its accepted meteorological-versus-consumer responsibility boundary has been preserved in ADR-0002 and the current master-plan/PR #19 changes.
 - Android x86_64 emulator, ARM64 iOS simulator with Swift consumer, and JVM desktop consumers on Windows, macOS, and Linux were exercised. The dependency/license audit passed.
 - Android ARM64 runtime, physical Android/iOS devices, native desktop ABIs, and final mobile release-package notice inclusion remain **NOT TESTED**. Mobile notice staging and verification are mandatory before public mobile distribution.
 - The probe app-image sizes (Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB) are not release-size guarantees.
-- [PR #17](https://github.com/INFORMATION89/Meridian-Engine/pull/17) remains a separate draft concerning AI model-routing guidance. It has not received its optional advanced review and is not a blocker for M0.2.
-- [PR #18](https://github.com/INFORMATION89/Meridian-Engine/pull/18) concerns the versioned GitHub Wiki publisher and its one-time WIKI_TOKEN setup; it is separate from the engine architecture decision.
-- [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) proposes the M0.2 public API and optional storage contract; all API/storage details in it remain subject to owner review.
-- [PR #21](https://github.com/INFORMATION89/Meridian-Engine/pull/21) adds a focused Swift async/coroutine-cancellation proof using the existing probe. CI run #226 is in progress; do not accept the proof until the Apple/iOS job passes.
+- [PR #17](https://github.com/INFORMATION89/Meridian-Engine/pull/17) (AI model routing) and [PR #18](https://github.com/INFORMATION89/Meridian-Engine/pull/18) (versioned Wiki publisher) are merged.
+- [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) is the open M0.2 contract prototype. CI #266 was its last fully green code head; later visibility fixes and an intermittent Darwin `localhost` fixture failure are still being verified. Its branch carries ADR-0004 (no host-supplied storage SPI in v1); that decision is not on `main` until PR #20 merges. Known contract gap: feature payloads have one valid time and one provenance record, but sample-level time and provenance are required.
+- [PR #21](https://github.com/INFORMATION89/Meridian-Engine/pull/21) is closed. Its evidence (CI #232) showed that direct Swift `async` over the generated completion-handler bridge does **not** propagate Swift Task cancellation into Kotlin.
+- Draft [PR #24](https://github.com/INFORMATION89/Meridian-Engine/pull/24) shows KMP-NativeCoroutines 1.0.7 propagating Swift Task cancellation (CI #251 attempt 3, 5/5 jobs). Adopting it as a production dependency is still an open M0.2 decision.
+- Draft [PR #25](https://github.com/INFORMATION89/Meridian-Engine/pull/25) (M0.3 specification) and Wiki drafts [PR #22](https://github.com/INFORMATION89/Meridian-Engine/pull/22) and [PR #26](https://github.com/INFORMATION89/Meridian-Engine/pull/26) are not M0.2 blockers.
+- Live GitHub state takes precedence over this list; update it when a PR merges or closes.
+
+Task-level model routing for the remaining M0.2 work is in `AI_IMPLEMENTATION_PLAN.md` section 13.
 
 ### Active task: M0.2 public API and storage contracts
 
