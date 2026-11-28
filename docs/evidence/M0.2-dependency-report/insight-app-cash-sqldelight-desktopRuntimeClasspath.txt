@@ -1,0 +1,113 @@
+
+> Configure project :engine
+w: ⚠️ Native task 'iosSimulatorArm64Test' is disabled
+Task 'iosSimulatorArm64Test' for target 'ios_simulator_arm64' cannot run on the current host (linux-x86_64).
+Reason: simulator tests require macOS
+Solution: To suppress this warning, add 'kotlin.native.ignoreDisabledTargets=true' to gradle.properties.
+
+
+> Task :engine:dependencyInsight
+app.cash.sqldelight:jdbc-driver:2.4.1
+  Variant runtimeElements:
+    | Attribute Name                     | Provided     | Requested    |
+    |------------------------------------|--------------|--------------|
+    | org.gradle.dependency.bundling     | external     |              |
+    | org.gradle.jvm.version             | 8            |              |
+    | org.gradle.libraryelements         | jar          |              |
+    | org.gradle.status                  | release      |              |
+    | org.gradle.category                | library      | library      |
+    | org.gradle.jvm.environment         | standard-jvm | standard-jvm |
+    | org.gradle.usage                   | java-runtime | java-runtime |
+    | org.jetbrains.kotlin.platform.type | jvm          | jvm          |
+   Selection reasons:
+      - By ancestor
+      - By constraint: Dependency version enforced by Dependency Locking
+
+app.cash.sqldelight:jdbc-driver:{strictly 2.4.1} -> 2.4.1
+\--- desktopRuntimeClasspath
+
+app.cash.sqldelight:jdbc-driver:2.4.1
+\--- app.cash.sqldelight:sqlite-driver:2.4.1
+     \--- desktopRuntimeClasspath
+
+app.cash.sqldelight:runtime:2.4.1
+  Variant jvmRuntimeElements-published:
+    | Attribute Name                     | Provided     | Requested    |
+    |------------------------------------|--------------|--------------|
+    | org.gradle.libraryelements         | jar          |              |
+    | org.gradle.status                  | release      |              |
+    | org.gradle.category                | library      | library      |
+    | org.gradle.jvm.environment         | standard-jvm | standard-jvm |
+    | org.gradle.usage                   | java-runtime | java-runtime |
+    | org.jetbrains.kotlin.platform.type | jvm          | jvm          |
+   Selection reasons:
+      - By constraint: Dependency version enforced by Dependency Locking
+      - By ancestor
+
+app.cash.sqldelight:runtime:2.4.1
+\--- desktopRuntimeClasspath
+
+app.cash.sqldelight:runtime:{strictly 2.4.1} -> 2.4.1
+\--- desktopRuntimeClasspath
+
+app.cash.sqldelight:runtime:2.4.1
+\--- app.cash.sqldelight:jdbc-driver:2.4.1
+     +--- desktopRuntimeClasspath (requested app.cash.sqldelight:jdbc-driver:{strictly 2.4.1})
+     \--- app.cash.sqldelight:sqlite-driver:2.4.1
+          \--- desktopRuntimeClasspath
+
+app.cash.sqldelight:runtime-jvm:2.4.1
+  Variant jvmRuntimeElements-published:
+    | Attribute Name                     | Provided     | Requested    |
+    |------------------------------------|--------------|--------------|
+    | org.gradle.libraryelements         | jar          |              |
+    | org.gradle.status                  | release      |              |
+    | org.gradle.category                | library      | library      |
+    | org.gradle.jvm.environment         | standard-jvm | standard-jvm |
+    | org.gradle.usage                   | java-runtime | java-runtime |
+    | org.jetbrains.kotlin.platform.type | jvm          | jvm          |
+   Selection reasons:
+      - By ancestor
+      - By constraint: Dependency version enforced by Dependency Locking
+
+app.cash.sqldelight:runtime-jvm:{strictly 2.4.1} -> 2.4.1
+\--- desktopRuntimeClasspath
+
+app.cash.sqldelight:runtime-jvm:2.4.1
+\--- app.cash.sqldelight:runtime:2.4.1
+     +--- desktopRuntimeClasspath
+     \--- app.cash.sqldelight:jdbc-driver:2.4.1
+          +--- desktopRuntimeClasspath (requested app.cash.sqldelight:jdbc-driver:{strictly 2.4.1})
+          \--- app.cash.sqldelight:sqlite-driver:2.4.1
+               \--- desktopRuntimeClasspath
+
+app.cash.sqldelight:sqlite-driver:2.4.1
+  Variant runtimeElements:
+    | Attribute Name                     | Provided     | Requested    |
+    |------------------------------------|--------------|--------------|
+    | org.gradle.dependency.bundling     | external     |              |
+    | org.gradle.jvm.version             | 8            |              |
+    | org.gradle.libraryelements         | jar          |              |
+    | org.gradle.status                  | release      |              |
+    | org.gradle.category                | library      | library      |
+    | org.gradle.jvm.environment         | standard-jvm | standard-jvm |
+    | org.gradle.usage                   | java-runtime | java-runtime |
+    | org.jetbrains.kotlin.platform.type | jvm          | jvm          |
+   Selection reasons:
+      - By constraint: Dependency version enforced by Dependency Locking
+
+app.cash.sqldelight:sqlite-driver:2.4.1
+\--- desktopRuntimeClasspath
+
+app.cash.sqldelight:sqlite-driver:{strictly 2.4.1} -> 2.4.1
+\--- desktopRuntimeClasspath
+
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+[Incubating] Problems report is available at: file:///home/user/Meridian-Engine/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.0/userguide/configuration_cache_enabling.html
