@@ -119,7 +119,7 @@ A weighted share or fraction of deterministic models above a rain threshold is *
 
 ## 9. Storage, caching and scheduling
 
-- The core defines consumer-neutral contracts. Persistent storage is optional; the host may use a validated optional storage implementation or a host-supplied adapter only after the M0.2 contract is approved. Do not assume Room, SQLDelight, SQLite, or another database is selected for production.
+- The core defines consumer-neutral weather contracts. Persistent storage is optional and the Storage SPI is internal to Meridian for v1; consuming apps cannot provide their own adapters (ADR-0004). The optional official SQLDelight/SQLite implementation stays behind the internal boundary and is not required by the public API. A public SPI may be reconsidered only by a separate owner-approved ADR supported by a concrete independent-consumer need.
 - Keep response cache, issued-forecast snapshots, observation history, the short local learning/verification window, and long-term historical/climatological datasets as distinct data categories with separate retention, licensing, and deletion rules.
 - The host owns the application lifecycle, settings, secure credential storage, saved places, and refresh scheduling. Meridian never stores a saved-place list or schedules background refreshes itself.
 - Honour source update cadence, published cache/expiry metadata, rate limits, and terms; never call a source more frequently than permitted.

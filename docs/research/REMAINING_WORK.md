@@ -88,7 +88,7 @@ The draft proposal is conceptually sound, but these choices must be explicit bef
 - [ ] **Cancellation:** define Kotlin suspend cancellation, Swift bridging/cancellation, Java/JVM behaviour, and the rule that cancelled writes cannot be committed as complete.
 - [ ] **Engine lifecycle:** define create/close, idempotence, in-flight operations, concurrency, and resource disposal.
 - [ ] **Storage optionality:** confirm core operation without persistent storage.
-- [ ] **Custom storage:** decide whether host-supplied storage is a v1 requirement or a design goal pending proof. If supported, define a small conformance test suite and ownership of transactions, concurrency, schema versioning, and deletion.
+- [x] **Custom storage SPI visibility:** decided for v1 — internal only; no host-supplied storage adapters. See ADR-0004 (2026-11-27). Reconsider a public SPI only for a demonstrated independent-consumer need and a separate owner-approved ADR with conformance, compatibility, transaction, concurrency, deletion, and privacy guarantees.
 - [ ] **Cache vs history:** keep response-cache expiry separate from forecast/observation verification-history retention.
 - [ ] **Retention:** no 30-day default is adopted. Decide whether history is disabled by default, configurable and bounded, and independently deletable.
 - [ ] **Persistence compatibility:** define schema-version and safe-discard/migration behaviour independently from public API versioning.
