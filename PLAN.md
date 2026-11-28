@@ -153,7 +153,7 @@ This approval closes the M0.1 production-stack decision gate and authorizes deta
 - SQLDelight 2.4.1 is the approved initial implementation baseline behind an engine-owned, consumer-neutral storage contract.
 - Persistence remains optional. Meridian must provide a useful non-persistent mode and must not require a database merely to perform weather calculations.
 - Do not expose SQLDelight-generated types or SQLite implementation details in the public API.
-- M0.2 must specify schema ownership, migrations, transactions, concurrency, deletion/export, retention, cache expiry, verification-history retention, host-provided storage extension points, and failure behaviour.
+- M0.2 must specify schema ownership, migrations, transactions, concurrency, deletion/export, retention, cache expiry, verification-history retention, internal storage interfaces, and failure behaviour. Host-supplied storage adapters are excluded from v1 by ADR-0004.
 - Preserve the reviewed dependency and licence notices, including SQLite JDBC/native components for desktop packaging.
 
 ### Platform evidence and explicit limitations
@@ -189,7 +189,7 @@ The architecture is logical and modular. It does not require creating every modu
 - The domain/core owns normalized contracts and does not depend on providers, databases, UI frameworks, or consuming apps.
 - Provider adapters depend on core contracts; core never depends on provider DTOs.
 - Processing and algorithms receive validated normalized data and do not perform direct network requests.
-- Storage implementations depend on storage contracts; core does not depend on a database vendor.
+- Official storage implementations depend on Meridian's internal storage contracts; core does not depend on a database vendor. Consumers cannot implement storage adapters through the v1 public API.
 - Platform-specific drivers are injected or selected through narrow factories.
 - Consumer applications use the public API only. They must not import private adapter or persistence types.
 - Tests and verification tools must run without checking out or building Solstice.
@@ -211,7 +211,7 @@ Meridian must distinguish different kinds of stored data instead of applying one
 
 ### Storage rules
 
-- Local storage is the default. No remote database or synchronization is mandatory.
+- Local storage is the default when the optional official persistence module is enabled. No remote database or synchronization is mandatory. Persistence remains optional; the Storage SPI is internal in v1 (ADR-0004).
 - The host owns saved places and application settings; Meridian must not become a location-history tracker.
 - Every dataset records provenance, licence, source, time coverage, geographic coverage, resolution, quality, and restrictions.
 - Cache expiry follows provider cadence, HTTP metadata, terms, and rate limits.
@@ -528,7 +528,7 @@ See [ADR-0003](docs/decisions/ADR-0003-approved-production-technology-baseline.m
 
 - Exact public API shape, cancellation, errors, lifecycle, and compatibility/versioning rules.
 - Platform artifact/architecture matrix and Swift facade ergonomics.
-- Storage schema, migrations, transactions, concurrency, retention, deletion/export, and host-provided storage extension contract.
+- Storage schema, migrations, transactions, concurrency, retention, deletion/export, and internal storage guarantees. Host-supplied storage adapters are excluded from v1 by ADR-0004.
 - HTTP lifecycle, timeout budgets, TLS/proxy/redirect policy, and typed error mapping.
 - Exact provider/model list and provider eligibility by region.
 - Historical archive formats, datasets, licence, and retention.
@@ -550,19 +550,22 @@ The responsible agent should research these, recommend a bounded solution, recor
 - The probe app-image sizes (Linux 183.0 MiB, Windows 169.7 MiB, macOS 171.7 MiB) are not release-size guarantees.
 - [PR #17](https://github.com/INFORMATION89/Meridian-Engine/pull/17) remains a separate draft concerning AI model-routing guidance. It has not received its optional advanced review and is not a blocker for M0.2.
 - [PR #18](https://github.com/INFORMATION89/Meridian-Engine/pull/18) concerns the versioned GitHub Wiki publisher and its one-time WIKI_TOKEN setup; it is separate from the engine architecture decision.
-- [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) proposes the M0.2 public API and optional storage contract; all API/storage details in it remain subject to owner review.
-- [PR #21](https://github.com/INFORMATION89/Meridian-Engine/pull/21) adds a focused Swift async/coroutine-cancellation proof using the existing probe. CI run #226 is in progress; do not accept the proof until the Apple/iOS job passes.
+- [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) contains the isolated, opt-in M0.2 API contract proof and fake-source consumers for desktop, Android, and Swift. Code head validated by CI #266: `b32f5abbf67cfd62d6a7ed410caa3448d303e5cf`. Latest PR head: `1c389f746400b9010af5666eaa610e53edf5ddb2` (documentation-only reconciliation; excluded from executable CI). [CI #266](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45958135944) passed all five jobs: Windows desktop, Linux desktop, Android x86_64 emulator, Apple/iOS simulator plus native Swift consumer, and dependency/license audit. Native Swift XCTest passed 11/11, including empty/partial response mapping. The current head also strips untrusted free-form problem details returned by source adapters for `Partial`, `Unavailable`, and `Failed` outcomes; a deterministic regression test verifies that token- and coordinate-bearing text does not cross the public boundary while typed problem codes remain. The earlier [CI #265](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45956670604) failure was isolated to the empty-response test resolving `localhost` to IPv6 while the fixture server binds IPv4; the current empty-response URL uses IPv4 loopback and CI #266 passed. The partial-response test still uses `localhost`; it passed in #266 but should be normalized in a later, separately approved CI batch to remove the remaining resolver variance. API shapes and all code under `io.meridian.contractspike` remain experimental and subject to owner review.
+- [PR #25](https://github.com/INFORMATION89/Meridian-Engine/pull/25) is a draft M0.3 forecast/observation verification specification stacked on the M0.2 branch. It is documentation/research only, does not authorize production algorithms, and must not be merged independently of its M0.2 base.
+- [PR #21](https://github.com/INFORMATION89/Meridian-Engine/pull/21) preserved the original direct suspend-to-Swift bridge test; it exposed that Swift Task cancellation did not propagate through the generated completion-handler path. PR #24 supersedes that cancellation experiment with KMP-NativeCoroutines.
+- The M0.2 spike is marked with a Kotlin opt-in annotation so experimental contract types cannot be consumed silently from Kotlin production code. Its sample distinguishes an observation timestamp from forecast issue time and derives forecast lead from issue-to-valid time; these fields are prototype semantics, not yet an owner-approved public API.
+- [PR #24](https://github.com/INFORMATION89/Meridian-Engine/pull/24) validates KMP-NativeCoroutines 1.0.7 as an experimental Swift cancellation bridge. [CI #251 attempt 3](https://github.com/INFORMATION89/Meridian-Engine/actions/runs/45916840825) passed all five jobs; native Swift XCTest passed 12/12, including Swift Task cancellation into a Kotlin suspend coroutine. Android host plus eight emulator tests, Linux/Windows/macOS desktop, and dependency/license audit passed. This proves only the tested Kotlin 2.4.21 / NativeCoroutines 1.0.7 / Xcode simulator combination; do not treat it as production dependency approval.
 
 ### Active task: M0.2 public API and storage contracts
 
 1. Define a small, consumer-neutral batch request/result API. Keep provider DTOs, database rows, platform-specific types, and application advice out of public contracts.
 2. Specify request configuration, lifecycle ownership, cancellation propagation, typed errors, partial results, source diagnostics, and freshness semantics.
-3. Specify the optional storage boundary: host-supplied implementation expectations, SQLDelight-backed implementation boundary, in-memory/no-persistence operation, schema/versioning, atomicity, concurrency, retention, deletion, and recovery.
+3. Specify the internal optional storage boundary: official SQLDelight-backed implementation, internal in-memory/no-persistence operation, schema/versioning, atomicity, concurrency, retention, deletion, and recovery. Do not expose a host-supplied storage adapter in v1 (ADR-0004).
 4. Specify response-cache, issued-forecast archive, observation history, and longer-term meteorological datasets as separate categories. Preserve provenance and issue/measurement/fetch/valid times.
-5. Design and test a Swift-friendly facade for async operations and cancellation; M0.1 proved basic framework consumption, not the ergonomics of the final weather API.
+5. Keep the Kotlin suspend API canonical and design a narrow Swift-friendly async facade. PR #24 proves a KMP-NativeCoroutines 1.0.7 path for Swift Task cancellation on the tested toolchain; evaluate that experiment for the facade without silently adopting the dependency into production.
 6. Build a standalone consumer that imports only Meridian's public API. It must not check out or depend on Solstice.
-7. Run deterministic contract tests using fake clocks, fake transports, in-memory storage, and fixture sources. Verify offline, stale, unavailable, partial failure, and cancellation behaviour.
-8. Prepare explicit recommendations for public API stability/versioning, host-supplied storage extension guarantees, and retention defaults. Request owner review only for those genuine contract decisions.
+7. Run deterministic contract tests using fake clocks, fake transports, in-memory storage, and fixture sources. Verify offline, stale-age limits, expired-cache refresh, unavailable, partial failure, cache read/write faults, and cancellation behaviour.
+8. Prepare explicit recommendations for public API stability/versioning and retention defaults. Storage SPI visibility is decided: internal for v1 (ADR-0004). Request owner review only for remaining genuine contract decisions.
 
 M0.2 must not implement live weather providers, production forecast algorithms, source blending, official-alert ingestion, local learning, radar, remote services, telemetry, or UI.
 

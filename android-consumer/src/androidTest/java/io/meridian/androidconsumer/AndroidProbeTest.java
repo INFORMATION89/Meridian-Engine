@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.meridian.probe.AndroidStorageProbe;
+import io.meridian.contractspike.AndroidContractSpike;
 import io.meridian.probe.MeridianProbe;
 import io.meridian.probe.ProbeErrorCode;
 import io.meridian.probe.ProbeFailure;
@@ -16,6 +17,15 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AndroidProbeTest {
     private static final long DEFAULT_TIMEOUT_MILLIS = 5_000L;
+
+
+    @Test
+    public void consumesM02WeatherContractWithoutSolstice() {
+        assertEquals(
+            "current=available;hourly=unavailable;air=18.0C;apparent=21.0C",
+            AndroidContractSpike.verifySampleRequest()
+        );
+    }
 
     @Test
     public void loadsSharedProbeAndMapsTypedFailure() {

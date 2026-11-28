@@ -3,6 +3,27 @@ import MeridianShared
 @testable import MeridianSwiftConsumer
 
 final class ProbeUseTests: XCTestCase {
+
+    func testSwiftConsumesM02WeatherContractWithoutSolstice() async throws {
+        let finished = expectation(description: "M0.2 Kotlin suspend contract returns to Swift")
+        let operation = Task {
+            do {
+                let summary = try await WeatherContractDemo.shared.verifySampleRequest()
+                XCTAssertEqual(
+                    summary,
+                    "current=available;hourly=unavailable;air=18.0C;apparent=21.0C"
+                )
+                finished.fulfill()
+            } catch {
+                XCTFail("M0.2 suspend contract failed: \(error)")
+                finished.fulfill()
+            }
+        }
+
+        await fulfillment(of: [finished], timeout: 5)
+        operation.cancel()
+    }
+
     func testSwiftCanCallSharedKotlinFramework() {
         XCTAssertEqual(ProbeUse.run(), "meridian:13")
         XCTAssertEqual(MeridianProbe().version, "0.1.0")
@@ -28,7 +49,7 @@ final class ProbeUseTests: XCTestCase {
 
     func testDarwinEngineRequestsLocalFixture() async throws {
         let body = try await IosKtorProbe.shared.fetchFixture(
-            url: "http://localhost:8765/probe.json",
+            url: "http://127.0.0.1:8765/probe.json",
             timeoutMillis: 5_000
         )
         XCTAssertEqual(body, #"{"status":"ok","source":"local-fixture"}"#)
@@ -36,12 +57,12 @@ final class ProbeUseTests: XCTestCase {
 
     func testDarwinEngineMapsHttpAndMalformedResponses() async throws {
         let status = try await IosKtorProbe.shared.verifyHttpStatusFailure(
-            url: "http://localhost:8765/status/503"
+            url: "http://127.0.0.1:8765/status/503"
         )
         XCTAssertTrue(status.boolValue)
 
         let malformed = try await IosKtorProbe.shared.verifyMalformedResponseFailure(
-            url: "http://localhost:8765/malformed.json"
+            url: "http://127.0.0.1:8765/malformed.json"
         )
         XCTAssertTrue(malformed.boolValue)
     }
@@ -59,15 +80,19 @@ final class ProbeUseTests: XCTestCase {
     }
 
     func testDarwinEngineMapsEmptyAndPartialResponses() async throws {
-        let empty = try await IosKtorProbe.shared.verifyEmptyResponseFailure(
-            url: "http://localhost:8765/empty.json"
+        // Use IPv4 loopback, matching the fixture server's bind address.
+        // macOS may resolve localhost to ::1 first, while this CI server is IPv4-only.
+        let emptyCode = try await IosKtorProbe.shared.fixtureFailureCode(
+            url: "http://127.0.0.1:8765/empty.json",
+            timeoutMillis: 5_000
         )
-        XCTAssertTrue(empty.boolValue)
+        XCTAssertEqual(emptyCode, "EMPTY_RESPONSE", "Unexpected mapping for an empty HTTP body")
 
-        let partial = try await IosKtorProbe.shared.verifyPartialResponseFailure(
-            url: "http://localhost:8765/partial.json"
+        let partialCode = try await IosKtorProbe.shared.fixtureFailureCode(
+            url: "http://localhost:8765/partial.json",
+            timeoutMillis: 5_000
         )
-        XCTAssertTrue(partial.boolValue)
+        XCTAssertEqual(partialCode, "PARTIAL_RESPONSE", "Unexpected mapping for a partial fixture body")
     }
 
     func testDarwinEnginePropagatesRequestCancellation() async throws {

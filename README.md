@@ -33,7 +33,7 @@ The initial production baseline is KMP + Ktor + optional SQLDelight/SQLite, with
 - Weather values must eventually retain units, timestamps, freshness, quality information, and source provenance.
 - Provider-specific data belongs inside provider adapters.
 - Ordinary engine use must not require an AI provider, model, credential, or token spend.
-- Persistent storage is optional and must remain behind a consumer-neutral boundary.
+- Persistent storage is optional and remains behind Meridian's internal storage boundary in v1; consumers cannot inject custom storage adapters. See [ADR-0004](docs/decisions/ADR-0004-internal-storage-spi-v1.md).
 - Network access, telemetry, analytics, and external data sharing must be explicit, documented, and separately consented to; telemetry is not part of this M0.1 spike.
 
 ## Development and verification
