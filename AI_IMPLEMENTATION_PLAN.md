@@ -381,16 +381,67 @@ At the latest recorded review on 2026-11-26:
 - No production weather provider, production forecast pipeline, stable public API, or production storage contract is authorized merely by the current platform proof.
 - Root LICENSE/README bootstrap and complete direct/transitive licensing/NOTICE decisions remain part of M0.
 
-### Next bounded task
+### Status update (2026-11-28)
 
-Continue the preserved MER-0.1 source branch and open/recreate its PR when the evidence and review package are ready. Finish the outstanding evidence on the exact current branch head:
+M0.1 is complete, and PRs #17, #18 and #19 are merged. The earlier MER-0.1 "next bounded task" list is superseded. M0.2 work happens on [PR #20](https://github.com/INFORMATION89/Meridian-Engine/pull/20) (contract prototype) and draft [PR #24](https://github.com/INFORMATION89/Meridian-Engine/pull/24) (Swift cancellation bridge). See `PLAN.md` section 16 for repository status.
 
-1. Confirm latest checks still match the exact head SHA.
-2. Exercise actual Android, Darwin, and JVM Ktor engines using deterministic fixtures.
-3. Verify timeout, transport/parse errors, cancellation, cleanup, and consumer-boundary behaviour.
-4. Verify the approved SQLDelight/SQLite implementation boundary only as needed to design the M0.2 contract; do not build the production schema during M0.2.
-5. Complete direct/transitive licence inventory and NOTICE decision.
-6. Record package/runtime implications and the exact compatibility matrix.
-7. Record the approved KMP baseline and defer Rust/UniFFI unless concrete consumer evidence exposes a KMP/JVM blocker.
+Do not begin M1 production weather providers or forecast algorithms until the M0.2 and M0.3 gates are completed and approved.
 
-Do not begin M1 production weather providers or forecast algorithms until M0.2 and M0.3 gates have been completed and approved; M0.1 and the production technology decision are complete.
+### M0.2 remaining work and model routing
+
+Routing follows the tiers in `AI_COST_POLICY.md` section 6. Opus is a working tool like the others, not just a reviewer. The point of routing is to plan ahead which work each tool does, so the scarcest allowance goes where it changes the outcome. Each task has exactly one primary owner. No routing here authorizes paid overages, extra credits or an API fallback.
+
+#### Tool tiers
+
+| Tier | Tools | Use it for | Do not use it for |
+|---|---|---|---|
+| **O: Opus** | Claude Opus, in Claude Code with repository access | Designing public contracts and data semantics; cross-platform cancellation, lifecycle and concurrency design; trade-off analysis for owner decisions; difficult bugs that survived two diagnoses; independent review of high-risk diffs. May plan, implement or review in these areas | Routine implementation, test scaffolding, mechanical edits, status updates, prose polishing |
+| **S: Sonnet** | Claude Sonnet in Claude Code, or a balanced ChatGPT/Codex coding model with repository access (interchangeable) | Implementing approved designs; contract tests; CI diagnosis and fixes; consumer samples; technical documentation that needs repository reading | Making public-contract or dependency decisions on its own; work small enough for Haiku |
+| **H: Haiku** | Claude Haiku in Claude Code | Repository work that is mechanical and easy to verify: status-line sync, link and formatting fixes, regenerating outputs with existing scripts, renumbering, collecting CI results into a table | Anything needing design judgement or where a mistake is hard to spot |
+| **F: ChatGPT Free** | Free ChatGPT plan with GitHub access (it can branch, push and open PRs). Every session starts with `docs/agent-guides/CHATGPT_FREE_STARTER.md` | Bounded documentation and Wiki work; plain-language explainers for the owner; PR descriptions and handoffs; clarity reviews; tier H work when Haiku is not in use; tier S work only when the owner assigns it explicitly | Tier O work; public API, cancellation, concurrency or storage semantics; dependency, lockfile or verification-metadata changes; CI workflow changes; merging; and **any content containing secrets, tokens, private data or precise personal locations** |
+
+#### Fallbacks
+
+- **Opus unavailable within the allowance:** a Sonnet-tier agent does the task and marks the handoff **"Opus review pending"**.
+- **Haiku unavailable:** use Sonnet.
+- **ChatGPT Free unavailable:** use Haiku, or skip the task when it is optional.
+- **Moving up a tier:** allowed when a task proves harder than expected. Record the reason in the handoff.
+- **Moving down a tier:** an O task may not be done by H or F.
+
+#### M0.2 work queue
+
+| ID | Task | Tier | Depends on | Done when |
+|---|---|---|---|---|
+| O1 | Design sample-level time and provenance: a feature result as a series of samples, each with its own valid time or interval, issue/fetch time, lead time, source, contributors and transformation. Must cover instantaneous, interval, accumulation and min/max semantics without implementing blending | O | — | Short design note plus revised public type sketch in the M0.2 spec, with the trade-offs recorded |
+| O2 | Specify engine lifecycle and cancellation: create/close idempotence, in-flight work on close, concurrent requests, and the rule that a cancelled or interrupted write is never committed as complete. Include the Swift facade shape and a recommendation on adopting KMP-NativeCoroutines (dependency footprint, licence metadata caveat, toolchain pinning) using PR #21 and PR #24 evidence | O | — | Spec section plus an owner-facing recommendation; any new dependency is flagged as an owner decision |
+| O3 | Owner decision register for the six decisions in `docs/specs/M0_2_PUBLIC_API_STORAGE.md` section 8: request/result shape, error and partial-result boundary, cache/history categories and retention defaults (no single global retention), pre-1.0 API stability and versioning, persistence-schema versioning independent of the API, and the cancellation/Swift shape from O2 | O | O1, O2 | One concise register with a recommendation, alternatives and consequences for each item |
+| O4 | Independent final review of the PR #20 diff before the owner is asked to approve: correctness, hidden assumptions, missing boundary tests, privacy (no coordinates or secrets in problems or logs), compatibility | O | S1–S5 | Findings verified by the primary agent; each one fixed or answered |
+| S1 | Stabilize PR #20 CI: point the Darwin partial-response fixture at IPv4 loopback, diagnose the intermittent Darwin transport-error assertion, and confirm the visibility fix compiles on every target | S | — | One full green matrix on the PR #20 head; the root cause is recorded. Move to O after two failed diagnoses |
+| S2 | Implement O1 in the experimental contract code and all three standalone consumers (JVM, Android, Swift), with deterministic contract tests | S | O1 | Contract tests pass on the full matrix; no provider DTO or database type is public |
+| S3 | Implement and test the O2 semantics: close/idempotence and cancelled-write tests on the in-memory store, and Swift/Android/JVM consumer-boundary cancellation tests through the chosen facade | S | O2 | Deterministic tests pass on every target; per-target results reported separately |
+| S4 | Freshness and offline contract tests with a fake clock: fresh, stale-but-usable, expired and unavailable outcomes, plus offline return of cached values with their original times | S | — | One strong contract test per outcome; no duplicate assertions across layers |
+| S5 | Dependency diagram showing core has no dependency on Solstice, UI, hosted services or AI, written from H2's generated output, plus a record of Android/iOS/JVM interop constraints against M0.1 results | S | H2 | Doc committed next to the generated output it was derived from |
+| H1 | Status hygiene: keep `PLAN.md` section 16 and `PROJECT_OVERVIEW.md` status lines in sync with live GitHub after each merge or close | H | merges | Status statements match live GitHub |
+| H2 | Generate the Gradle dependency reports (`dependencies` / `dependencyInsight`) for the engine's published configurations and commit the raw output for S5 | H | — | Output committed with the exact command and commit SHA |
+| H3 | Mechanical doc checks on each docs PR: relative links resolve, list numbering, consistent PR/CI links | H | — | No broken relative links in changed files |
+| H4 | Collect per-target CI results (job, OS, architecture, pass/fail, test counts, artifact sizes) from a finished run into the AGENTS.md reporting table | H | any CI run | Table matches the run's logs |
+| H5 | Clean up after the 2026-11-26/27 work: rebase PR #25 so it contains only the M0.3 specification on `main`; list what `work/m0.2-contract-design` has that PR #20 lacks, so the owner can decide whether to archive it | H | — | PR #25's diff shows only spec files; the comparison is posted for the owner |
+| F1 | Rewrite O3's decision register as a plain-language explainer for the owner: what each choice means and what changes for a consumer | F | O3 | Explainer committed in one PR; every claim checked against O3 |
+| F2 | Finish Wiki drafts PR #22 (Week 1 summary) and PR #26 (Project Overview to Home) and squash each to a small number of commits | F | — | Each PR's facts match the repository and live GitHub |
+| F3 | Draft PR descriptions and end-of-session handoffs in the template format | F | per PR | The owning agent confirms every SHA, run number and result |
+| F4 | Clarity review of the O1 note and O2 section: flag unclear wording only, with no technical decisions | F | O1, O2 | Suggestions accepted or rejected by the section's O author |
+
+**Repository guardrails for all tiers** (from the 2026-11-26/27 review; the CI-skip rule and the PR template are enforced by `.github/workflows/pr-hygiene.yml`):
+
+1. Plan a change fully, then push it in few commits.
+2. Never tag a commit that changes non-documentation files with a CI-skip marker.
+3. Never hand-edit lockfiles, verification metadata or generated output; regenerate them with Gradle.
+4. Never stack a PR on another unmerged PR's commits while targeting `main`.
+5. Open a PR for every pushed branch, or delete the branch.
+6. Fill in every section of the PR template.
+
+**Suggested order:** start S1, O1, O2 and H2 at the same time; they are independent and each needs its own session with a concise handoff. Then S2, S3, S4 and S5, then O3, then F1 and O4, and finally owner review. H and F tasks fill gaps without blocking anything. Do not run two agents on the same task.
+
+**Moving up a tier mid-task:** an S task moves to O, or is marked "Opus review pending", when a fix touches a public type, cancellation or concurrency semantics, or persistence atomicity, or when a failure survives two evidence-based diagnoses. An H task moves to S when it needs judgement rather than a mechanical step.
+
+**Owner-only decisions (no agent decides):** final public API approval, adopting KMP-NativeCoroutines or any other new production dependency, retention defaults, the versioning policy, and merging any PR.

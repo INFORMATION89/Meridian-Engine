@@ -2,7 +2,7 @@
 
 **Scope:** Practical guidance for contributors using Claude Code, including the Code experience in Claude Desktop and the terminal/IDE integrations.  
 **Status:** Optional provider-specific supplement; it does not make Claude Code or any Claude model mandatory for Meridian.  
-**Last reviewed:** 2026-11-26  
+**Last reviewed:** 2026-11-28  
 **Authority:** PLAN.md, AGENTS.md, RULES.md, AI_POLICY.md, and AI_COST_POLICY.md remain authoritative. This guide cannot override them.  
 **Model note:** Claude Opus 5.5 is one supported model option, not the project's required default.
 
@@ -89,7 +89,7 @@ Claude Opus 5.5 is designed for demanding, long-running agentic coding and knowl
 
 Recommended approach:
 
-- Anthropic's current guidance positions Sonnet for most coding work, Opus for difficult debugging, broad refactors, and architectural reasoning, and Haiku for quick mechanical tasks. For Meridian, we narrow Opus's role further: keep initial implementation on the suitable available model, then use Opus as an optional advanced second review when that review is likely to reduce meaningful risk. This follows the project's AI_COST_POLICY and does not make Opus a default coding model. Anthropic also notes that Opus uses significantly more of a subscription quota than Sonnet, which is another reason to reserve this second pass for changes where it can materially reduce risk.
+- Anthropic's current guidance positions Sonnet for most coding work, Opus for difficult debugging, broad refactors, and architectural reasoning, and Haiku for quick mechanical tasks. For Meridian, follow `AI_COST_POLICY.md` section 6. Sonnet is the default for routine and standard coding. Opus is the escalation tier for advanced work (complex architecture, public-contract or cross-platform concurrency and cancellation design, stubborn failures) and an optional independent second review. In those cases it may plan, implement or review. Opus uses significantly more of a subscription quota than Sonnet, so use it only where it is likely to reduce meaningful risk or rework. The current task-by-task assignment across Opus, Sonnet, Haiku and ChatGPT Free is in `AI_IMPLEMENTATION_PLAN.md` section 13.
 - Use the model and effort that can complete the current task reliably; do not select Opus 5.5 for every small edit or simple documentation change merely because it is available.
 - Medium/default effort is a sensible starting point for ordinary coding and review. Increase effort for difficult debugging, security-sensitive work, high-impact architecture analysis, or scientific reasoning when the task warrants it.
 - Do not confuse model effort with a guaranteed quota cost or a quality guarantee. The provider's actual usage meter is authoritative.
@@ -126,11 +126,9 @@ Before ending or switching tasks:
 - [Models, usage, and limits in Claude Code](https://support.claude.com/en/articles/14552983-models-usage-and-limits-in-claude-code)
 - [Usage limit best practices](https://support.claude.com/en/articles/9797557-usage-limit-best-practices)
 - [How usage and length limits work](https://support.claude.com/en/articles/11647753-how-usage-and-length-limits-work)
-- [Claude Code usage limit best practices](https://support.claude.com/en/articles/9797557-usage-limit-best-practices)
 - [Explore the Claude Code context window](https://code.claude.com/docs/en/context-window)
 - [Manage Claude Code sessions](https://code.claude.com/docs/en/sessions)
 - [Claude Code troubleshooting](https://code.claude.com/docs/en/troubleshooting)
-- [Claude Code context window](https://code.claude.com/docs/en/context-window)
 - [Claude Opus 5.5 model overview](https://platform.claude.com/docs/en/models/opus-5-5/overview)
 - [Claude Code cheatsheet](https://support.claude.com/en/articles/14553413-claude-code-cheatsheet)
 

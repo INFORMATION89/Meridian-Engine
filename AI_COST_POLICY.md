@@ -109,6 +109,7 @@ Choose the least costly model that can reliably complete the task. Model names a
 - Use Work/Codex when repository-aware, terminal, or multi-step execution materially reduces handoffs. Do not start an autonomous workflow for a trivial deterministic edit.
 - Select reasoning effort proportionally. High effort is not the default for formatting, mechanical edits, or straightforward lookups.
 - Check current account entitlements and model availability; do not assume a particular plan, credit balance, or model access.
+- ChatGPT Free, including its GitHub repository access, is an approved no-cost option for bounded routine work: documentation, Wiki, explainers, PR descriptions and mechanical repository tasks. Start every session with `docs/agent-guides/CHATGPT_FREE_STARTER.md`. Do not use it for advanced-tier work, or for public-contract, dependency or CI-workflow changes, unless the owner assigns that explicitly. Share only content allowed under `AI_POLICY.md` section 5: never secrets, tokens, private data or precise personal locations. Check the account's current data-use settings before sharing anything non-public.
 
 #### Claude-specific rules
 
