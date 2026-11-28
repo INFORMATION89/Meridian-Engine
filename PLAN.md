@@ -555,7 +555,7 @@ The responsible agent should research these, recommend a bounded solution, recor
 - Draft [PR #25](https://github.com/INFORMATION89/Meridian-Engine/pull/25) (M0.3 specification) and Wiki drafts [PR #22](https://github.com/INFORMATION89/Meridian-Engine/pull/22) and [PR #26](https://github.com/INFORMATION89/Meridian-Engine/pull/26) are not M0.2 blockers.
 - Live GitHub state takes precedence over this list; update it when a PR merges or closes.
 
-Task-level model routing for the remaining M0.2 work is in `AI_IMPLEMENTATION_PLAN.md` section 13.
+Task-level routing of the remaining M0.2 work across Opus, Sonnet, Haiku and ChatGPT Free is in `AI_IMPLEMENTATION_PLAN.md` section 13.
 
 ### Active task: M0.2 public API and storage contracts
 
