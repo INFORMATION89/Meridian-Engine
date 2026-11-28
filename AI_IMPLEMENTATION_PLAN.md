@@ -398,7 +398,7 @@ Routing follows the tiers in `AI_COST_POLICY.md` section 6. Opus is a working to
 | **O: Opus** | Claude Opus, in Claude Code with repository access | Designing public contracts and data semantics; cross-platform cancellation, lifecycle and concurrency design; trade-off analysis for owner decisions; difficult bugs that survived two diagnoses; independent review of high-risk diffs. May plan, implement or review in these areas | Routine implementation, test scaffolding, mechanical edits, status updates, prose polishing |
 | **S: Sonnet** | Claude Sonnet in Claude Code, or a balanced ChatGPT/Codex coding model with repository access (interchangeable) | Implementing approved designs; contract tests; CI diagnosis and fixes; consumer samples; technical documentation that needs repository reading | Making public-contract or dependency decisions on its own; work small enough for Haiku |
 | **H: Haiku** | Claude Haiku in Claude Code | Repository work that is mechanical and easy to verify: status-line sync, link and formatting fixes, regenerating outputs with existing scripts, renumbering, collecting CI results into a table | Anything needing design judgement or where a mistake is hard to spot |
-| **F: ChatGPT Free** | Free ChatGPT web chat with no repository, terminal or CI access | Text-only work from material pasted in: plain-language explanations of decisions for the owner, wiki and overview prose, PR description drafts from bullet notes, clarity review of a pasted doc section, explaining concepts (for example semantic versioning or Swift structured concurrency) | Code changes, verification, anything needing the current repository state, and **any paste containing secrets, tokens, private data, precise personal locations or unreleased third-party data**. Its output is a draft: a repository-capable tier applies and checks it |
+| **F: ChatGPT Free** | Free ChatGPT plan with GitHub access (it can branch, push and open PRs). Every session starts with `docs/agent-guides/CHATGPT_FREE_STARTER.md` | Bounded documentation and Wiki work; plain-language explainers for the owner; PR descriptions and handoffs; clarity reviews; tier H work when Haiku is not in use; tier S work only when the owner assigns it explicitly | Tier O work; public API, cancellation, concurrency or storage semantics; dependency, lockfile or verification-metadata changes; CI workflow changes; merging; and **any content containing secrets, tokens, private data or precise personal locations** |
 
 #### Fallbacks
 
@@ -425,10 +425,20 @@ Routing follows the tiers in `AI_COST_POLICY.md` section 6. Opus is a working to
 | H2 | Generate the Gradle dependency reports (`dependencies` / `dependencyInsight`) for the engine's published configurations and commit the raw output for S5 | H | — | Output committed with the exact command and commit SHA |
 | H3 | Mechanical doc checks on each docs PR: relative links resolve, list numbering, consistent PR/CI links | H | — | No broken relative links in changed files |
 | H4 | Collect per-target CI results (job, OS, architecture, pass/fail, test counts, artifact sizes) from a finished run into the AGENTS.md reporting table | H | any CI run | Table matches the run's logs |
-| F1 | Rewrite O3's decision register as a plain-language explainer for the owner: what each choice means and what changes for a consumer | F | O3 | Draft handed to an S or H agent, who checks it against O3 and commits it |
-| F2 | Draft Wiki prose for drafts PR #22 (Week 1 summary) and PR #26 (Project Overview to Home) from pasted public doc excerpts | F | — | Draft applied by H, which checks every fact against the repository |
-| F3 | Draft PR descriptions and end-of-session handoffs from the agent's bullet notes, in the section 12 format | F | per PR | Applied by the owning agent, which confirms every SHA, run number and result |
-| F4 | Clarity review of pasted spec sections (O1 note, O2 section): flag unclear wording only, with no technical decisions | F | O1, O2 | Suggestions accepted or rejected by the section's O author |
+| H5 | Clean up after the 2026-11-26/27 work: rebase PR #25 so it contains only the M0.3 specification on `main`; list what `work/m0.2-contract-design` has that PR #20 lacks, so the owner can decide whether to archive it | H | — | PR #25's diff shows only spec files; the comparison is posted for the owner |
+| F1 | Rewrite O3's decision register as a plain-language explainer for the owner: what each choice means and what changes for a consumer | F | O3 | Explainer committed in one PR; every claim checked against O3 |
+| F2 | Finish Wiki drafts PR #22 (Week 1 summary) and PR #26 (Project Overview to Home) and squash each to a small number of commits | F | — | Each PR's facts match the repository and live GitHub |
+| F3 | Draft PR descriptions and end-of-session handoffs in the template format | F | per PR | The owning agent confirms every SHA, run number and result |
+| F4 | Clarity review of the O1 note and O2 section: flag unclear wording only, with no technical decisions | F | O1, O2 | Suggestions accepted or rejected by the section's O author |
+
+**Repository guardrails for all tiers** (from the 2026-11-26/27 review; the CI-skip rule and the PR template are enforced by `.github/workflows/pr-hygiene.yml`):
+
+1. Plan a change fully, then push it in few commits.
+2. Never tag a commit that changes non-documentation files with a CI-skip marker.
+3. Never hand-edit lockfiles, verification metadata or generated output; regenerate them with Gradle.
+4. Never stack a PR on another unmerged PR's commits while targeting `main`.
+5. Open a PR for every pushed branch, or delete the branch.
+6. Fill in every section of the PR template.
 
 **Suggested order:** start S1, O1, O2 and H2 at the same time; they are independent and each needs its own session with a concise handoff. Then S2, S3, S4 and S5, then O3, then F1 and O4, and finally owner review. H and F tasks fill gaps without blocking anything. Do not run two agents on the same task.
 
