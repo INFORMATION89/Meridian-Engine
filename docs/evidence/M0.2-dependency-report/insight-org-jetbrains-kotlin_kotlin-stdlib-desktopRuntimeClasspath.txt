@@ -1,0 +1,365 @@
+
+> Configure project :engine
+w: ⚠️ Native task 'iosSimulatorArm64Test' is disabled
+Task 'iosSimulatorArm64Test' for target 'ios_simulator_arm64' cannot run on the current host (linux-x86_64).
+Reason: simulator tests require macOS
+Solution: To suppress this warning, add 'kotlin.native.ignoreDisabledTargets=true' to gradle.properties.
+
+
+> Task :engine:dependencyInsight
+org.jetbrains.kotlin:kotlin-stdlib:2.4.21
+  Variant jvmRuntimeElements:
+    | Attribute Name                     | Provided     | Requested    |
+    |------------------------------------|--------------|--------------|
+    | org.gradle.libraryelements         | jar          |              |
+    | org.gradle.status                  | release      |              |
+    | org.gradle.category                | library      | library      |
+    | org.gradle.jvm.environment         | standard-jvm | standard-jvm |
+    | org.gradle.usage                   | java-runtime | java-runtime |
+    | org.jetbrains.kotlin.platform.type | jvm          | jvm          |
+   Selection reasons:
+      - By constraint: Dependency version enforced by Dependency Locking
+      - By ancestor
+
+org.jetbrains.kotlin:kotlin-stdlib:2.4.21
+\--- desktopRuntimeClasspath
+
+org.jetbrains.kotlin:kotlin-stdlib:{strictly 2.4.21} -> 2.4.21
+\--- desktopRuntimeClasspath
+
+org.jetbrains.kotlin:kotlin-stdlib:2.2.20 -> 2.4.21
++--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0
+|    +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:{strictly 1.11.0})
+|    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0
+|    |    +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-coroutines-bom:{strictly 1.11.0})
+|    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.11.0
+|    |    |    +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:{strictly 1.11.0})
+|    |    |    +--- io.ktor:ktor-client-core-jvm:3.6.1
+|    |    |    |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-core-jvm:{strictly 3.6.1})
+|    |    |    |    \--- io.ktor:ktor-client-core:3.6.1
+|    |    |    |         +--- desktopRuntimeClasspath
+|    |    |    |         \--- io.ktor:ktor-client-cio-jvm:3.6.1
+|    |    |    |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-cio-jvm:{strictly 3.6.1})
+|    |    |    |              \--- io.ktor:ktor-client-cio:3.6.1
+|    |    |    |                   \--- desktopRuntimeClasspath
+|    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0 (*)
+|    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0 (*)
+|    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0
+|         +--- desktopRuntimeClasspath
+|         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         +--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.11.0 (*)
+|         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0 (*)
+|         +--- io.ktor:ktor-http-cio-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-http-cio:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio:{strictly 3.6.1})
+|         |         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-websocket-serialization-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-websocket-serialization:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization:{strictly 3.6.1})
+|         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-serialization-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-serialization:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization:{strictly 3.6.1})
+|         |         \--- io.ktor:ktor-websocket-serialization-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-websockets-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-websockets:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets:{strictly 3.6.1})
+|         |         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|         |         \--- io.ktor:ktor-serialization-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-network-tls-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-network-tls:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls:{strictly 3.6.1})
+|         |         \--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-http-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-http:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http:{strictly 3.6.1})
+|         |         +--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         |         +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|         |         +--- io.ktor:ktor-websockets-jvm:3.6.1 (*)
+|         |         \--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-events-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-events-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-events:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-events:{strictly 3.6.1})
+|         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-sse-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-sse:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse:{strictly 3.6.1})
+|         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-network-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-network:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-network:{strictly 3.6.1})
+|         |         +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|         |         \--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-utils-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-utils:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils:{strictly 3.6.1})
+|         |         +--- io.ktor:ktor-websockets-jvm:3.6.1 (*)
+|         |         +--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+|         |         +--- io.ktor:ktor-http-jvm:3.6.1 (*)
+|         |         +--- io.ktor:ktor-events-jvm:3.6.1 (*)
+|         |         +--- io.ktor:ktor-sse-jvm:3.6.1 (*)
+|         |         \--- io.ktor:ktor-network-jvm:3.6.1 (*)
+|         \--- io.ktor:ktor-io-jvm:3.6.1
+|              +--- desktopRuntimeClasspath (requested io.ktor:ktor-io-jvm:{strictly 3.6.1})
+|              \--- io.ktor:ktor-io:3.6.1
+|                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-io:{strictly 3.6.1})
+|                   +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|                   \--- io.ktor:ktor-utils-jvm:3.6.1 (*)
+\--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.11.0 (*)
+
+org.jetbrains.kotlin:kotlin-stdlib:2.3.0 -> 2.4.21
++--- org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.9.1
+|    +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:{strictly 0.9.1})
+|    \--- org.jetbrains.kotlinx:kotlinx-io-bytestring:0.9.1
+|         +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-io-bytestring:{strictly 0.9.1})
+|         \--- org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.9.1
+|              +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-io-core-jvm:{strictly 0.9.1})
+|              \--- org.jetbrains.kotlinx:kotlinx-io-core:0.9.1
+|                   +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-io-core:{strictly 0.9.1})
+|                   \--- io.ktor:ktor-io-jvm:3.6.1
+|                        +--- desktopRuntimeClasspath (requested io.ktor:ktor-io-jvm:{strictly 3.6.1})
+|                        \--- io.ktor:ktor-io:3.6.1
+|                             +--- desktopRuntimeClasspath (requested io.ktor:ktor-io:{strictly 3.6.1})
+|                             +--- io.ktor:ktor-http-cio-jvm:3.6.1
+|                             |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio-jvm:{strictly 3.6.1})
+|                             |    \--- io.ktor:ktor-http-cio:3.6.1
+|                             |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio:{strictly 3.6.1})
+|                             |         +--- io.ktor:ktor-client-cio-jvm:3.6.1
+|                             |         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-cio-jvm:{strictly 3.6.1})
+|                             |         |    \--- io.ktor:ktor-client-cio:3.6.1
+|                             |         |         \--- desktopRuntimeClasspath
+|                             |         \--- io.ktor:ktor-client-core-jvm:3.6.1
+|                             |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-core-jvm:{strictly 3.6.1})
+|                             |              \--- io.ktor:ktor-client-core:3.6.1
+|                             |                   +--- desktopRuntimeClasspath
+|                             |                   \--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|                             \--- io.ktor:ktor-utils-jvm:3.6.1
+|                                  +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils-jvm:{strictly 3.6.1})
+|                                  \--- io.ktor:ktor-utils:3.6.1
+|                                       +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils:{strictly 3.6.1})
+|                                       +--- io.ktor:ktor-websockets-jvm:3.6.1
+|                                       |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets-jvm:{strictly 3.6.1})
+|                                       |    \--- io.ktor:ktor-websockets:3.6.1
+|                                       |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets:{strictly 3.6.1})
+|                                       |         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|                                       |         \--- io.ktor:ktor-serialization-jvm:3.6.1
+|                                       |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization-jvm:{strictly 3.6.1})
+|                                       |              \--- io.ktor:ktor-serialization:3.6.1
+|                                       |                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization:{strictly 3.6.1})
+|                                       |                   \--- io.ktor:ktor-websocket-serialization-jvm:3.6.1
+|                                       |                        +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization-jvm:{strictly 3.6.1})
+|                                       |                        \--- io.ktor:ktor-websocket-serialization:3.6.1
+|                                       |                             +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization:{strictly 3.6.1})
+|                                       |                             \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|                                       +--- io.ktor:ktor-network-tls-jvm:3.6.1
+|                                       |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls-jvm:{strictly 3.6.1})
+|                                       |    \--- io.ktor:ktor-network-tls:3.6.1
+|                                       |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls:{strictly 3.6.1})
+|                                       |         \--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|                                       +--- io.ktor:ktor-http-jvm:3.6.1
+|                                       |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-jvm:{strictly 3.6.1})
+|                                       |    \--- io.ktor:ktor-http:3.6.1
+|                                       |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http:{strictly 3.6.1})
+|                                       |         +--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|                                       |         +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|                                       |         +--- io.ktor:ktor-websockets-jvm:3.6.1 (*)
+|                                       |         \--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+|                                       +--- io.ktor:ktor-events-jvm:3.6.1
+|                                       |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-events-jvm:{strictly 3.6.1})
+|                                       |    \--- io.ktor:ktor-events:3.6.1
+|                                       |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-events:{strictly 3.6.1})
+|                                       |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|                                       +--- io.ktor:ktor-sse-jvm:3.6.1
+|                                       |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse-jvm:{strictly 3.6.1})
+|                                       |    \--- io.ktor:ktor-sse:3.6.1
+|                                       |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse:{strictly 3.6.1})
+|                                       |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|                                       \--- io.ktor:ktor-network-jvm:3.6.1
+|                                            +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-jvm:{strictly 3.6.1})
+|                                            \--- io.ktor:ktor-network:3.6.1
+|                                                 +--- desktopRuntimeClasspath (requested io.ktor:ktor-network:{strictly 3.6.1})
+|                                                 +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|                                                 \--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+\--- org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.9.1 (*)
+
+org.jetbrains.kotlin:kotlin-stdlib:2.3.10 -> 2.4.21
++--- app.cash.sqldelight:jdbc-driver:2.4.1
+|    +--- desktopRuntimeClasspath (requested app.cash.sqldelight:jdbc-driver:{strictly 2.4.1})
+|    \--- app.cash.sqldelight:sqlite-driver:2.4.1
+|         \--- desktopRuntimeClasspath
++--- app.cash.sqldelight:runtime-jvm:2.4.1
+|    +--- desktopRuntimeClasspath (requested app.cash.sqldelight:runtime-jvm:{strictly 2.4.1})
+|    \--- app.cash.sqldelight:runtime:2.4.1
+|         +--- desktopRuntimeClasspath
+|         \--- app.cash.sqldelight:jdbc-driver:2.4.1 (*)
+\--- app.cash.sqldelight:sqlite-driver:2.4.1 (*)
+
+org.jetbrains.kotlin:kotlin-stdlib:2.3.20 -> 2.4.21
+\--- org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0
+     +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:{strictly 1.11.0})
+     +--- org.jetbrains.kotlinx:kotlinx-serialization-bom:1.11.0
+     |    +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-serialization-bom:{strictly 1.11.0})
+     |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0 (*)
+     \--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0
+          +--- desktopRuntimeClasspath (requested org.jetbrains.kotlinx:kotlinx-serialization-core:{strictly 1.11.0})
+          +--- io.ktor:ktor-http-jvm:3.6.1
+          |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-jvm:{strictly 3.6.1})
+          |    \--- io.ktor:ktor-http:3.6.1
+          |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http:{strictly 3.6.1})
+          |         +--- io.ktor:ktor-client-core-jvm:3.6.1
+          |         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-core-jvm:{strictly 3.6.1})
+          |         |    \--- io.ktor:ktor-client-core:3.6.1
+          |         |         +--- desktopRuntimeClasspath
+          |         |         \--- io.ktor:ktor-client-cio-jvm:3.6.1
+          |         |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-cio-jvm:{strictly 3.6.1})
+          |         |              \--- io.ktor:ktor-client-cio:3.6.1
+          |         |                   \--- desktopRuntimeClasspath
+          |         +--- io.ktor:ktor-http-cio-jvm:3.6.1
+          |         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio-jvm:{strictly 3.6.1})
+          |         |    \--- io.ktor:ktor-http-cio:3.6.1
+          |         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio:{strictly 3.6.1})
+          |         |         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+          |         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+          |         +--- io.ktor:ktor-websockets-jvm:3.6.1
+          |         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets-jvm:{strictly 3.6.1})
+          |         |    \--- io.ktor:ktor-websockets:3.6.1
+          |         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets:{strictly 3.6.1})
+          |         |         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+          |         |         \--- io.ktor:ktor-serialization-jvm:3.6.1
+          |         |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization-jvm:{strictly 3.6.1})
+          |         |              \--- io.ktor:ktor-serialization:3.6.1
+          |         |                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization:{strictly 3.6.1})
+          |         |                   \--- io.ktor:ktor-websocket-serialization-jvm:3.6.1
+          |         |                        +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization-jvm:{strictly 3.6.1})
+          |         |                        \--- io.ktor:ktor-websocket-serialization:3.6.1
+          |         |                             +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization:{strictly 3.6.1})
+          |         |                             \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+          |         \--- io.ktor:ktor-network-tls-jvm:3.6.1
+          |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls-jvm:{strictly 3.6.1})
+          |              \--- io.ktor:ktor-network-tls:3.6.1
+          |                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls:{strictly 3.6.1})
+          |                   \--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+          +--- io.ktor:ktor-utils-jvm:3.6.1
+          |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils-jvm:{strictly 3.6.1})
+          |    \--- io.ktor:ktor-utils:3.6.1
+          |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils:{strictly 3.6.1})
+          |         +--- io.ktor:ktor-websockets-jvm:3.6.1 (*)
+          |         +--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+          |         +--- io.ktor:ktor-http-jvm:3.6.1 (*)
+          |         +--- io.ktor:ktor-events-jvm:3.6.1
+          |         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-events-jvm:{strictly 3.6.1})
+          |         |    \--- io.ktor:ktor-events:3.6.1
+          |         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-events:{strictly 3.6.1})
+          |         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+          |         +--- io.ktor:ktor-sse-jvm:3.6.1
+          |         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse-jvm:{strictly 3.6.1})
+          |         |    \--- io.ktor:ktor-sse:3.6.1
+          |         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse:{strictly 3.6.1})
+          |         |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+          |         \--- io.ktor:ktor-network-jvm:3.6.1
+          |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-jvm:{strictly 3.6.1})
+          |              \--- io.ktor:ktor-network:3.6.1
+          |                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-network:{strictly 3.6.1})
+          |                   +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+          |                   \--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+          \--- org.jetbrains.kotlinx:kotlinx-serialization-bom:1.11.0 (*)
+
+org.jetbrains.kotlin:kotlin-stdlib:2.3.21 -> 2.4.21
++--- io.ktor:ktor-client-cio-jvm:3.6.1
+|    +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-cio-jvm:{strictly 3.6.1})
+|    \--- io.ktor:ktor-client-cio:3.6.1
+|         \--- desktopRuntimeClasspath
++--- io.ktor:ktor-client-core-jvm:3.6.1
+|    +--- desktopRuntimeClasspath (requested io.ktor:ktor-client-core-jvm:{strictly 3.6.1})
+|    \--- io.ktor:ktor-client-core:3.6.1
+|         +--- desktopRuntimeClasspath
+|         \--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
++--- io.ktor:ktor-events-jvm:3.6.1
+|    +--- desktopRuntimeClasspath (requested io.ktor:ktor-events-jvm:{strictly 3.6.1})
+|    \--- io.ktor:ktor-events:3.6.1
+|         +--- desktopRuntimeClasspath (requested io.ktor:ktor-events:{strictly 3.6.1})
+|         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
++--- io.ktor:ktor-http-cio-jvm:3.6.1
+|    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio-jvm:{strictly 3.6.1})
+|    \--- io.ktor:ktor-http-cio:3.6.1
+|         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-cio:{strictly 3.6.1})
+|         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
++--- io.ktor:ktor-http-jvm:3.6.1
+|    +--- desktopRuntimeClasspath (requested io.ktor:ktor-http-jvm:{strictly 3.6.1})
+|    \--- io.ktor:ktor-http:3.6.1
+|         +--- desktopRuntimeClasspath (requested io.ktor:ktor-http:{strictly 3.6.1})
+|         +--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|         +--- io.ktor:ktor-websockets-jvm:3.6.1
+|         |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets-jvm:{strictly 3.6.1})
+|         |    \--- io.ktor:ktor-websockets:3.6.1
+|         |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-websockets:{strictly 3.6.1})
+|         |         +--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
+|         |         \--- io.ktor:ktor-serialization-jvm:3.6.1
+|         |              +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization-jvm:{strictly 3.6.1})
+|         |              \--- io.ktor:ktor-serialization:3.6.1
+|         |                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-serialization:{strictly 3.6.1})
+|         |                   \--- io.ktor:ktor-websocket-serialization-jvm:3.6.1
+|         |                        +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization-jvm:{strictly 3.6.1})
+|         |                        \--- io.ktor:ktor-websocket-serialization:3.6.1
+|         |                             +--- desktopRuntimeClasspath (requested io.ktor:ktor-websocket-serialization:{strictly 3.6.1})
+|         |                             \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|         \--- io.ktor:ktor-network-tls-jvm:3.6.1
+|              +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls-jvm:{strictly 3.6.1})
+|              \--- io.ktor:ktor-network-tls:3.6.1
+|                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-tls:{strictly 3.6.1})
+|                   \--- io.ktor:ktor-client-cio-jvm:3.6.1 (*)
++--- io.ktor:ktor-io-jvm:3.6.1
+|    +--- desktopRuntimeClasspath (requested io.ktor:ktor-io-jvm:{strictly 3.6.1})
+|    \--- io.ktor:ktor-io:3.6.1
+|         +--- desktopRuntimeClasspath (requested io.ktor:ktor-io:{strictly 3.6.1})
+|         +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|         \--- io.ktor:ktor-utils-jvm:3.6.1
+|              +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils-jvm:{strictly 3.6.1})
+|              \--- io.ktor:ktor-utils:3.6.1
+|                   +--- desktopRuntimeClasspath (requested io.ktor:ktor-utils:{strictly 3.6.1})
+|                   +--- io.ktor:ktor-websockets-jvm:3.6.1 (*)
+|                   +--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
+|                   +--- io.ktor:ktor-http-jvm:3.6.1 (*)
+|                   +--- io.ktor:ktor-events-jvm:3.6.1 (*)
+|                   +--- io.ktor:ktor-sse-jvm:3.6.1
+|                   |    +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse-jvm:{strictly 3.6.1})
+|                   |    \--- io.ktor:ktor-sse:3.6.1
+|                   |         +--- desktopRuntimeClasspath (requested io.ktor:ktor-sse:{strictly 3.6.1})
+|                   |         \--- io.ktor:ktor-client-core-jvm:3.6.1 (*)
+|                   \--- io.ktor:ktor-network-jvm:3.6.1
+|                        +--- desktopRuntimeClasspath (requested io.ktor:ktor-network-jvm:{strictly 3.6.1})
+|                        \--- io.ktor:ktor-network:3.6.1
+|                             +--- desktopRuntimeClasspath (requested io.ktor:ktor-network:{strictly 3.6.1})
+|                             +--- io.ktor:ktor-http-cio-jvm:3.6.1 (*)
+|                             \--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
++--- io.ktor:ktor-network-jvm:3.6.1 (*)
++--- io.ktor:ktor-network-tls-jvm:3.6.1 (*)
++--- io.ktor:ktor-serialization-jvm:3.6.1 (*)
++--- io.ktor:ktor-sse-jvm:3.6.1 (*)
++--- io.ktor:ktor-utils-jvm:3.6.1 (*)
++--- io.ktor:ktor-websocket-serialization-jvm:3.6.1 (*)
+\--- io.ktor:ktor-websockets-jvm:3.6.1 (*)
+
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+[Incubating] Problems report is available at: file:///home/user/Meridian-Engine/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 5s
+1 actionable task: 1 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.0/userguide/configuration_cache_enabling.html
