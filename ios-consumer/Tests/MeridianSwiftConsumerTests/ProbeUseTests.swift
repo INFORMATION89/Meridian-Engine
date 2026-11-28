@@ -4,6 +4,27 @@ import MeridianShared
 
 final class ProbeUseTests: XCTestCase {
 
+    private static var fixtureWarmedUp = false
+
+    /// CI evidence (run 46088942543): the first Darwin requests in a fresh simulator
+    /// test process intermittently stalled until their timeouts even though the fixture
+    /// server had answered. Wait once, with a bound, for a known-good fixture request so
+    /// that real assertions measure engine behaviour rather than network start-up.
+    /// This does not change or relax any assertion.
+    override func setUp() async throws {
+        guard !Self.fixtureWarmedUp else { return }
+        let deadline = Date().addingTimeInterval(60)
+        while Date() < deadline {
+            if let body = try? await IosKtorProbe.shared.fetchFixture(
+                url: "http://127.0.0.1:8765/probe.json",
+                timeoutMillis: 3_000
+            ), body.contains("local-fixture") {
+                break
+            }
+        }
+        Self.fixtureWarmedUp = true
+    }
+
     func testSwiftConsumesM02WeatherContractWithoutSolstice() async throws {
         let finished = expectation(description: "M0.2 Kotlin suspend contract returns to Swift")
         let operation = Task {
@@ -80,7 +101,7 @@ final class ProbeUseTests: XCTestCase {
     }
 
     func testDarwinEngineMapsEmptyAndPartialResponses() async throws {
-        // Use IPv4 loopback, matching the fixture server's bind address.
+        // Use IPv4 loopback for both requests, matching the fixture server's bind address.
         // macOS may resolve localhost to ::1 first, while this CI server is IPv4-only.
         let emptyCode = try await IosKtorProbe.shared.fixtureFailureCode(
             url: "http://127.0.0.1:8765/empty.json",
@@ -89,7 +110,7 @@ final class ProbeUseTests: XCTestCase {
         XCTAssertEqual(emptyCode, "EMPTY_RESPONSE", "Unexpected mapping for an empty HTTP body")
 
         let partialCode = try await IosKtorProbe.shared.fixtureFailureCode(
-            url: "http://localhost:8765/partial.json",
+            url: "http://127.0.0.1:8765/partial.json",
             timeoutMillis: 5_000
         )
         XCTAssertEqual(partialCode, "PARTIAL_RESPONSE", "Unexpected mapping for a partial fixture body")
