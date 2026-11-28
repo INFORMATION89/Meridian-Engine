@@ -468,6 +468,7 @@ Maintain one source of truth per topic.
 | AI_COST_POLICY.md | Approved policy for cost-aware AI, tools, CI, providers, datasets, and compute without weakening verification |
 | `docs/agent-guides/CLAUDE_CODE_USAGE.md` | Optional operational guide for managing Claude Code subscription usage, context, and bounded sessions; not a model requirement |
 | AI_IMPLEMENTATION_PLAN.md | Detailed, task-oriented execution guide for coding agents; subordinate to this master plan and its approved milestone gates |
+| continue.md | Working handoff: current coding task status, session start-up steps and ready-to-paste prompts; subordinate to this plan and AI_IMPLEMENTATION_PLAN.md section 13 |
 | PROJECT_OVERVIEW.md | Concise human-readable explanation of Meridian's purpose, scope, roadmap, and status; derived from this master plan, not an independent authority |
 | CLEAN_ROOM.md | Independent research and implementation policy |
 | docs/specs/M* | Scoped milestone specifications; proposals until their approval gate is met |
